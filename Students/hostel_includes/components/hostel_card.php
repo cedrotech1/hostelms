@@ -206,7 +206,7 @@ function displayHostelCard($hostel, $connection) {
         if (!isRefreshing) {
             updateHostelStats();
         }
-    }, 100); // Refresh every 1 second
+    }, 5000); // Refresh every 1 second
 
     // Clean up interval when page is unloaded
     window.addEventListener('beforeunload', () => {

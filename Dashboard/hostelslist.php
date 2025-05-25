@@ -79,9 +79,11 @@ include('connection.php');
                                         </thead>
                                         <tbody>
                                             <?php
-                                            $ok = mysqli_query(
-                                                $connection,
-                                                "SELECT 
+                                            // if $campus is 0 then show all campuses       
+                                            if ($campus == 0) {
+                                                $ok = mysqli_query(
+                                                    $connection,
+                                                    "SELECT 
                                     c.id AS campus_id,
                                     c.name AS campus_name,
                                     h.id AS hostel_id,
@@ -107,6 +109,38 @@ include('connection.php');
                                 ORDER BY 
                                     c.name, h.name, r.room_code;"
                                             );
+                                            } else {
+                                                $ok = mysqli_query(
+                                                    $connection,
+                                                    "SELECT 
+                                    c.id AS campus_id,
+                                    c.name AS campus_name,
+                                    h.id AS hostel_id,
+                                    h.name AS hostel_name,
+                                    r.id AS room_id,
+                                    r.room_code,
+                                    r.number_of_beds,
+                                    r.remain,
+                                 
+                                    GROUP_CONCAT(DISTINCT CONCAT(i.names, ' (', i.regnumber, ', ', i.gender, ', ', i.yearofstudy, ')') SEPARATOR ' | ') AS applicants
+                                FROM 
+                                    campuses c
+                                JOIN 
+                                    hostels h ON h.campus_id = c.id
+                                JOIN 
+                                    rooms r ON r.hostel_id = h.id
+                                LEFT JOIN 
+                                    applications a ON a.room_id = r.id
+                                LEFT JOIN 
+                                    info i ON i.regnumber = a.regnumber
+                                WHERE 
+                                    c.id = $campus
+                                GROUP BY 
+                                    r.id
+                                ORDER BY 
+                                    c.name, h.name, r.room_code;"
+                                            );
+                                            }
 
                                             $i = 0;
                                             while ($row = mysqli_fetch_array($ok)) {
@@ -116,8 +150,9 @@ include('connection.php');
                                                     <td><?php echo $i; ?></td>
                                                     <td><?php echo htmlspecialchars($row['campus_name']); ?></td>
                                                     <td>
-                                                        <a href="hostel.php?hostel_id=<?php echo htmlspecialchars($row['hostel_id']); ?>">
-                                                              <?php echo htmlspecialchars($row['hostel_name']); ?>
+                                                        <a
+                                                            href="hostel.php?hostel_id=<?php echo htmlspecialchars($row['hostel_id']); ?>">
+                                                            <?php echo htmlspecialchars($row['hostel_name']); ?>
                                                         </a>
                                                     </td>
                                                     <td><?php echo htmlspecialchars($row['room_code']); ?></td>

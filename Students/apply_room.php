@@ -83,10 +83,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['room_id']) && isset($
         if (!$is_eligible) {
             throw new Exception("You are not eligible for this hostel based on the requirements.");
         }
-
+        // currect time in Rwanda
+        $current_time = date('Y-m-d H:i:s');
         // Insert application with timestamp
-        $insert_query = "INSERT INTO applications (regnumber, room_id, status, created_at) 
-                        VALUES (?, ?, 'pending', NOW())";
+        $insert_query = "INSERT INTO applications (regnumber, room_id, status, created_at, updated_at) 
+                        VALUES (?, ?, 'pending', '$current_time', '$current_time')";
         $insert_stmt = $connection->prepare($insert_query);
         $insert_stmt->bind_param("si", $student_regnumber, $room_id);
         $insert_stmt->execute();
@@ -116,7 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['room_id']) && isset($
         exit();
     }
 } else {
-    header("Location: select_hostel.php");
+    header("Location: index.php");
     exit();
 }
 ?> 

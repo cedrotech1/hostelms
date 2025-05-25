@@ -15,7 +15,7 @@ if (isset($_POST["login"])) {
     $password = $_POST['password']; // No need to escape this as it's not directly used in the query
 
     // Fetch user from database based on email
-    $sql = "SELECT id, email, role, password, active, names, image FROM users WHERE email='$email'";
+    $sql = "SELECT id, email, role, password, active, names,campus image FROM users WHERE email='$email'";
     $result = mysqli_query($connection, $sql);
 
     if ($result && mysqli_num_rows($result) === 1) {
@@ -29,6 +29,10 @@ if (isset($_POST["login"])) {
                 $_SESSION['email'] = $row['email'];
                 $_SESSION['role'] = $row['role'];
                 $_SESSION['id'] = $row['id'];
+                $_SESSION['campus'] = $row['campus'];
+
+
+
                 echo "<script>window.location.href='Dashboard/index.php'</script>";
                 exit; // Exit script after redirection
             } else {

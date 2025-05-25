@@ -39,8 +39,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             mysqli_query($connection, $truncate4);
 
             // Truncate table 'campuses'
-            $truncate5 = "TRUNCATE TABLE campuses";
-            mysqli_query($connection, $truncate5);
+            // $truncate5 = "TRUNCATE TABLE campuses";
+            // mysqli_query($connection, $truncate5);
 
             echo "<script>alert('Done')</script>";
         } else {

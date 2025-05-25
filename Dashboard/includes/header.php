@@ -1,6 +1,7 @@
 <?php
 // include('connection.php');
 $userid=$_SESSION['id'];
+$campus=$_SESSION['campus'];
 $ok1 = mysqli_query($connection, "select * from users where id=$userid");
                   while ($row = mysqli_fetch_array($ok1)) {
                     $id = $row["id"];
@@ -10,8 +11,11 @@ $ok1 = mysqli_query($connection, "select * from users where id=$userid");
                     $email = $row["email"];
                     $about = $row["about"];
                     $role = $row["role"];
+                    $campus = $row["campus"];
                     
                 }
+         
+          
 ?>
 <!-- ======= Header ======= -->
 

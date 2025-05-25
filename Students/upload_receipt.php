@@ -55,9 +55,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['application_id']) && 
     
     if (move_uploaded_file($file['tmp_name'], $filepath)) {
         // Update application with receipt information
+        $current_time = date('Y-m-d H:i:s');
         $update_query = "UPDATE applications SET 
                         slep = ?,
-                        status = 'paid'
+                        status = 'paid',
+                        updated_at = '$current_time'
                         WHERE id = ?";
         $update_stmt = $connection->prepare($update_query);
         $update_stmt->bind_param("si", $filename, $application_id);

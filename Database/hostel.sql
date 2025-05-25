@@ -144,10 +144,12 @@ CREATE TABLE `info` (
 
 CREATE TABLE `rooms` (
   `id` int(11) NOT NULL,
-  `room_code` varchar(50) NOT NULL,
-  `number_of_beds` int(11) NOT NULL,
   `hostel_id` int(11) NOT NULL,
-  `remain` int(11) NOT NULL
+  `room_code` varchar(100) NOT NULL,
+  `number_of_beds` int(11) NOT NULL,
+  `remain` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------

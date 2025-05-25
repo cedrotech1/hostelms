@@ -27,34 +27,61 @@
         </li> -->
 
         <!-- Manage Data (Admin Only) -->
-        <?php if ($_SESSION['role'] == 'admin') { ?>
-          
+        <?php if ($_SESSION['role'] == 'warefare') { ?>
 
-            <!-- Settings -->
             <li class="nav-item">
-                <a class="nav-link collapsed" data-bs-target="#icons-nav10" data-bs-toggle="collapse" href="#">
-                    <i class="bi bi-gear"></i><span>Settings</span><i class="bi bi-chevron-down ms-auto"></i>
+                <a class="nav-link collapsed" href="index.php">
+                    <i class="bi bi-speedometer2"></i><span>Dashboard</span>
                 </a>
-                <ul id="icons-nav10" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+            </li>
+            <!-- upload hostels -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" data-bs-target="#icons-nav" data-bs-toggle="collapse" href="#">
+                    <i class="bi bi-folder"></i><span>Manage Data</span><i class="bi bi-chevron-down ms-auto"></i>
+                </a>
+                <ul id="icons-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+                    <li>
+                        <a class="nav-link collapsed" href="welfare_add_data.php">
+                            <i class="bi bi-person-plus"></i><span>Upload student information</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="nav-link collapsed" href="welfare_add_hostel.php">
+                            <i class="bi bi-person-plus"></i><span>upload hostels </span>
+                        </a>
+                    </li>
 
-                    <li>
-                        <a class="nav-link collapsed" href="system.php">
-                            <i class="bi bi-tools"></i><span>System settings</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="nav-link collapsed" href="users-profile.php">
-                            <i class="bi bi-person"></i><span>Profile</span>
-                        </a>
-                    </li>
 
-                    <li>
-                        <a class="nav-link collapsed" href="download.php">
-                            <i class="bi bi-person"></i><span>backup data file</span>
-                        </a>
-                    </li>
+
+
+
                 </ul>
             </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="search_warefare.php">
+                    <i class="bi bi-person-plus"></i><span>search</span>
+                </a>
+            </li>
+
+            <li>
+                <a class="nav-link collapsed" href="hostelslist.php">
+                    <i class="bi bi-person-plus"></i><span>list of hostels</span>
+                </a>
+            </li>
+            <li>
+                <a class="nav-link collapsed" href="manage_hostels.php">
+                    <i class="bi bi-person-plus"></i><span>manage hostels</span>
+                </a>
+            </li>
+            <!-- manage application -->
+            <li>
+                <a class="nav-link collapsed" href="manage_applications.php">
+                    <i class="bi bi-person-plus"></i><span>manage application</span>
+                </a>
+            </li>
+
+
+
         <?php } ?>
 
 
@@ -89,10 +116,10 @@
 
                     <li>
                         <a class="nav-link collapsed" href="hostelslist.php">
-                            <i class="bi bi-person-plus"></i><span>list of  hostels</span>
+                            <i class="bi bi-person-plus"></i><span>list of hostels</span>
                         </a>
                     </li>
-                   
+
                     <li>
                         <a class="nav-link collapsed" href="updateinfo.php">
                             <i class="bi bi-pencil-square"></i><span>Update Info</span>
@@ -112,9 +139,16 @@
                     </li>
                 </ul>
             </li>
+            <!-- manage_hostels -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="manage_hostels.php">
+                    <i class="bi bi-person-plus"></i><span>manage hostels</span>
+                </a>
+            </li>
+
 
             <!-- Manage Student Cards -->
-          
+
 
 
 
@@ -124,7 +158,7 @@
                     <i class="bi bi-gear"></i><span>Settings</span><i class="bi bi-chevron-down ms-auto"></i>
                 </a>
                 <ul id="icons-nav10" class="nav-content collapse" data-bs-parent="#sidebar-nav">
-                
+
                     <li>
                         <a class="nav-link collapsed" href="users-profile.php">
                             <i class="bi bi-person"></i><span>Profile</span>
@@ -140,7 +174,7 @@
                             <i class="bi bi-tools"></i><span>System settings</span>
                         </a>
                     </li>
-                 
+
 
                     <li>
                         <a class="nav-link collapsed" href="download.php">
@@ -149,8 +183,8 @@
                     </li>
                 </ul>
             </li>
-           <!-- normal one menu -->
-           <li class="nav-item">
+            <!-- normal one menu -->
+            <li class="nav-item">
                 <a class="nav-link collapsed" href="search.php">
                     <i class="bi bi-person-plus"></i><span>search</span>
                 </a>
@@ -158,9 +192,6 @@
         <?php } ?>
 
 
-        <?php if ($_SESSION['role'] == 'cards_manager') { ?>
 
-          
-        <?php } ?>
     </ul>
 </aside>

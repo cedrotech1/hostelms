@@ -114,20 +114,46 @@ include("../email_functions.php");
                     </div>
                   </div>
 
+                  <div class="col-md-12">
+                    <div class="form-floating">
+                      <input type="tel" class="form-control" id="floatingPhone" placeholder="Phone" name="phone"
+                        required>
+                      <label for="floatingPhone">Phone</label>
+                    </div>
+                  </div>
+
                   <!-- Role Selection Dropdown -->
                   <div class="col-md-12">
                     <div class="form-floating">
-                      <select class="form-select" id="floatingRole" name="role" required>
+                      <select class="form-select" id="floatingRole" name="role" required onchange="toggleCampusField()">
                         <option value="" disabled selected>Select Role</option>
-                        <option value="cards_manager">Cards Manager</option>
+                       
                         <option value="information_modifier">Information Modifier</option>
+                        <option value="warefare">warefare</option>
                         <option value="admin">Admin</option>
                       </select>
                       <label for="floatingRole">Role</label>
                     </div>
                   </div>
-                  <input type="hidden" id="password" name="password">
 
+                  <!-- Campus Selection Dropdown (initially hidden) -->
+                  <div class="col-md-12" id="campusField" style="display: none;">
+                    <div class="form-floating">
+                      <select class="form-select" id="floatingCampus" name="campus">
+                        <option value="" disabled selected>Select Campus</option>
+                        <?php
+                        $campusQuery = "SELECT * FROM campuses";
+                        $campusResult = mysqli_query($connection, $campusQuery);
+                        while ($campus = mysqli_fetch_assoc($campusResult)) {
+                          echo "<option value='" . $campus['id'] . "'>" . $campus['name'] . "</option>";
+                        }
+                        ?>
+                      </select>
+                      <label for="floatingCampus">Campus</label>
+                    </div>
+                  </div>
+
+                  <input type="hidden" id="password" name="password">
 
                   <div class="text-center">
                     <button type="submit" name="saveuser" class="btn btn-primary">Save User</button>
@@ -186,145 +212,199 @@ include("../email_functions.php");
 
     ?>
 
-
-
+    <!-- Users Table Section -->
     <section class="section dashboard">
       <div class="row">
-        <!-- Left side columns -->
         <div class="col-lg-12">
-          <div class="row">
-            <?php
-            // Query to select users
-            $query = "SELECT * FROM users WHERE role != 'admin'";
-            $result = mysqli_query($connection, $query);
-
-            // Check if any users were found
-            if (mysqli_num_rows($result) > 0) {
-              // Loop through each user
-              while ($row = mysqli_fetch_assoc($result)) {
-                // Get privileges for the current user
-                $userId = $row['id'];
-                
-                ?>
-                <div class="col-xxl-3 col-md-4">
-                  <!-- User Card -->
-                  <!-- <a href="one-user.php?id=<?php echo $userId; ?>"> -->
-                  <div class="card info-card">
-                    <div class="card-body">
-                      <br>
-                      <!-- Display user's image if available -->
-                      <!-- Replace 'user_image_column_name' with the actual column name in your 'users' table that stores the image path -->
-                      <img src="./<?php echo $row['image']; ?>" class="card-img-top">
-                      <div class="card-body">
-                        <!-- Display user's name -->
-                        <div style="
-    border: 1px solid #ddd; 
-    border-radius: 8px; 
-    padding: 2px; 
-    margin: 2px 0; 
- 
-    background-color: #f9f9f9; 
- 
-    font-family: Arial, sans-serif;
-">
-                          <!-- Display user's name -->
-                          <p style="font-size: 18px; font-weight: bold; margin-bottom: 8px; color: #333;">
-                            Names: <?php echo $row['names']; ?>
-                          </p>
-
-                          <!-- Display user's email -->
-                          <p style="font-size: 16px; margin-bottom: 8px; color: #555;">
-                            Email: <?php echo $row['email']; ?>
-                          </p>
-
-                          <!-- Display user's role -->
-                          <p style="font-size: 16px; color: #555;">
-                            Role: <?php echo $row['role']; ?>
-                          </p>
-                          <p style="font-size: 16px; color: #555;">
-                            Status: <?php if ($row['active']) {
-                              echo "active";
-                            } else {
-                              echo "inactive";
-                            }
-                            ; ?>
-                          </p>
-                        </div>
-
-
-                   
-                        <div class="ps-1">
-                          <div class="row" style='background-color:#f6f9ff;margin-top:0.2cm'>
-                            <!-- Button to delete the user -->
-                            <div class="col-8">
-                              <a href="user-delete.php?userId=<?php echo $row['id']; ?>">
-                                <button class="btn" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Delete">
-                                  <i class="fas fa-trash text-danger"></i>
-                                </button>
-                              </a>
-                            </div>
-                            <!-- Button to edit the user's information -->
-
-                            <!-- Button to view user details -->
-
-                            <!-- Button to activate or deactivate the user -->
-                            <div class="col-4">
-                              <?php
-                              // Check if the user is active or inactive and display the appropriate action button
-                              if ($row['active'] == 1) {
-                                // User is active, display the deactivate button
-                                echo '<button class="btn " onclick="confirmDeactivation(' . $row['id'] . ', \'' . $row['names'] . '\')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Deactivate">';
-                                echo '<i class="fas fa-toggle-on text-primary"></i>';
-                                echo '</button>';
-                              } else {
-                                // User is inactive, display the activate button
-                                echo '<button class="btn" onclick="confirmActivation(' . $row['id'] . ', \'' . $row['names'] . '\')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Activate">';
-                                echo '<i class="fas fa-toggle-off text-success"></i>';
-                                echo '</button>';
-                              }
-                              ?>
-                            </div>
-                          </div>
-
-                          <script>
-                            // Function to confirm deactivation
-                            function confirmDeactivation(userId, userName) {
-                              if (confirm('Are you sure you want to deactivate the user ' + userName + '?')) {
-                                window.location.href = 'user-deactivate.php?userId=' + userId;
-                              } else {
-                                // Do nothing or handle cancellation
-                              }
-                            }
-
-                            // Function to confirm activation
-                            function confirmActivation(userId, userName) {
-                              if (confirm('Are you sure you want to activate the user ' + userName + '?')) {
-                                window.location.href = 'user-activate.php?userId=' + userId;
-                              } else {
-                                // Do nothing or handle cancellation
-                              }
-                            }
-                          </script>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <!-- </a> -->
-                  <!-- End User Card -->
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Users List</h5>
+              
+              <!-- Search and Filter Section -->
+              <div class="row mb-3">
+                <div class="col-md-3">
+                  <input type="text" id="searchInput" class="form-control" placeholder="Search users...">
                 </div>
-                <?php
-              }
-            } else {
-              // If no users found
-              // echo '<p>No users found</p>';
-            }
-            ?>
+                <div class="col-md-2">
+                  <select id="roleFilter" class="form-select">
+                    <option value="">All Roles</option>
+                    <option value="information_modifier">Information Modifier</option>
+                    <option value="warefare">Warefare</option>
+                  </select>
+                </div>
+                <div class="col-md-2">
+                  <select id="statusFilter" class="form-select">
+                    <option value="">All Status</option>
+                    <option value="1">Active</option>
+                    <option value="0">Inactive</option>
+                  </select>
+                </div>
+                <div class="col-md-2">
+                  <select id="campusFilter" class="form-select">
+                    <option value="">All Campuses</option>
+                    <?php
+                    $campusQuery = "SELECT * FROM campuses ORDER BY name";
+                    $campusResult = mysqli_query($connection, $campusQuery);
+                    while ($campus = mysqli_fetch_assoc($campusResult)) {
+                      echo "<option value='" . $campus['id'] . "'>" . $campus['name'] . "</option>";
+                    }
+                    ?>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <button class="btn btn-success" onclick="exportToExcel()">
+                    <i class="fas fa-file-excel"></i> Export to Excel
+                  </button>
+                </div>
+              </div>
+
+              <!-- Users Table -->
+              <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                  <thead>
+                    <tr>
+                      <th>Image</th>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Phone</th>
+                      <th>Role</th>
+                      <th>Campus</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="usersTableBody">
+                    <?php
+                    $query = "SELECT u.*, c.name as campus_name, c.id as campus_id 
+                             FROM users u 
+                             LEFT JOIN campuses c ON u.campus = c.id 
+                             WHERE u.role != 'admin'";
+                    $result = mysqli_query($connection, $query);
+
+                    while ($row = mysqli_fetch_assoc($result)) {
+                      echo "<tr>";
+                      echo "<td><img src='./" . $row['image'] . "' class='rounded-circle' width='40' height='40'></td>";
+                      echo "<td>" . $row['names'] . "</td>";
+                      echo "<td>" . $row['email'] . "</td>";
+                      echo "<td>" . $row['phone'] . "</td>";
+                      echo "<td>" . $row['role'] . "</td>";
+                      echo "<td data-campus-id='" . ($row['campus_id'] ?? '') . "'>" . ($row['campus_name'] ?? 'N/A') . "</td>";
+                      echo "<td>" . ($row['active'] ? 'Active' : 'Inactive') . "</td>";
+                      echo "<td>
+                              <a href='user-delete.php?userId=" . $row['id'] . "' class='btn btn-sm btn-danger'><i class='fas fa-trash'></i></a>
+                              <button class='btn btn-sm " . ($row['active'] ? 'btn-warning' : 'btn-success') . "' 
+                                      onclick='" . ($row['active'] ? 'confirmDeactivation' : 'confirmActivation') . "(" . $row['id'] . ", \"" . $row['names'] . "\")'>
+                                <i class='fas " . ($row['active'] ? 'fa-toggle-on' : 'fa-toggle-off') . "'></i>
+                              </button>
+                            </td>";
+                      echo "</tr>";
+                    }
+                    ?>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+      // Existing filter functionality
+      document.getElementById('searchInput').addEventListener('keyup', filterTable);
+      document.getElementById('roleFilter').addEventListener('change', filterTable);
+      document.getElementById('statusFilter').addEventListener('change', filterTable);
+      document.getElementById('campusFilter').addEventListener('change', filterTable);
 
+      function filterTable() {
+        const searchText = document.getElementById('searchInput').value.toLowerCase();
+        const roleFilter = document.getElementById('roleFilter').value;
+        const statusFilter = document.getElementById('statusFilter').value;
+        const campusFilter = document.getElementById('campusFilter').value;
+        const rows = document.getElementById('usersTableBody').getElementsByTagName('tr');
+
+        for (let row of rows) {
+          const name = row.cells[1].textContent.toLowerCase();
+          const email = row.cells[2].textContent.toLowerCase();
+          const role = row.cells[4].textContent;
+          const status = row.cells[6].textContent;
+          const campusCell = row.cells[5];
+          const campusId = campusCell.getAttribute('data-campus-id');
+
+          const matchesSearch = name.includes(searchText) || email.includes(searchText);
+          const matchesRole = !roleFilter || role === roleFilter;
+          const matchesStatus = !statusFilter || (statusFilter === '1' && status === 'Active') || (statusFilter === '0' && status === 'Inactive');
+          const matchesCampus = !campusFilter || campusId === campusFilter;
+
+          row.style.display = matchesSearch && matchesRole && matchesStatus && matchesCampus ? '' : 'none';
+        }
+      }
+
+      // Excel Export Function
+      function exportToExcel() {
+        // Get the table
+        const table = document.getElementById('usersTableBody');
+        const rows = table.getElementsByTagName('tr');
+        
+        // Create workbook and worksheet
+        const wb = XLSX.utils.book_new();
+        const ws_data = [];
+        
+        // Add headers
+        ws_data.push([
+          'Name',
+          'Email',
+          'Phone',
+          'Role',
+          'Campus',
+          'Status'
+        ]);
+        
+        // Add data rows
+        for (let row of rows) {
+          if (row.style.display !== 'none') { // Only export visible rows
+            const cells = row.getElementsByTagName('td');
+            ws_data.push([
+              cells[1].textContent, // Name
+              cells[2].textContent, // Email
+              cells[3].textContent, // Phone
+              cells[4].textContent, // Role
+              cells[5].textContent, // Campus
+              cells[6].textContent  // Status
+            ]);
+          }
+        }
+        
+        // Create worksheet
+        const ws = XLSX.utils.aoa_to_sheet(ws_data);
+        
+        // Add worksheet to workbook
+        XLSX.utils.book_append_sheet(wb, ws, "Users");
+        
+        // Generate Excel file
+        const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
+        
+        // Convert to blob and download
+        const blob = new Blob([s2ab(wbout)], { type: 'application/octet-stream' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'users_list.xlsx';
+        a.click();
+        window.URL.revokeObjectURL(url);
+      }
+
+      // Helper function for Excel export
+      function s2ab(s) {
+        const buf = new ArrayBuffer(s.length);
+        const view = new Uint8Array(buf);
+        for (let i = 0; i < s.length; i++) {
+          view[i] = s.charCodeAt(i) & 0xFF;
+        }
+        return buf;
+      }
+    </script>
 
   </main><!-- End #main -->
 
@@ -354,6 +434,23 @@ include("../email_functions.php");
   <!-- Template Main JS File -->
   <script src="assets/js/main.js"></script>
 
+  <script>
+    // Function to toggle campus field visibility
+    function toggleCampusField() {
+      const roleSelect = document.getElementById('floatingRole');
+      const campusField = document.getElementById('campusField');
+      const campusSelect = document.getElementById('floatingCampus');
+      
+      if (roleSelect.value === 'warefare') {
+        campusField.style.display = 'block';
+        campusSelect.required = true;
+      } else {
+        campusField.style.display = 'none';
+        campusSelect.required = false;
+      }
+    }
+  </script>
+
 </body>
 
 </html>
@@ -362,19 +459,22 @@ include("../email_functions.php");
 if (isset($_POST['saveuser'])) {
   $name = $_POST['name'];
   $email = $_POST['email'];
+  $phone = $_POST['phone'];
   $role = $_POST['role'];
-  $password = $_POST['password']; // Get the random password from the form
+  $password = 1234;
+  $campus = ($role === 'warefare') ? $_POST['campus'] : null;
 
   if ($name != '' && $email != '' && $password != '') {
     // Hash the password for security using bcrypt algorithm
     $hashed_password = password_hash($password, PASSWORD_BCRYPT);
 
     // Insert the user into the database with hashed password
-    $query = "INSERT INTO users (names, email, role, password, image, active) VALUES ('$name', '$email', '$role', '$hashed_password', 'assets/img/av.png', '1')";
+    $query = "INSERT INTO users (names, email, phone, role, password, image, active, campus) 
+              VALUES ('$name', '$email', '$phone', '$role', '$hashed_password', 'assets/img/av.png', '1', " . 
+              ($campus ? "'$campus'" : "NULL") . ")";
     $result = mysqli_query($connection, $query);
 
     if ($result) {
-
       sendWelcomeEmail($email, $name, $password);
       echo "<script>alert('User added successfully.')</script>";
       echo "<script>window.location.href='add_user.php'</script>";
@@ -382,7 +482,7 @@ if (isset($_POST['saveuser'])) {
       echo "<script>alert('Error occurred while adding user.')</script>";
     }
   } else {
-    echo "<script>alert('Please fill all fields.')</script>";
+    echo "<script>alert('Please fill all required fields.')</script>";
   }
 }
 ?>
