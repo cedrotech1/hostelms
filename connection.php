@@ -19,7 +19,7 @@ if (file_exists(__DIR__ . '/../loadEnv.php')) {
         // Override defaults with environment variables if they exist
         $dbHost = getenv('DB_HOST') ?: $dbHost;
         $dbPort = getenv('DB_PORT') ?: $dbPort;
-        $dbName = getenv('DB_NAME') ?: $dbName;
+        $dbName = getenv('DB_HOSTEL') ?: $dbName;
         $dbUser = getenv('DB_USER') ?: $dbUser;
         $dbPassword = getenv('DB_PASSWORD') ?: $dbPassword;
     }

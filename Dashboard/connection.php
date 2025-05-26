@@ -17,7 +17,7 @@ loadEnv($filePath);
 // Access environment variables
 $dbHost = getenv('DB_HOST');
 $dbPort = getenv('DB_PORT');
-$dbName = getenv('DB_NAME');
+$dbName = getenv('DB_HOSTEL');
 $dbUser = getenv('DB_USER');
 $dbPassword = getenv('DB_PASSWORD');
 $HUYE_DB_NAME = getenv('HUYE_DB_NAME');
@@ -35,11 +35,7 @@ $result1 = mysqli_query($connection, $query);
 if (mysqli_num_rows($result1) > 0) {
 while ($row1 = mysqli_fetch_assoc($result1)) {
 $status= $row1['status'];
-$exp= $row1['exp_date'];
-$exam_validity= $row1['exam_validity'];
-$accademic_year= $row1['accademic_year'];
-$semester= $row1['semester'];
-$allow_message= $row1['allow_message'];
+
 
 
 }

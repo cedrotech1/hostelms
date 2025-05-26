@@ -436,6 +436,9 @@ if(!isset($_POST['ajax_login']) && !isset($_POST['ajax_signup']) && !isset($_POS
                 <div class="tab-pane fade" id="signup" role="tabpanel">
                     <div class="auth-box">
                         <h2 class="text-center mb-4">Sign Up</h2>
+                        <button type="button" class="btn btn-info btn-block mb-4" data-toggle="modal" data-target="#signupDemoModal">
+                            <i class="fas fa-users"></i> Demo Accounts
+                        </button>
                         <div class="alert alert-info mb-4">
                             <strong>Demo Data:</strong><br>
                             Registration Number: REG001<br>
@@ -510,6 +513,48 @@ if(!isset($_POST['ajax_login']) && !isset($_POST['ajax_signup']) && !isset($_POS
                             <button class="btn btn-sm btn-primary use-demo" data-reg="20231007" data-pass="1234">Use This Account</button>
                         </div>
                      
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Signup Demo Accounts Modal -->
+    <div class="modal fade" id="signupDemoModal" tabindex="-1" role="dialog" aria-labelledby="signupDemoModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="signupDemoModalLabel">Demo Accounts for Sign Up</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="demo-accounts">
+                        <div class="demo-account mb-3">
+                            <h6><i class="fas fa-user-graduate"></i> Huye Student / year 3</h6>
+                            <p class="mb-1"><strong>Reg Number:</strong> 20231008</p>
+                            <p class="mb-1"><strong>Phone:</strong> 0788609666</p>
+                            <p class="mb-1"><strong>National ID:</strong> 1002003008</p>
+                            <button class="btn btn-sm btn-primary use-signup-demo" 
+                                data-reg="20231008" 
+                                data-phone="0788609666" 
+                                data-national-id="1002003008">Use This Account</button>
+                        </div>
+                        <hr>
+                        <div class="demo-account mb-3">
+                            <h6><i class="fas fa-user-graduate"></i> Huye Student / year 3</h6>
+                            <p class="mb-1"><strong>Reg Number:</strong> 20231007</p>
+                            <p class="mb-1"><strong>Phone:</strong> 0721686167</p>
+                            <p class="mb-1"><strong>National ID:</strong> 1002003007</p>
+                            <button class="btn btn-sm btn-primary use-signup-demo" 
+                                data-reg="20231007" 
+                                data-phone="0721686167" 
+                                data-national-id="1002003007">Use This Account</button>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -678,6 +723,19 @@ if(!isset($_POST['ajax_login']) && !isset($_POST['ajax_signup']) && !isset($_POS
             $('#login_password').val(password);
             
             $('#demoModal').modal('hide');
+        });
+
+        // Handle demo account selection for signup
+        $('.use-signup-demo').click(function() {
+            const regNumber = $(this).data('reg');
+            const phone = $(this).data('phone');
+            const nationalId = $(this).data('national-id');
+            
+            $('#regnumber').val(regNumber);
+            $('#phone').val(phone);
+            $('#national_id').val(nationalId);
+            
+            $('#signupDemoModal').modal('hide');
         });
     });
     </script>

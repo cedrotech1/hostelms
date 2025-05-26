@@ -200,6 +200,11 @@
                     <i class="bi bi-person-plus"></i><span>search</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="../logout.php">
+                    <i class="bi bi-person-plus"></i><span>logout</span>
+                </a>
+            </li>
         <?php } ?>
 
 

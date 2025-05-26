@@ -28,7 +28,7 @@ $existingData = checkExistingData($connection); // Check if data exists
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>UR-HUYE-CARDS</title>
+  <title>UR-HUYE-WELFARE</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
 

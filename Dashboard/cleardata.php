@@ -38,6 +38,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $truncate4 = "TRUNCATE TABLE hostels";
             mysqli_query($connection, $truncate4);
 
+            // hostel attributes
+            $truncate5 = "TRUNCATE TABLE hostel_attributes";
+            mysqli_query($connection, $truncate5);  
+
             // Truncate table 'campuses'
             // $truncate5 = "TRUNCATE TABLE campuses";
             // mysqli_query($connection, $truncate5);

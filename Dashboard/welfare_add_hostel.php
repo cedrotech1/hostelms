@@ -88,7 +88,7 @@ include("./includes/menu.php");
              
 
               <?php if ($existingData=1) : ?><br/>
-                <h5 class="card-title">UPLOAD DATA FORM</h5>
+                <h5 class="card-title">UPLOAD HOSTELS INFORMATION FORM</h5>
                 <br>
                 <div class="col-md-12">
                 <div class="form-floating">

@@ -72,66 +72,6 @@ if ($application && $application['status'] == 'pending') {
             transition: transform 0.3s ease;
         }
 
-        .status-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .status-badge {
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-weight: 600;
-        }
-
-        .status-pending {
-            background-color: #ffc107;
-            color: #000;
-        }
-
-        .status-paid {
-            background-color: #17a2b8;
-            color: #fff;
-        }
-
-        .status-approved {
-            background-color: #28a745;
-            color: #fff;
-        }
-
-        .status-rejected {
-            background-color: #dc3545;
-            color: #fff;
-        }
-
-        .countdown {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #dc3545;
-        }
-
-        .warning-message {
-            background-color: #fff3cd;
-            border: 1px solid #ffeeba;
-            color: #856404;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
-        }
-
-        .student-info {
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-        }
-
-        .student-info p {
-            margin-bottom: 8px;
-        }
-
-        .student-info strong {
-            color: #495057;
-        }
-
         /* Enhanced skeleton loading styles */
         .skeleton {
             background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
@@ -216,6 +156,66 @@ if ($application && $application['status'] == 'pending') {
         .skeleton-loading {
             display: block;
         }
+
+        .status-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background-color: #ffc107;
+            color: #000;
+        }
+
+        .status-paid {
+            background-color: #17a2b8;
+            color: #fff;
+        }
+
+        .status-approved {
+            background-color: #28a745;
+            color: #fff;
+        }
+
+        .status-rejected {
+            background-color: #dc3545;
+            color: #fff;
+        }
+
+        .countdown {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #dc3545;
+        }
+
+        .warning-message {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .student-info {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .student-info p {
+            margin-bottom: 8px;
+        }
+
+        .student-info strong {
+            color: #495057;
+        }
     </style>
 </head>
 
@@ -284,6 +284,37 @@ if ($application && $application['status'] == 'pending') {
                                         </div>
                                     </div>
                                 </div>
+
+                                <!-- Warning Message Skeleton -->
+                                <div class="warning-message mt-4">
+                                    <div class="skeleton skeleton-title w-50 mb-3"></div>
+                                    <div class="skeleton skeleton-text w-100 mb-2"></div>
+                                    <div class="skeleton skeleton-text w-100 mb-2"></div>
+                                </div>
+
+                                <!-- Roommates Section Skeleton -->
+                                <div class="roommates-section mt-4">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <div class="skeleton skeleton-title w-25"></div>
+                                        </div>
+                                        <div class="card-body">
+                                            <?php for($i = 0; $i < 2; $i++): ?>
+                                            <div class="roommate-card mb-3 p-3 border rounded">
+                                                <div class="row align-items-center">
+                                                    <div class="col-md-8">
+                                                        <div class="skeleton skeleton-text w-75 mb-2"></div>
+                                                        <div class="skeleton skeleton-text w-100 mb-2"></div>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <div class="skeleton skeleton-badge ms-auto"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <?php endfor; ?>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -308,16 +339,8 @@ if ($application && $application['status'] == 'pending') {
 
                                 <?php if (!$application || !$application['status']): ?>
                                     <div class="text-center">
-                                        <?php if ($application['current_application'] === 'rejected'): ?>
-                                            <div class="alert alert-danger">
-                                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                                                <strong>Application Rejected</strong>
-                                                <p class="mb-0 mt-2">Your previous application was rejected. You can apply again.</p>
-                                            </div>
-                                        <?php else: ?>
-                                            <p class="mb-4">You haven't submitted any application yet.</p>
-                                        <?php endif; ?>
-                                        <a href="apply.php" class="btn btn-primary">Apply Now</a>
+                                        <p class="mb-4">You haven't submitted any application yet.</p>
+                                        <a href="index.php" class="btn btn-primary">Apply Now</a>
                                     </div>
                                 <?php else: ?>
                                     <!-- Student Information -->
@@ -325,24 +348,16 @@ if ($application && $application['status'] == 'pending') {
                                         <h5 class="mb-3">Student Information</h5>
                                         <div class="row">
                                             <div class="col-md-6">
-                                                <p><strong>Name:</strong> <?php echo htmlspecialchars($application['names']); ?>
-                                                </p>
-                                                <p><strong>Registration:</strong> <?php echo htmlspecialchars($regnumber); ?>
-                                                </p>
-                                                <p><strong>Campus:</strong>
-                                                    <?php echo htmlspecialchars($application['campus']); ?></p>
-                                                <p><strong>College:</strong>
-                                                    <?php echo htmlspecialchars($application['college']); ?></p>
+                                                <p><strong>Name:</strong> <?php echo htmlspecialchars($application['names']); ?></p>
+                                                <p><strong>Registration:</strong> <?php echo htmlspecialchars($regnumber); ?></p>
+                                                <p><strong>Campus:</strong> <?php echo htmlspecialchars($application['campus']); ?></p>
+                                                <p><strong>College:</strong> <?php echo htmlspecialchars($application['college']); ?></p>
                                             </div>
                                             <div class="col-md-6">
-                                                <p><strong>School:</strong>
-                                                    <?php echo htmlspecialchars($application['school']); ?></p>
-                                                <p><strong>Program:</strong>
-                                                    <?php echo htmlspecialchars($application['program']); ?></p>
-                                                <p><strong>Year:</strong>
-                                                    <?php echo htmlspecialchars($application['yearofstudy']); ?></p>
-                                                <p><strong>Email:</strong>
-                                                    <?php echo htmlspecialchars($application['email']); ?></p>
+                                                <p><strong>School:</strong> <?php echo htmlspecialchars($application['school']); ?></p>
+                                                <p><strong>Program:</strong> <?php echo htmlspecialchars($application['program']); ?></p>
+                                                <p><strong>Year:</strong> <?php echo htmlspecialchars($application['yearofstudy']); ?></p>
+                                                <p><strong>Email:</strong> <?php echo htmlspecialchars($application['email']); ?></p>
                                             </div>
                                         </div>
                                     </div>
@@ -350,21 +365,15 @@ if ($application && $application['status'] == 'pending') {
                                     <!-- Application Status -->
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <!-- <p class="text-muted mb-0">
-                                                Now your room is reserved for you total,
-                                            </p> -->
                                             <p><strong>Status:</strong></p>
                                             <span class="status-badge mb-4 status-<?php echo strtolower($application['status']); ?>">
                                                 <?php echo ucfirst($application['status']); ?>
                                             </span>
                                         </div>
                                         <div class="col-md-6 mt-2">
-                                            <p><strong>Room:</strong> <?php echo htmlspecialchars($application['room_code']); ?>
-                                            </p>
-                                            <p><strong>Hostel:</strong>
-                                                <?php echo htmlspecialchars($application['hostel_name']); ?></p>
-                                            <p><strong>Application Date:</strong>
-                                                <?php echo date('M d, Y H:i', strtotime($application['created_at'])); ?></p>
+                                            <p><strong>Room:</strong> <?php echo htmlspecialchars($application['room_code']); ?></p>
+                                            <p><strong>Hostel:</strong> <?php echo htmlspecialchars($application['hostel_name']); ?></p>
+                                            <p><strong>Application Date:</strong> <?php echo date('M d, Y H:i', strtotime($application['created_at'])); ?></p>
                                         </div>
                                     </div>
 
@@ -405,8 +414,6 @@ if ($application && $application['status'] == 'pending') {
                                                                         </p>
                                                                     </div>
                                                                     <div class="col-md-4 text-end">
-                                                                        <!-- description -->
-
                                                                         <span class="badge bg-success">
                                                                             Approved
                                                                         </span>
@@ -418,55 +425,11 @@ if ($application && $application['status'] == 'pending') {
                                                     else:
                                                         ?>
                                                         <div class="text-center py-4">
-                                                            <i class="bi bi-people text-muted" style="font-size: 2rem;"></i>
-                                                            <p class="text-muted mt-2 mb-0">No roommates assigned yet.</p>
+                                                            <p class="text-muted mb-0">No roommates assigned yet.</p>
                                                         </div>
                                                     <?php endif; ?>
                                                 </div>
                                             </div>
-                                        </div>
-                                    <?php endif; ?>
-
-                                    <?php if ($application['status'] == 'pending'): ?>
-                                        <div class="row mt-4">
-                                            <div class="col-md-6">
-                                                <div class="card border-0 shadow-sm">
-                                                    <div class="card-body text-center p-4">
-                                                        <h5 class="card-title text-muted mb-3">Digital Countdown</h5>
-                                                        <div id="countdown-timer" class="h2 fw-bold text-danger"></div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="card border-0 shadow-sm">
-                                                    <div class="card-body text-center p-4">
-                                                        <h5 class="card-title text-muted mb-3">Time Remaining</h5>
-                                                        <div id="readable-timer" class="h2 fw-bold text-primary"></div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="warning-message mt-4">
-                                            <h5><i class="bi bi-exclamation-triangle-fill"></i> Important Notice</h5>
-                                            <p>Your application will be automatically deleted if you don't upload a valid payment
-                                                receipt within 48 hours.</p>
-                                            <p>Please note that uploading fake or invalid receipts will result in immediate
-                                                application deletion.</p>
-                                        </div>
-                                    <?php endif; ?>
-                                    <!-- if it payed -->
-                                    <?php if ($application['status'] == 'paid'): ?>
-                                        <div class="alert alert-success mt-4">
-                                            <h5><i class="bi bi-check-circle-fill"></i> Application is in under review!</h5>
-                                            <p>your receipt has been uploaded successfully, please wait for the review, we will notify you once it's approved thruth your phone number sms and here in the application status page</p>
-                                        </div>
-                                    <?php endif; ?>
-
-                                    <?php if ($application['status'] == 'rejected'): ?>
-                                        <div class="alert alert-danger mt-4">
-                                            <h5><i class="bi bi-x-circle-fill"></i> Application Rejected</h5>
-                                            <p>Your application has been rejected. You can submit a new application.</p>
-                                            <a href="index.php" class="btn btn-primary mt-3">Submit New Application</a>
                                         </div>
                                     <?php endif; ?>
                                 <?php endif; ?>
@@ -478,9 +441,7 @@ if ($application && $application['status'] == 'pending') {
         </main>
     </div>
 
-    <!-- Vendor JS Files -->
     <script src="../Dashboard/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Show skeleton loading initially
@@ -494,54 +455,6 @@ if ($application && $application['status'] == 'pending') {
             }, 1500);
         });
     </script>
-
-    <?php if ($application && $application['status'] == 'pending'): ?>
-        <script>
-            // Set the countdown timer
-            function updateCountdown() {
-                // Get the creation time from PHP
-                const createdAt = new Date('<?php echo $application['created_at']; ?>');
-                const endTime = new Date(createdAt.getTime() + (48 * 60 * 60 * 1000)); // 48 hours from creation
-
-                function update() {
-                    const currentTime = new Date();
-                    const timeLeft = endTime - currentTime;
-
-                    if (timeLeft <= 0) {
-                        document.getElementById('countdown-timer').innerHTML = "00:00:00";
-                        document.getElementById('readable-timer').innerHTML = "Time's up!";
-                        return;
-                    }
-
-                    const hours = Math.floor(timeLeft / (1000 * 60 * 60));
-                    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-                    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-
-                    // Digital format
-                    document.getElementById('countdown-timer').innerHTML =
-                        `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-
-                    // Readable format (without seconds)
-                    let timeString = '';
-                    if (hours > 0) {
-                        timeString += hours + ' hour' + (hours !== 1 ? 's' : '');
-                    }
-                    if (minutes > 0) {
-                        if (timeString) timeString += ' and ';
-                        timeString += minutes + ' minute' + (minutes !== 1 ? 's' : '');
-                    }
-
-                    document.getElementById('readable-timer').innerHTML =
-                        `You have ${timeString} remaining`;
-                }
-
-                update();
-                setInterval(update, 1000);
-            }
-
-            updateCountdown();
-        </script>
-    <?php endif; ?>
 </body>
 
 </html>

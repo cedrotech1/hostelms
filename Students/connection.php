@@ -8,29 +8,41 @@
 // }
 
 
-// $connection=mysqli_connect('localhost','root','','ur-student-card');
-$connection=mysqli_connect('localhost','root', '','hostel');
+require_once '../../loadEnv.php';
+
+// Load the .env file
+$filePath = __DIR__ . '/../../.env'; // Corrected path
+loadEnv($filePath);
+
+// Access environment variables
+$dbHost = getenv('DB_HOST');
+$dbPort = getenv('DB_PORT');
+$dbName = getenv('DB_HOSTEL');
+$dbUser = getenv('DB_USER');
+$dbPassword = getenv('DB_PASSWORD');
+
+$connection=mysqli_connect($dbHost,$dbUser, $dbPassword,$dbName,$dbPort);
 if($connection){
-// echo'connected';
+
 }
 
 
-// function formatMoney($amount) {
-//     // Check if the amount is not a number
-//     if (!is_numeric($amount)) {
-//         return "Invalid amount";
-//     }
+$query = "SELECT * FROM system";
+$result1 = mysqli_query($connection, $query);
 
-//     // Format the amount with two decimal places and commas for thousands separator
-//     $formatted_amount = number_format($amount, 2, '.', ',');
 
-//     // Return the formatted amount with a currency symbol
-//     return  $formatted_amount. ' Rwf';
-// }
+if (mysqli_num_rows($result1) > 0) {
+while ($row1 = mysqli_fetch_assoc($result1)) {
+$status= $row1['status'];
+$exp= $row1['exp_date'];
+$exam_validity= $row1['exam_validity'];
+$accademic_year= $row1['accademic_year'];
+$semester= $row1['semester'];
+$allow_message= $row1['allow_message'];
 
-// // Example usage
-// $amount = 1234567.89;
-//  formatMoney($amount); // Output: $1,234,567.89
 
+}
+}
 
 ?>
+
