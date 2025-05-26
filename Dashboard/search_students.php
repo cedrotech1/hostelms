@@ -16,7 +16,6 @@ try {
     $query = "SELECT 
                 i.*,
                 a.status as application_status,
-                a.slep,
                 a.created_at as application_date,
                 r.room_code,
                 h.name as hostel_name,
@@ -99,7 +98,7 @@ try {
                 $html .= '<td>' . htmlspecialchars($row['gender']) . '</td>';
                 $html .= '<td>' . htmlspecialchars($row['email']) . '</td>';
                 $html .= '<td>' . htmlspecialchars($row['phone']) . '</td>';
-                $html .= '<td>' . htmlspecialchars($row['application_status']) . ($row['slep'] ? ' (SLEP)' : '') . '</td>';
+                $html .= '<td>' . htmlspecialchars($row['application_status'] ?? 'Not Applied') . '</td>';
                 $html .= '<td>' . htmlspecialchars($row['room_code'] ?: 'Not Assigned') . '</td>';
                 $html .= '<td>' . htmlspecialchars($row['hostel_name'] ?: 'Not Assigned') . '</td>';
                 $html .= '<td>' . ($row['application_date'] ? date('Y-m-d', strtotime($row['application_date'])) : 'N/A') . '</td>';
@@ -117,7 +116,7 @@ try {
                     'gender' => $row['gender'],
                     'email' => $row['email'],
                     'phone' => $row['phone'],
-                    'application_status' => $row['application_status'] . ($row['slep'] ? ' (SLEP)' : ''),
+                    'application_status' => $row['application_status'] ?? 'Not Applied',
                     'room_code' => $row['room_code'] ?: 'Not Assigned',
                     'hostel_name' => $row['hostel_name'] ?: 'Not Assigned',
                     'application_date' => $row['application_date'] ? date('Y-m-d', strtotime($row['application_date'])) : 'N/A'

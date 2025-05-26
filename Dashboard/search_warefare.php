@@ -85,7 +85,7 @@ include 'connection.php';
             color: #fff;
         }
 
-        .status-slep {
+        .status-approved {
             background-color: #0d6efd;
             color: #fff;
         }
@@ -194,7 +194,7 @@ include 'connection.php';
                                                     <option value="">All Status</option>
                                                     <option value="pending">Pending</option>
                                                     <option value="paid">Paid</option>
-                                                    <!-- <option value="slep">SLEP</option> -->
+                                                    <option value="approved">Approved</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -250,7 +250,7 @@ include 'connection.php';
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label for="hostelCampus">Campus</label>
-                                                <select class="form-control" id="studentCampus" name="studentCampus">
+                                                <select class="form-control" id="hostelCampus" name="hostelCampus">
                                                    
                                                     <?php
                                                     $ok1 = mysqli_query($connection, "select * from campuses where id=$campus");
@@ -306,7 +306,7 @@ include 'connection.php';
                                             <div class="form-group">
                                                 <label for="roomHostel">Hostel</label>
                                                 <select class="form-control" id="roomHostel" name="roomHostel">
-                                                    <option value="">All Hostels</option>
+                                                    <!-- <option value="">All Hostels</option> -->
                                                     <?php
                                                     $query = "SELECT DISTINCT name FROM hostels WHERE campus_id = '$campus' ORDER BY name DESC";
                                                     $result = $connection->query($query);
@@ -381,7 +381,7 @@ include 'connection.php';
                                             <div class="form-group">
                                                 <label for="membersHostel">Hostel</label>
                                                 <select class="form-control" id="membersHostel" name="hostel">
-                                                    <option value="">All Hostels</option>
+                                                    <!-- <option value="">All Hostels</option> -->
                                                     <?php
                                                     $query = "SELECT DISTINCT name FROM hostels WHERE campus_id = '$campus' ORDER BY name";
                                                     $result = $connection->query($query);
@@ -528,8 +528,8 @@ include 'connection.php';
                     filename = 'hostel_search_results.xlsx';
                     break;
                 case 'room':
-                    keys = ['room_code', 'hostel_name', 'campus_name', 'capacity', 'available_beds', 'occupancy_rate', 'total_applications', 'pending_applications', 'paid_applications', 'occupants', 'status'];
-                    headers = ['Room Code', 'Hostel', 'Campus', 'Capacity', 'Available Beds', 'Occupancy Rate', 'Total Applications', 'Pending', 'Paid', 'Occupants', 'Status'];
+                    keys = ['room_code', 'hostel_name', 'campus_name', 'capacity', 'available_beds', 'occupancy_rate', 'total_applications', 'pending_applications', 'paid_applications', 'approved_applications', 'occupants', 'status'];
+                    headers = ['Room Code', 'Hostel', 'Campus', 'Capacity', 'Available Beds', 'Occupancy Rate', 'Total Applications', 'Pending', 'Paid', 'Approved', 'Occupants', 'Status'];
                     filename = 'room_search_results.xlsx';
                     break;
                 case 'hostelMembers':

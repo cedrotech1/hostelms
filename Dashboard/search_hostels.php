@@ -18,11 +18,12 @@ try {
                 c.name as campus_name,
                 COUNT(DISTINCT r.id) as total_rooms,
                 SUM(r.number_of_beds) as total_beds,
-                SUM(r.number_of_beds) - COUNT(a.id) as available_beds,
+                SUM(r.remain) as available_beds,
+                ROUND(((SUM(r.number_of_beds) - SUM(r.remain)) / SUM(r.number_of_beds)) * 100, 2) as occupancy_rate,
                 COUNT(DISTINCT a.id) as total_applications,
                 SUM(CASE WHEN a.status = 'pending' THEN 1 ELSE 0 END) as pending_applications,
                 SUM(CASE WHEN a.status = 'paid' THEN 1 ELSE 0 END) as paid_applications,
-                SUM(CASE WHEN a.slep = 1 THEN 1 ELSE 0 END) as slep_applications
+                SUM(CASE WHEN a.status = 'approved' THEN 1 ELSE 0 END) as approved_applications
              FROM hostels h
              LEFT JOIN campuses c ON h.campus_id = c.id
              LEFT JOIN rooms r ON r.hostel_id = h.id
@@ -68,7 +69,7 @@ try {
         $html .= '<th>Total Applications</th>';
         $html .= '<th>Pending</th>';
         $html .= '<th>Paid</th>';
-        $html .= '<th>SLEP</th>';
+        $html .= '<th>Approved</th>';
         $html .= '</tr></thead><tbody>';
 
         $data = array();
@@ -87,7 +88,7 @@ try {
             $html .= '<td>' . $row['total_applications'] . '</td>';
             $html .= '<td>' . $row['pending_applications'] . '</td>';
             $html .= '<td>' . $row['paid_applications'] . '</td>';
-            $html .= '<td>' . $row['slep_applications'] . '</td>';
+            $html .= '<td>' . $row['approved_applications'] . '</td>';
             $html .= '</tr>';
 
             // Prepare data for Excel export
@@ -101,7 +102,7 @@ try {
                 'total_applications' => $row['total_applications'],
                 'pending_applications' => $row['pending_applications'],
                 'paid_applications' => $row['paid_applications'],
-                'slep_applications' => $row['slep_applications']
+                'approved_applications' => $row['approved_applications']
             );
         }
 

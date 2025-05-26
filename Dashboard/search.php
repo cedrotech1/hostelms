@@ -85,7 +85,7 @@ include 'connection.php';
             color: #fff;
         }
 
-        .status-slep {
+        .status-approved {
             background-color: #0d6efd;
             color: #fff;
         }
@@ -192,7 +192,7 @@ include 'connection.php';
                                                     <option value="">All Status</option>
                                                     <option value="pending">Pending</option>
                                                     <option value="paid">Paid</option>
-                                                    <!-- <option value="slep">SLEP</option> -->
+                                                    <option value="approved">Approved</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -517,13 +517,13 @@ include 'connection.php';
                     filename = 'student_search_results.xlsx';
                     break;
                 case 'hostel':
-                    keys = ['name', 'campus_name', 'total_rooms', 'total_beds', 'available_beds', 'occupancy_rate', 'total_applications', 'pending_applications', 'paid_applications', 'slep_applications'];
-                    headers = ['Hostel Name', 'Campus', 'Total Rooms', 'Total Beds', 'Available Beds', 'Occupancy Rate', 'Total Applications', 'Pending', 'Paid', 'SLEP'];
+                    keys = ['name', 'campus_name', 'total_rooms', 'total_beds', 'available_beds', 'occupancy_rate', 'total_applications', 'pending_applications', 'paid_applications', 'approved_applications'];
+                    headers = ['Hostel Name', 'Campus', 'Total Rooms', 'Total Beds', 'Available Beds', 'Occupancy Rate', 'Total Applications', 'Pending', 'Paid', 'Approved'];
                     filename = 'hostel_search_results.xlsx';
                     break;
                 case 'room':
-                    keys = ['room_code', 'hostel_name', 'campus_name', 'capacity', 'available_beds', 'occupancy_rate', 'total_applications', 'pending_applications', 'paid_applications', 'occupants', 'status'];
-                    headers = ['Room Code', 'Hostel', 'Campus', 'Capacity', 'Available Beds', 'Occupancy Rate', 'Total Applications', 'Pending', 'Paid', 'Occupants', 'Status'];
+                    keys = ['room_code', 'hostel_name', 'campus_name', 'capacity', 'available_beds', 'occupancy_rate', 'total_applications', 'pending_applications', 'paid_applications', 'approved_applications', 'occupants', 'status'];
+                    headers = ['Room Code', 'Hostel', 'Campus', 'Capacity', 'Available Beds', 'Occupancy Rate', 'Total Applications', 'Pending', 'Paid', 'Approved', 'Occupants', 'Status'];
                     filename = 'room_search_results.xlsx';
                     break;
                 case 'hostelMembers':

@@ -122,12 +122,9 @@ if (isset($_POST["login"])) {
 
                   <form class="row g-3 needs-validation" novalidate method="post" action="login.php">
 
-                  Demo Credentials for Testing: <br/>
-                  <hr/>
-                    Email: cedrickhakuzimana@gmail.com  <br>
-                    Password: urhuye@2024 <br/>
-                   
-
+                    <button type="button" class="btn btn-info btn-block mb-4" data-bs-toggle="modal" data-bs-target="#demoModal">
+                      <i class="bi bi-people"></i> Demo Accounts
+                    </button>
 
                     <div class="col-12">
                       <label for="yourUsername" class="form-label">Email</label>
@@ -169,11 +166,76 @@ if (isset($_POST["login"])) {
     </div>
   </main><!-- End #main -->
 
+  <!-- Demo Accounts Modal -->
+  <div class="modal fade" id="demoModal" tabindex="-1" aria-labelledby="demoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="demoModalLabel">Demo Accounts</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="demo-accounts">
+            <div class="demo-account mb-3">
+              <h6><i class="bi bi-person"></i> Admin Account</h6>
+              <p class="mb-1"><strong>Email:</strong> cedrickhakuzimana@gmail.com</p>
+              <p class="mb-1"><strong>Password:</strong> 1234</p>
+              <button class="btn btn-sm btn-primary use-demo" data-email="cedrickhakuzimana@gmail.com" data-pass="1234">Use This Account</button>
+            </div>
+            <hr>
+            <div class="demo-account mb-3">
+              <h6><i class="bi bi-person"></i> Huye welfare  Account</h6>
+              <p class="mb-1"><strong>Email:</strong> cedrickhakuzimana75@gmail.com</p>
+                <p class="mb-1"><strong>Password:</strong> 1234</p>
+                <button class="btn btn-sm btn-primary use-demo" data-email="cedrickhakuzimana75@gmail.com" data-pass="1234">Use This Account</button>
+            </div>
+            <hr>
+            <div class="demo-account mb-3">
+              <h6><i class="bi bi-person"></i> remera welfare  Account</h6>
+              <p class="mb-1"><strong>Email:</strong> akimana@gmail.com</p>
+                <p class="mb-1"><strong>Password:</strong> 1234</p>
+                <button class="btn btn-sm btn-primary use-demo" data-email="akimana@gmail.com" data-pass="1234">Use This Account</button>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
       class="bi bi-arrow-up-short"></i></a>
 
   <!-- Template Main JS File -->
   <script src="assets/js/main.js"></script>
+  <!-- Add Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Handle demo account selection
+      document.querySelectorAll('.use-demo').forEach(button => {
+        button.addEventListener('click', function() {
+          const email = this.dataset.email;
+          const password = this.dataset.pass;
+          
+          document.getElementById('yourUsername').value = email;
+          document.getElementById('yourPassword').value = password;
+          
+          // Close the modal
+          const modal = bootstrap.Modal.getInstance(document.getElementById('demoModal'));
+          modal.hide();
+        });
+      });
+
+      // Initialize all modals
+      var modals = document.querySelectorAll('.modal');
+      modals.forEach(function(modal) {
+        new bootstrap.Modal(modal);
+      });
+    });
+  </script>
 
 </body>
 

@@ -13,6 +13,7 @@ $stats = [
         'total_applications' => 0,
         'pending_applications' => 0,
         'paid_applications' => 0,
+        'approved_applications' => 0,
         'applications_by_month' => [],
         'applications_by_status' => [],
         'room_status_distribution' => [],
@@ -23,8 +24,8 @@ $stats = [
     'campuses' => [],
     'hostels' => [],
     'gender_stats' => [
-        'male' => ['total' => 0, 'pending' => 0, 'paid' => 0],
-        'female' => ['total' => 0, 'pending' => 0, 'paid' => 0]
+        'male' => ['total' => 0, 'pending' => 0, 'paid' => 0, 'approved' => 0],
+        'female' => ['total' => 0, 'pending' => 0, 'paid' => 0, 'approved' => 0]
     ]
 ];
 
@@ -40,7 +41,7 @@ try {
                 COUNT(a.id) AS total_applications,
                 SUM(CASE WHEN a.status = 'pending' THEN 1 ELSE 0 END) AS pending_applications,
                 SUM(CASE WHEN a.status = 'paid' THEN 1 ELSE 0 END) AS paid_applications,
-                SUM(CASE WHEN a.slep = 1 THEN 1 ELSE 0 END) AS slep_applications
+                SUM(CASE WHEN a.status = 'approved' THEN 1 ELSE 0 END) AS approved_applications
             FROM campuses c
             LEFT JOIN hostels h ON h.campus_id = c.id
             LEFT JOIN rooms r ON r.hostel_id = h.id
@@ -66,6 +67,7 @@ try {
             $stats['overall']['total_applications'] += $row['total_applications'];
             $stats['overall']['pending_applications'] += $row['pending_applications'];
             $stats['overall']['paid_applications'] += $row['paid_applications'];
+            $stats['overall']['approved_applications'] += $row['approved_applications'];
         }
     }
 
@@ -80,7 +82,7 @@ try {
     COUNT(a.id) AS total_applications,
     SUM(CASE WHEN a.status = 'pending' THEN 1 ELSE 0 END) AS pending_applications,
     SUM(CASE WHEN a.status = 'paid' THEN 1 ELSE 0 END) AS paid_applications,
-    SUM(CASE WHEN a.slep = 1 THEN 1 ELSE 0 END) AS slep_applications
+    SUM(CASE WHEN a.status = 'approved' THEN 1 ELSE 0 END) AS approved_applications
 FROM hostels h
 LEFT JOIN campuses c ON h.campus_id = c.id
 LEFT JOIN rooms r ON r.hostel_id = h.id
@@ -105,7 +107,7 @@ ORDER BY c.name, h.name;
                 COUNT(*) as total,
                 SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
                 SUM(CASE WHEN status = 'paid' THEN 1 ELSE 0 END) as paid,
-                SUM(CASE WHEN slep = 1 THEN 1 ELSE 0 END) as slep
+                SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved
              FROM applications
              GROUP BY DATE_FORMAT(created_at, '%Y-%m')
              ORDER BY month DESC
@@ -141,7 +143,8 @@ ORDER BY c.name, h.name;
                 END as gender,
                 COUNT(DISTINCT i.regnumber) as total,
                 SUM(CASE WHEN a.status = 'pending' THEN 1 ELSE 0 END) as pending,
-                SUM(CASE WHEN a.status = 'paid' OR a.status = 'Paid' THEN 1 ELSE 0 END) as paid
+                SUM(CASE WHEN a.status = 'paid' OR a.status = 'Paid' THEN 1 ELSE 0 END) as paid,
+                SUM(CASE WHEN a.status = 'approved' THEN 1 ELSE 0 END) as approved
              FROM info i
              LEFT JOIN applications a ON i.regnumber = a.regnumber
              GROUP BY 
@@ -158,7 +161,8 @@ ORDER BY c.name, h.name;
             $stats['gender_stats'][$gender] = [
                 'total' => $row['total'],
                 'pending' => $row['pending'],
-                'paid' => $row['paid']
+                'paid' => $row['paid'],
+                'approved' => $row['approved']
             ];
         }
     }
@@ -168,7 +172,8 @@ ORDER BY c.name, h.name;
                 c.name as campus_name,
                 COUNT(*) as total,
                 SUM(CASE WHEN a.status = 'pending' THEN 1 ELSE 0 END) as pending,
-                SUM(CASE WHEN a.status = 'paid' THEN 1 ELSE 0 END) as paid
+                SUM(CASE WHEN a.status = 'paid' THEN 1 ELSE 0 END) as paid,
+                SUM(CASE WHEN a.status = 'approved' THEN 1 ELSE 0 END) as approved
              FROM applications a
              JOIN rooms r ON a.room_id = r.id
              JOIN hostels h ON r.hostel_id = h.id
@@ -596,6 +601,37 @@ ORDER BY c.name, h.name;
                                         </div>
                                     </div>
 
+                                    <!-- New: Campus Beds Comparison Bar Chart -->
+                                    <div class="col-md-12 mb-4">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <h5 class="card-title">Campus Beds Comparison</h5>
+                                                <div class="chart-container">
+                                                    <canvas id="campusBedsBarChart"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- New: Dynamic Hostel Beds Bar Chart -->
+                                    <div class="col-md-12 mb-4">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <h5 class="card-title mb-0">Hostel Beds by Campus</h5>
+                                                    <select id="campusSelect" class="form-select w-auto">
+                                                        <?php foreach ($stats['campuses'] as $campus): ?>
+                                                            <option value="<?php echo htmlspecialchars($campus['campus_name']); ?>"><?php echo htmlspecialchars($campus['campus_name']); ?></option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                </div>
+                                                <div class="chart-container">
+                                                    <canvas id="hostelBedsBarChart"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <!-- Application Status -->
                                     <div class="col-md-6 mb-4">
                                         <div class="card">
@@ -629,7 +665,7 @@ ORDER BY c.name, h.name;
                                                         <th>Applications</th>
                                                         <th>Pending</th>
                                                         <th>Paid</th>
-                                                        <!-- <th>SLEP</th> -->
+                                                        <th>Approved</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -654,10 +690,9 @@ ORDER BY c.name, h.name;
                                                                 </span>
                                                             </td>
                                                             <td><?php echo number_format($campus['total_applications']); ?></td>
-                                                            <td><?php echo number_format($campus['pending_applications']); ?>
-                                                            </td>
+                                                            <td><?php echo number_format($campus['pending_applications']); ?></td>
                                                             <td><?php echo number_format($campus['paid_applications']); ?></td>
-                                                            <!-- <td><?php //echo number_format($campus['slep_applications']); ?></td> -->
+                                                            <td><?php echo number_format($campus['approved_applications']); ?></td>
                                                         </tr>
                                                     <?php endforeach; ?>
                                                 </tbody>
@@ -686,7 +721,7 @@ ORDER BY c.name, h.name;
                                                         <th>Applications</th>
                                                         <th>Pending</th>
                                                         <th>Paid</th>
-                                                        <!-- <th>SLEP</th> -->
+                                                        <th>Approved</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -707,10 +742,9 @@ ORDER BY c.name, h.name;
                                                                 </span>
                                                             </td>
                                                             <td><?php echo number_format($hostel['total_applications']); ?></td>
-                                                            <td><?php echo number_format($hostel['pending_applications']); ?>
-                                                            </td>
+                                                            <td><?php echo number_format($hostel['pending_applications']); ?></td>
                                                             <td><?php echo number_format($hostel['paid_applications']); ?></td>
-                                                            <!-- <td><?php //echo number_format($hostel['slep_applications']); ?></td> -->
+                                                            <td><?php echo number_format($hostel['approved_applications']); ?></td>
                                                         </tr>
                                                     <?php endforeach; ?>
                                                 </tbody>
@@ -847,18 +881,12 @@ ORDER BY c.name, h.name;
                         new Chart(document.getElementById('applicationStatusChart'), {
                             type: 'doughnut',
                             data: {
-                                labels: ['Pending', 'Paid', 'SLEP'],
+                                labels: ['Pending', 'Paid', 'Approved'],
                                 datasets: [{
                                     data: [
                                         <?php echo $stats['overall']['pending_applications']; ?>,
                                         <?php echo $stats['overall']['paid_applications']; ?>,
-                                        <?php
-                                        $slep_total = 0;
-                                        foreach ($stats['campuses'] as $campus) {
-                                            $slep_total += $campus['slep_applications'];
-                                        }
-                                        echo $slep_total;
-                                        ?>
+                                        <?php echo $stats['overall']['approved_applications']; ?>
                                     ],
                                     backgroundColor: ['#ffc107', '#28a745', '#0d6efd']
                                 }]
@@ -873,14 +901,14 @@ ORDER BY c.name, h.name;
                         new Chart(document.getElementById('applicationStatusDistributionChart'), {
                             type: 'doughnut',
                             data: {
-                                labels: ['Pending', 'Paid', 'SLEP'],
+                                labels: ['Pending', 'Paid', 'Approved'],
                                 datasets: [{
                                     data: [
                                         <?php echo $stats['overall']['pending_applications']; ?>,
                                         <?php echo $stats['overall']['paid_applications']; ?>,
-                                        <?php echo array_sum(array_column($stats['overall']['applications_by_month'], 'slep')); ?>
+                                        <?php echo $stats['overall']['approved_applications']; ?>
                                     ],
-                                    backgroundColor: ['#ffc107', '#198754', '#dc3545']
+                                    backgroundColor: ['#ffc107', '#198754', '#0d6efd']
                                 }]
                             },
                             options: {
@@ -893,21 +921,18 @@ ORDER BY c.name, h.name;
                         new Chart(document.getElementById('campusPerformanceChart'), {
                             type: 'radar',
                             data: {
-                                labels: ['Occupancy Rate', 'Application Success', 'SLEP Ratio'],
+                                labels: ['Occupancy Rate', 'Application Success'],
                                 datasets: <?php
                                 $datasets = [];
                                 foreach ($stats['campuses'] as $campus) {
                                     $success_rate = $campus['total_applications'] > 0 ?
                                         ($campus['paid_applications'] / $campus['total_applications']) * 100 : 0;
-                                    $slep_ratio = $campus['total_applications'] > 0 ?
-                                        ($campus['slep_applications'] / $campus['total_applications']) * 100 : 0;
 
                                     $datasets[] = [
                                         'label' => $campus['campus_name'],
                                         'data' => [
                                             $campus['occupancy_rate'],
-                                            $success_rate,
-                                            $slep_ratio
+                                            $success_rate
                                         ],
                                         'backgroundColor' => 'rgba(13, 110, 253, 0.2)',
                                         'borderColor' => '#0d6efd',
@@ -939,11 +964,6 @@ ORDER BY c.name, h.name;
                                     data: <?php echo json_encode(array_column(array_reverse($stats['overall']['applications_by_month']), 'total')); ?>,
                                     borderColor: '#0d6efd',
                                     tension: 0.1
-                                }, {
-                                    label: 'SLEP Applications',
-                                    data: <?php echo json_encode(array_column(array_reverse($stats['overall']['applications_by_month']), 'slep')); ?>,
-                                    borderColor: '#dc3545',
-                                    tension: 0.1
                                 }]
                             },
                             options: {
@@ -957,10 +977,94 @@ ORDER BY c.name, h.name;
                             }
                         });
 
+                        // Campus Beds Comparison Bar Chart
+                        new Chart(document.getElementById('campusBedsBarChart'), {
+                            type: 'bar',
+                            data: {
+                                labels: <?php echo json_encode(array_column($stats['campuses'], 'campus_name')); ?>,
+                                datasets: [
+                                    {
+                                        label: 'Occupied Beds',
+                                        data: <?php echo json_encode(array_column($stats['campuses'], 'occupied_beds')); ?>,
+                                        backgroundColor: '#dc3545'
+                                    },
+                                    {
+                                        label: 'Remaining Beds',
+                                        data: <?php echo json_encode(array_map(function($c) { return $c['available_beds']; }, $stats['campuses'])); ?>,
+                                        backgroundColor: '#0d6efd'
+                                    }
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    y: {
+                                        beginAtZero: true
+                                    }
+                                }
+                            }
+                        });
+
+                        // Dynamic Hostel Beds Bar Chart
+                        const hostels = <?php echo json_encode($stats['hostels']); ?>;
+                        const campusSelect = document.getElementById('campusSelect');
+                        const hostelBedsBarChartCtx = document.getElementById('hostelBedsBarChart').getContext('2d');
+                        let hostelBedsBarChart;
+
+                        function updateHostelBedsBarChart(selectedCampus) {
+                            const filteredHostels = hostels.filter(h => h.campus_name === selectedCampus);
+                            const labels = filteredHostels.map(h => h.hostel_name);
+                            const occupiedBeds = filteredHostels.map(h => h.occupied_beds);
+                            const availableBeds = filteredHostels.map(h => h.available_beds);
+
+                            const data = {
+                                labels: labels,
+                                datasets: [
+                                    {
+                                        label: 'Occupied Beds',
+                                        data: occupiedBeds,
+                                        backgroundColor: '#dc3545'
+                                    },
+                                    {
+                                        label: 'Remaining Beds',
+                                        data: availableBeds,
+                                        backgroundColor: '#0d6efd'
+                                    }
+                                ]
+                            };
+
+                            if (hostelBedsBarChart) {
+                                hostelBedsBarChart.data = data;
+                                hostelBedsBarChart.update();
+                            } else {
+                                hostelBedsBarChart = new Chart(hostelBedsBarChartCtx, {
+                                    type: 'bar',
+                                    data: data,
+                                    options: {
+                                        responsive: true,
+                                        maintainAspectRatio: false,
+                                        scales: {
+                                            y: {
+                                                beginAtZero: true
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+                        }
+
+                        // Initialize with the first campus
+                        if (campusSelect && campusSelect.options.length > 0) {
+                            updateHostelBedsBarChart(campusSelect.value);
+                        }
+                        campusSelect.addEventListener('change', function() {
+                            updateHostelBedsBarChart(this.value);
+                        });
+
                         // Dynamic Search Functionality
                         const hostelSearch = document.getElementById('hostelSearch');
                         const searchResults = document.getElementById('searchResults');
-                        const hostels = <?php echo json_encode($stats['hostels']); ?>;
 
                         hostelSearch.addEventListener('input', function () {
                             const searchTerm = this.value.toLowerCase();

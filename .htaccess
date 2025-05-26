@@ -1,0 +1,13 @@
+# Enable error handling
+ErrorDocument 404 /hostelms/404.php
+
+# Prevent directory listing
+Options -Indexes
+
+# Handle 404 errors
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ 404.php [L]
+</IfModule> 

@@ -20,6 +20,7 @@ try {
                 COUNT(DISTINCT a.id) as total_applications,
                 SUM(CASE WHEN a.status = 'pending' THEN 1 ELSE 0 END) as pending_applications,
                 SUM(CASE WHEN a.status = 'paid' THEN 1 ELSE 0 END) as paid_applications,
+                SUM(CASE WHEN a.status = 'approved' THEN 1 ELSE 0 END) as approved_applications,
                 GROUP_CONCAT(DISTINCT CONCAT(i.names, ' (', i.regnumber, ')') SEPARATOR ', ') as occupants
              FROM rooms r
              LEFT JOIN hostels h ON r.hostel_id = h.id
@@ -72,6 +73,7 @@ try {
         $html .= '<th>Total Applications</th>';
         $html .= '<th>Pending</th>';
         $html .= '<th>Paid</th>';
+        $html .= '<th>Approved</th>';
         $html .= '<th>Occupants</th>';
         $html .= '<th>Status</th>';
         $html .= '</tr></thead><tbody>';
@@ -105,6 +107,7 @@ try {
             $html .= '<td>' . $row['total_applications'] . '</td>';
             $html .= '<td>' . $row['pending_applications'] . '</td>';
             $html .= '<td>' . $row['paid_applications'] . '</td>';
+            $html .= '<td>' . $row['approved_applications'] . '</td>';
             $html .= '<td>' . ($row['occupants'] ? htmlspecialchars($row['occupants']) : 'No occupants') . '</td>';
             $html .= '<td class="' . $statusClass . '">' . $status . '</td>';
             $html .= '</tr>';
@@ -120,6 +123,7 @@ try {
                 'total_applications' => $row['total_applications'],
                 'pending_applications' => $row['pending_applications'],
                 'paid_applications' => $row['paid_applications'],
+                'approved_applications' => $row['approved_applications'],
                 'occupants' => $row['occupants'] ?: 'No occupants',
                 'status' => $status
             );

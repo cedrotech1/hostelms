@@ -153,7 +153,7 @@ if(isset($_POST['ajax_login'])) {
 if(isset($_POST['ajax_signup'])) {
     try {
         // Validate required fields
-        $required_fields = ['regnumber', 'phone', 'national_id', 'password', 'confirm_password'];
+        $required_fields = ['regnumber', 'phone', 'password', 'confirm_password'];
         foreach ($required_fields as $field) {
             if (!isset($_POST[$field]) || empty($_POST[$field])) {
                 sendJsonResponse('error', ucfirst($field) . ' is required');
@@ -162,7 +162,6 @@ if(isset($_POST['ajax_signup'])) {
 
         $regnumber = mysqli_real_escape_string($connection, $_POST['regnumber']);
         $phone = mysqli_real_escape_string($connection, $_POST['phone']);
-        $national_id = mysqli_real_escape_string($connection, $_POST['national_id']);
         $password = mysqli_real_escape_string($connection, $_POST['password']);
         $confirm_password = mysqli_real_escape_string($connection, $_POST['confirm_password']);
 
@@ -186,11 +185,6 @@ if(isset($_POST['ajax_signup'])) {
             // Check phone number
             if($user['phone'] !== $phone) {
                 $errors[] = "Phone number does not match";
-            }
-            
-            // Check national ID
-            if($user['national_id'] !== $national_id) {
-                $errors[] = "National ID does not match";
             }
             
             if(empty($errors)) {
@@ -224,17 +218,10 @@ if(!isset($_POST['ajax_login']) && !isset($_POST['ajax_signup']) && !isset($_POS
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hostel Management System - Login & Signup</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css">
     <style>
         body {
-            font-family: 'Roboto', sans-serif;
             background-color: #f8f9fa;
-            margin: 0;
-            padding: 0;
         }
         .auth-container {
             max-width: 800px;
@@ -244,59 +231,15 @@ if(!isset($_POST['ajax_login']) && !isset($_POST['ajax_signup']) && !isset($_POS
         .auth-box {
             background-color: white;
             border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
-            padding: 30px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 20px;
             margin-bottom: 20px;
-            transition: all 0.3s ease;
-        }
-        .auth-box:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 25px rgba(0,0,0,0.15);
         }
         .form-group {
-            margin-bottom: 25px;
-        }
-        .form-control {
-            border: 1px solid #e0e0e0;
-            border-radius: 5px;
-            padding: 12px;
-            transition: all 0.3s ease;
-        }
-        .form-control:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+            margin-bottom: 20px;
         }
         .nav-tabs {
-            border-bottom: 2px solid #e0e0e0;
-            margin-bottom: 30px;
-        }
-        .nav-tabs .nav-link {
-            border: none;
-            color: #666;
-            font-weight: 500;
-            padding: 10px 20px;
-            transition: all 0.3s ease;
-        }
-        .nav-tabs .nav-link.active {
-            color: #007bff;
-            border-bottom: 2px solid #007bff;
-            background: none;
-        }
-        .nav-tabs .nav-link:hover {
-            border: none;
-            color: #007bff;
-        }
-        .btn-primary {
-            background: linear-gradient(45deg, #007bff, #0056b3);
-            border: none;
-            padding: 12px 30px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        .btn-primary:hover {
-            background: linear-gradient(45deg, #0056b3, #003d82);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,123,255,0.3);
+            margin-bottom: 20px;
         }
         .validation-error {
             color: #dc3545;
@@ -307,93 +250,10 @@ if(!isset($_POST['ajax_login']) && !isset($_POST['ajax_signup']) && !isset($_POS
         .alert {
             display: none;
             margin-bottom: 20px;
-            border-radius: 5px;
-            padding: 15px;
-            transition: all 0.3s ease;
-        }
-        .alert-danger {
-            background-color: #fff5f5;
-            border: 1px solid #feb2b2;
-            color: #c53030;
-        }
-        .alert-success {
-            background-color: #f0fff4;
-            border: 1px solid #9ae6b4;
-            color: #2f855a;
-        }
-        h2 {
-            color: #333;
-            font-weight: 600;
-            margin-bottom: 30px;
-        }
-        label {
-            color: #555;
-            font-weight: 500;
-            margin-bottom: 8px;
-        }
-        
-        /* Loading Spinner Styles */
-        .spinner-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.8);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-        .spinner-container {
-            text-align: center;
-        }
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #007bff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
-        }
-        .spinner-text {
-            color: #007bff;
-            font-weight: 500;
-            font-size: 16px;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .btn-loading {
-            position: relative;
-            color: transparent !important;
-        }
-        .btn-loading::after {
-            content: '';
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            top: 50%;
-            left: 50%;
-            margin: -10px 0 0 -10px;
-            border: 2px solid #fff;
-            border-top-color: transparent;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
         }
     </style>
 </head>
 <body>
-    <!-- Loading Spinner -->
-    <div class="spinner-overlay">
-        <div class="spinner-container">
-            <div class="spinner"></div>
-            <div class="spinner-text">Processing...</div>
-        </div>
-    </div>
-
     <div class="container">
         <div class="auth-container">
             <ul class="nav nav-tabs" id="authTabs" role="tablist">
@@ -413,9 +273,6 @@ if(!isset($_POST['ajax_login']) && !isset($_POST['ajax_signup']) && !isset($_POS
                 <div class="tab-pane fade show active" id="login" role="tabpanel">
                     <div class="auth-box">
                         <h2 class="text-center mb-4">Login</h2>
-                        <button type="button" class="btn btn-info btn-block mb-4" data-toggle="modal" data-target="#demoModal">
-                            <i class="fas fa-users"></i> Demo Accounts
-                        </button>
                         <form id="loginForm">
                             <div class="form-group">
                                 <label for="login_regnumber">Registration Number</label>
@@ -436,12 +293,6 @@ if(!isset($_POST['ajax_login']) && !isset($_POST['ajax_signup']) && !isset($_POS
                 <div class="tab-pane fade" id="signup" role="tabpanel">
                     <div class="auth-box">
                         <h2 class="text-center mb-4">Sign Up</h2>
-                        <div class="alert alert-info mb-4">
-                            <strong>Demo Data:</strong><br>
-                            Registration Number: REG001<br>
-                            Phone: 0712345678<br>
-                            National ID: 12345678
-                        </div>
                         <form id="signupForm">
                             <div class="form-group">
                                 <label for="regnumber">Registration Number</label>
@@ -453,12 +304,6 @@ if(!isset($_POST['ajax_login']) && !isset($_POST['ajax_signup']) && !isset($_POS
                                 <label for="phone">Phone Number</label>
                                 <input type="tel" class="form-control" id="phone" name="phone" required>
                                 <div class="validation-error" id="phone-error"></div>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="national_id">National ID</label>
-                                <input type="text" class="form-control" id="national_id" name="national_id" required>
-                                <div class="validation-error" id="national_id-error"></div>
                             </div>
 
                             <div class="form-group">
@@ -480,59 +325,12 @@ if(!isset($_POST['ajax_login']) && !isset($_POST['ajax_signup']) && !isset($_POS
         </div>
     </div>
 
-    <!-- Demo Accounts Modal -->
-    <div class="modal fade" id="demoModal" tabindex="-1" role="dialog" aria-labelledby="demoModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="demoModalLabel">Demo Accounts</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="demo-accounts">
-                        <div class="demo-account mb-3">
-                            <h6><i class="fas fa-user-graduate"></i> Huye Student / year 3</h6>
-                            <p class="mb-1"><strong>Reg Number:</strong> 20231008</p>
-                            <p class="mb-1"><strong>Phone:</strong> 0788609666</p>
-                            <p class="mb-1"><strong>National ID:</strong> 1002003008</p>
-                            <p class="mb-1"><strong>Password:</strong> 1234</p>
-                            <button class="btn btn-sm btn-primary use-demo" data-reg="20231008" data-pass="1234">Use This Account</button>
-                        </div>
-                        <hr>
-                        <div class="demo-account mb-3">
-                            <h6><i class="fas fa-user-graduate"></i> Huye Student / year 3</h6>
-                            <p class="mb-1"><strong>Reg Number:</strong> 20231007</p>
-                            <p class="mb-1"><strong>Phone:</strong> 0721686167</p>
-                            <p class="mb-1"><strong>National ID:</strong> 1002003007</p>
-                            <p class="mb-1"><strong>Password:</strong> 1234</p>
-                            <button class="btn btn-sm btn-primary use-demo" data-reg="20231007" data-pass="1234">Use This Account</button>
-                        </div>
-                     
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     
     <script>
     $(document).ready(function() {
-        function showSpinner() {
-            $('.spinner-overlay').fadeIn();
-        }
-
-        function hideSpinner() {
-            $('.spinner-overlay').fadeOut();
-        }
-
         function showAlert(message, type) {
             $('#error-alert, #success-alert').hide();
             $(`#${type}-alert`).text(message).fadeIn();
@@ -582,10 +380,6 @@ if(!isset($_POST['ajax_login']) && !isset($_POST['ajax_signup']) && !isset($_POS
         // Handle login form submission
         $('#loginForm').on('submit', function(e) {
             e.preventDefault();
-            const $btn = $(this).find('button[type="submit"]');
-            $btn.addClass('btn-loading').prop('disabled', true);
-            showSpinner();
-
             $.ajax({
                 url: 'signup.php',
                 type: 'POST',
@@ -596,8 +390,6 @@ if(!isset($_POST['ajax_login']) && !isset($_POST['ajax_signup']) && !isset($_POS
                 },
                 dataType: 'json',
                 success: function(response) {
-                    hideSpinner();
-                    $btn.removeClass('btn-loading').prop('disabled', false);
                     if(response.status === 'success') {
                         showAlert(response.message, 'success');
                         if(response.redirect) {
@@ -610,8 +402,6 @@ if(!isset($_POST['ajax_login']) && !isset($_POST['ajax_signup']) && !isset($_POS
                     }
                 },
                 error: function(xhr, status, error) {
-                    hideSpinner();
-                    $btn.removeClass('btn-loading').prop('disabled', false);
                     console.error('Login AJAX Error:', {xhr, status, error});
                     showAlert('An error occurred. Please try again.', 'error');
                 }
@@ -621,10 +411,6 @@ if(!isset($_POST['ajax_login']) && !isset($_POST['ajax_signup']) && !isset($_POS
         // Handle signup form submission
         $('#signupForm').on('submit', function(e) {
             e.preventDefault();
-            const $btn = $(this).find('button[type="submit"]');
-            $btn.addClass('btn-loading').prop('disabled', true);
-            showSpinner();
-
             $.ajax({
                 url: 'signup.php',
                 type: 'POST',
@@ -632,14 +418,11 @@ if(!isset($_POST['ajax_login']) && !isset($_POST['ajax_signup']) && !isset($_POS
                     ajax_signup: true,
                     regnumber: $('#regnumber').val().trim(),
                     phone: $('#phone').val().trim(),
-                    national_id: $('#national_id').val().trim(),
                     password: $('#password').val(),
                     confirm_password: $('#confirm_password').val()
                 },
                 dataType: 'json',
                 success: function(response) {
-                    hideSpinner();
-                    $btn.removeClass('btn-loading').prop('disabled', false);
                     if(response.status === 'success') {
                         showAlert('Password updated successfully! Redirecting to login...', 'success');
                         // Clear form
@@ -655,8 +438,6 @@ if(!isset($_POST['ajax_login']) && !isset($_POST['ajax_signup']) && !isset($_POS
                     }
                 },
                 error: function(xhr, status, error) {
-                    hideSpinner();
-                    $btn.removeClass('btn-loading').prop('disabled', false);
                     console.error('Signup AJAX Error:', {xhr, status, error});
                     showAlert('An error occurred. Please try again.', 'error');
                 }
@@ -667,17 +448,6 @@ if(!isset($_POST['ajax_login']) && !isset($_POST['ajax_signup']) && !isset($_POS
         $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
             $('.validation-error').hide();
             $('#error-alert, #success-alert').hide();
-        });
-
-        // Handle demo account selection
-        $('.use-demo').click(function() {
-            const regNumber = $(this).data('reg');
-            const password = $(this).data('pass');
-            
-            $('#login_regnumber').val(regNumber);
-            $('#login_password').val(password);
-            
-            $('#demoModal').modal('hide');
         });
     });
     </script>

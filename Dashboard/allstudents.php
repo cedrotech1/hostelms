@@ -93,8 +93,31 @@ include('connection.php');
 
 
                                             <?php
-                                            $ok = mysqli_query($connection, "SELECT *                                               
+                                            // role of the user
+                                            $role = $_SESSION['role'];
+                                            $userid=$_SESSION['id'];
+                                            $ok1 = mysqli_query($connection, "select * from users where id=$userid");
+                                                              while ($row = mysqli_fetch_array($ok1)) {
+                                                                $id = $row["id"];
+                                                            
+                                                                $campus = $row["campus"];
+                                                                
+                                                            }
+                                            
+                                            $user_campus_id =$campus;
+                                            // select campus name from the campus table
+                                            $ok2 = mysqli_query($connection, "select * from campuses where id=$user_campus_id");
+                                            while ($row = mysqli_fetch_array($ok2)) {
+                                                $campus_name = $row["name"];
+                                            }
+
+                                            if($role == 'information_modifier'){
+                                                $ok = mysqli_query($connection, "SELECT *                                               
                                             FROM info");
+                                            }else{
+                                                $ok = mysqli_query($connection, "SELECT *                                               
+                                            FROM info WHERE campus = '$campus_name'");
+                                            }
                                             $i = 0;
                                             while ($row = mysqli_fetch_array($ok)) {
                                                 $i++;

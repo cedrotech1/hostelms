@@ -116,7 +116,7 @@ $eligible_hostels = array_filter($hostels, function ($hostel) use ($connection, 
             border-radius: 10px;
             padding: 20px;
             margin-bottom: 20px;
-            border-left: 4px solid #0d6efd;
+            border-left: 4px solid #006991;
         }
 
         .roommate-card {
@@ -136,8 +136,9 @@ $eligible_hostels = array_filter($hostels, function ($hostel) use ($connection, 
         }
 
         .receipt-upload:hover {
-            border-color: #0d6efd;
+            border-color: #006991;
         }
+        
 
         .status-badge {
             padding: 5px 10px;
@@ -165,7 +166,7 @@ $eligible_hostels = array_filter($hostels, function ($hostel) use ($connection, 
         }
 
         .student-info-card h4 {
-            color: #0d6efd;
+            color: #006991;
             margin-bottom: 15px;
         }
 
@@ -175,25 +176,113 @@ $eligible_hostels = array_filter($hostels, function ($hostel) use ($connection, 
             background: #f8f9fa;
             border-radius: 5px;
         }
+
+        /* Add skeleton loading styles */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: 4px;
+        }
+
+        .skeleton-text {
+            height: 1em;
+            margin-bottom: 0.5em;
+        }
+
+        .skeleton-title {
+            height: 2em;
+            margin-bottom: 1em;
+        }
+
+        .skeleton-card {
+            height: 200px;
+            margin-bottom: 1rem;
+        }
+
+        .skeleton-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+        }
+
+        @keyframes loading {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        /* Hide content while loading */
+        .content-loading {
+            display: none;
+        }
+
+        .skeleton-loading {
+            display: block;
+        }
     </style>
 </head>
 
 <body>
-    
     <div class="container mt-4">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h2 class="card-title">Select a Hostel</h2>
-                        <p class="text-muted">Click on a hostel card to view available rooms</p>
+        <!-- Skeleton Loading Structure -->
+        <div class="skeleton-loading">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="skeleton skeleton-title w-75 mb-4"></div>
+                            <div class="skeleton skeleton-text w-50 mb-3"></div>
+                            
+                            <!-- Student Info Skeleton -->
+                            <div class="student-info-card mb-4">
+                                <div class="skeleton skeleton-title w-50 mb-3"></div>
+                                <div class="skeleton skeleton-text w-75 mb-2"></div>
+                                <div class="skeleton skeleton-text w-75 mb-2"></div>
+                                <div class="skeleton skeleton-text w-75 mb-2"></div>
+                            </div>
 
-                        <?php include 'hostel_includes/student_info.php'; ?>
-                        <?php
-                        // Pass only eligible hostels to the hostel map component
-                        $hostels = $eligible_hostels;
-                        include 'hostel_includes/hostel_map.php';
-                        ?>
+                            <!-- Hostel Cards Skeleton -->
+                            <div class="row">
+                                <?php for($i = 0; $i < 3; $i++): ?>
+                                <div class="col-md-4">
+                                    <div class="card hostel-card">
+                                        <div class="card-body">
+                                            <div class="skeleton skeleton-title w-75 mb-3"></div>
+                                            <div class="skeleton skeleton-text w-100 mb-2"></div>
+                                            <div class="skeleton skeleton-text w-100 mb-2"></div>
+                                            <div class="skeleton skeleton-text w-50 mb-3"></div>
+                                            <div class="skeleton skeleton-text w-25"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <?php endfor; ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actual Content -->
+        <div class="content-loading">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card" style="border: 0px solid #000;">
+                        <div class="card-body">
+                            <h2 class="card-title">Select a Hostel</h2>
+                            <p class="text-muted">Click on a hostel card to view available rooms</p>
+
+                            <?php include 'hostel_includes/student_info.php'; ?>
+                            <?php
+                            // Pass only eligible hostels to the hostel map component
+                            $hostels = $eligible_hostels;
+                            include 'hostel_includes/hostel_map.php';
+                            ?>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -218,6 +307,16 @@ $eligible_hostels = array_filter($hostels, function ($hostel) use ($connection, 
     <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Show skeleton loading initially
+            document.querySelector('.skeleton-loading').style.display = 'block';
+            document.querySelector('.content-loading').style.display = 'none';
+
+            // Simulate loading time (remove this in production and use actual loading events)
+            setTimeout(() => {
+                document.querySelector('.skeleton-loading').style.display = 'none';
+                document.querySelector('.content-loading').style.display = 'block';
+            }, 1500);
+
             const roomsModal = document.getElementById('roomsModal');
             const modal = new bootstrap.Modal(roomsModal);
 
@@ -231,7 +330,6 @@ $eligible_hostels = array_filter($hostels, function ($hostel) use ($connection, 
 
             // When modal is hidden
             roomsModal.addEventListener('hidden.bs.modal', function () {
-                // Return focus to the element that had focus before the modal opened
                 if (previousActiveElement) {
                     previousActiveElement.focus();
                 }
@@ -252,7 +350,12 @@ $eligible_hostels = array_filter($hostels, function ($hostel) use ($connection, 
                     // Show loading state
                     const roomsContainer = document.getElementById('rooms-container');
                     if (roomsContainer) {
-                        roomsContainer.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"></div></div>';
+                        roomsContainer.innerHTML = `
+                            <div class="text-center">
+                                <div class="skeleton skeleton-text w-75 mx-auto mb-3"></div>
+                                <div class="skeleton skeleton-text w-50 mx-auto mb-3"></div>
+                                <div class="skeleton skeleton-text w-25 mx-auto"></div>
+                            </div>`;
                     }
 
                     // Load rooms

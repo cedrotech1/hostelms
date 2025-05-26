@@ -1262,11 +1262,6 @@ h6 {
     color: #fff;
 }
 
-.status-rejected {
-    background-color: #dc3545;
-    color: #fff;
-}
-
 /* Action buttons */
 .btn-approve {
     background-color: #198754;

@@ -50,6 +50,11 @@
                             <i class="bi bi-person-plus"></i><span>upload hostels </span>
                         </a>
                     </li>
+                    <li>
+                        <a class="nav-link collapsed" href="allstudents.php">
+                            <i class="bi bi-card-heading"></i><span>All students</span>
+                        </a>
+                    </li>
 
 
 
@@ -77,6 +82,12 @@
             <li>
                 <a class="nav-link collapsed" href="manage_applications.php">
                     <i class="bi bi-person-plus"></i><span>manage application</span>
+                </a>
+            </li>
+            <!-- logout -->
+            <li>
+                <a class="nav-link collapsed" href="../logout.php">
+                    <i class="bi bi-person-plus"></i><span>logout</span>
                 </a>
             </li>
 
