@@ -1,0 +1,1054 @@
+[2025-05-27 13:48:03] Script started
+[2025-05-27 13:48:03] ERROR: connection.php file not found!
+[2025-05-27 13:48:19] Script started
+[2025-05-27 13:48:19] Database connection successful
+[2025-05-27 13:48:19] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 5
+[2025-05-27 13:48:19] Found 1 applications to process
+[2025-05-27 13:48:19] Processing application ID: 1 for student: 20231007
+[2025-05-27 13:48:19] Application created at: 2025-05-27 13:40:59
+[2025-05-27 13:48:20] SMS sent to +250721686167 with status code: 201
+[2025-05-27 13:48:20] SMS sending status: Failed
+[2025-05-27 13:48:20] Updated student info for 20231007
+[2025-05-27 13:48:20] Deleted application ID: 1
+[2025-05-27 13:48:20] Successfully processed application ID: 1
+[2025-05-27 13:48:20] Script completed
+[2025-05-27 13:58:47] Script started
+[2025-05-27 13:58:47] Database connection successful
+[2025-05-27 13:58:47] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 5
+[2025-05-27 13:58:47] Found 1 applications to process
+[2025-05-27 13:58:47] Processing application ID: 2 for student: 20231007
+[2025-05-27 13:58:47] Application created at: 2025-05-27 13:52:47
+[2025-05-27 13:58:47] Room ID: 11
+[2025-05-27 13:58:47] SMS sent to +250721686167 with status code: 201
+[2025-05-27 13:58:47] SMS sending status: Failed
+[2025-05-27 13:58:47] Executing query: UPDATE info SET current_application = 'rejected' WHERE regnumber = '20231007'
+[2025-05-27 13:58:47] Updated student info for 20231007
+[2025-05-27 13:58:47] Executing query: UPDATE rooms SET remain = remain + 1 WHERE id = 11
+[2025-05-27 13:58:47] Updated room remain for room ID: 11
+[2025-05-27 13:58:47] Executing query: DELETE FROM applications WHERE id = 2
+[2025-05-27 13:58:47] Deleted application ID: 2
+[2025-05-27 13:58:47] Successfully processed application ID: 2
+[2025-05-27 13:58:47] Script completed
+[2025-05-27 13:59:13] Script started
+[2025-05-27 13:59:13] Database connection successful
+[2025-05-27 13:59:13] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 5
+[2025-05-27 13:59:13] Fatal error: Table 'ur-student-card.applications' doesn't exist
+[2025-05-27 13:59:13] Script completed
+[2025-05-27 14:10:50] Script started
+[2025-05-27 14:10:50] Database connection successful
+[2025-05-27 14:10:50] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 14:10:50] Found 1 applications to process
+[2025-05-27 14:10:50] Processing application ID: 3 for student: 20231007
+[2025-05-27 14:10:50] Application created at: 2025-05-27 14:08:55
+[2025-05-27 14:10:50] Room ID: 11
+[2025-05-27 14:10:51] SMS sent to +250721686167 with status code: 201
+[2025-05-27 14:10:51] SMS sending status: Failed
+[2025-05-27 14:10:51] Executing query: UPDATE info SET current_application = 'rejected' WHERE regnumber = '20231007'
+[2025-05-27 14:10:51] Updated student info for 20231007
+[2025-05-27 14:10:51] Executing query: UPDATE rooms SET remain = remain + 1 WHERE id = 11
+[2025-05-27 14:10:51] Updated room remain for room ID: 11
+[2025-05-27 14:10:51] Executing query: DELETE FROM applications WHERE id = 3
+[2025-05-27 14:10:51] Deleted application ID: 3
+[2025-05-27 14:10:51] Successfully processed application ID: 3
+[2025-05-27 14:10:51] Script completed
+[2025-05-27 14:28:28] Script started
+[2025-05-27 14:28:28] Time limit set to:  minutes
+[2025-05-27 14:28:28] Connection file loaded successfully
+[2025-05-27 14:28:28] Database connection successful
+[2025-05-27 14:28:28] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 14:28:28] Found 1 applications to process
+[2025-05-27 14:28:28] Processing application ID: 4 for student: 20231007
+[2025-05-27 14:28:28] Application created at: 2025-05-27 14:23:26
+[2025-05-27 14:28:28] Room ID: 41
+[2025-05-27 14:28:29] SMS sent to +250721686167 with status code: 201
+[2025-05-27 14:28:29] SMS sending status: Failed
+[2025-05-27 14:28:29] Executing query: UPDATE info SET current_application = 'rejected' WHERE regnumber = '20231007'
+[2025-05-27 14:28:29] Updated student info for 20231007
+[2025-05-27 14:28:29] Executing query: UPDATE rooms SET remain = remain + 1 WHERE id = 41
+[2025-05-27 14:28:29] Updated room remain for room ID: 41
+[2025-05-27 14:28:29] Executing query: DELETE FROM applications WHERE id = 4
+[2025-05-27 14:28:29] Deleted application ID: 4
+[2025-05-27 14:28:29] Successfully processed application ID: 4
+[2025-05-27 14:28:29] Script completed
+[2025-05-27 14:28:32] Script started
+[2025-05-27 14:28:32] Time limit set to:  minutes
+[2025-05-27 14:28:32] Connection file loaded successfully
+[2025-05-27 14:28:32] Database connection successful
+[2025-05-27 14:28:32] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 14:28:32] Found 0 applications to process
+[2025-05-27 14:28:32] No applications found that are older than 1 minutes
+[2025-05-27 14:28:32] Script completed
+[2025-05-27 14:28:34] Script started
+[2025-05-27 14:28:34] Time limit set to:  minutes
+[2025-05-27 14:28:34] Connection file loaded successfully
+[2025-05-27 14:28:34] Database connection successful
+[2025-05-27 14:28:34] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 14:28:34] Found 0 applications to process
+[2025-05-27 14:28:34] No applications found that are older than 1 minutes
+[2025-05-27 14:28:34] Script completed
+[2025-05-27 14:32:17] Script started
+[2025-05-27 14:32:17] Time limit set to: 1 minutes
+[2025-05-27 14:32:17] Connection file loaded successfully
+[2025-05-27 14:32:17] Database connection successful
+[2025-05-27 14:32:17] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 14:32:17] Found 1 applications to process
+[2025-05-27 14:32:17] Processing application ID: 5 for student: 20231007
+[2025-05-27 14:32:17] Application created at: 2025-05-27 14:30:57
+[2025-05-27 14:32:17] Room ID: 41
+[2025-05-27 14:32:18] SMS sent to +250721686167 with status code: 201
+[2025-05-27 14:32:18] SMS sending status: Failed
+[2025-05-27 14:32:18] Executing query: UPDATE info SET current_application = 'rejected' WHERE regnumber = '20231007'
+[2025-05-27 14:32:18] Updated student info for 20231007
+[2025-05-27 14:32:18] Executing query: UPDATE rooms SET remain = remain + 1 WHERE id = 41
+[2025-05-27 14:32:18] Updated room remain for room ID: 41
+[2025-05-27 14:32:18] Executing query: DELETE FROM applications WHERE id = 5
+[2025-05-27 14:32:18] Deleted application ID: 5
+[2025-05-27 14:32:18] Successfully processed application ID: 5
+[2025-05-27 14:32:18] Script completed
+[2025-05-27 14:36:01] Script started
+[2025-05-27 14:36:01] Time limit set to: 1 minutes
+[2025-05-27 14:36:01] Connection file loaded successfully
+[2025-05-27 14:36:01] Database connection successful
+[2025-05-27 14:36:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 14:36:01] Found 1 applications to process
+[2025-05-27 14:36:01] Processing application ID: 6 for student: 20231007
+[2025-05-27 14:36:01] Application created at: 2025-05-27 14:33:12
+[2025-05-27 14:36:01] Room ID: 41
+[2025-05-27 14:36:02] SMS sent to +250721686167 with status code: 201
+[2025-05-27 14:36:02] SMS sending status: Failed
+[2025-05-27 14:36:02] Executing query: UPDATE info SET current_application = 'rejected' WHERE regnumber = '20231007'
+[2025-05-27 14:36:02] Updated student info for 20231007
+[2025-05-27 14:36:02] Executing query: UPDATE rooms SET remain = remain + 1 WHERE id = 41
+[2025-05-27 14:36:02] Updated room remain for room ID: 41
+[2025-05-27 14:36:02] Executing query: DELETE FROM applications WHERE id = 6
+[2025-05-27 14:36:02] Deleted application ID: 6
+[2025-05-27 14:36:02] Successfully processed application ID: 6
+[2025-05-27 14:36:02] Script completed
+[2025-05-27 14:37:01] Script started
+[2025-05-27 14:37:01] Time limit set to: 1 minutes
+[2025-05-27 14:37:01] Connection file loaded successfully
+[2025-05-27 14:37:01] Database connection successful
+[2025-05-27 14:37:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 14:37:01] Found 0 applications to process
+[2025-05-27 14:37:01] No applications found that are older than 1 minutes
+[2025-05-27 14:37:01] Script completed
+[2025-05-27 14:38:01] Script started
+[2025-05-27 14:38:01] Time limit set to: 1 minutes
+[2025-05-27 14:38:01] Connection file loaded successfully
+[2025-05-27 14:38:01] Database connection successful
+[2025-05-27 14:38:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 14:38:01] Found 0 applications to process
+[2025-05-27 14:38:01] No applications found that are older than 1 minutes
+[2025-05-27 14:38:01] Script completed
+[2025-05-27 14:39:01] Script started
+[2025-05-27 14:39:01] Time limit set to: 1 minutes
+[2025-05-27 14:39:01] Connection file loaded successfully
+[2025-05-27 14:39:01] Database connection successful
+[2025-05-27 14:39:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 14:39:01] Found 1 applications to process
+[2025-05-27 14:39:01] Processing application ID: 7 for student: 20231007
+[2025-05-27 14:39:01] Application created at: 2025-05-27 14:37:25
+[2025-05-27 14:39:01] Room ID: 31
+[2025-05-27 14:39:01] SMS sent to +250721686167 with status code: 201
+[2025-05-27 14:39:01] SMS sending status: Failed
+[2025-05-27 14:39:01] Executing query: UPDATE info SET current_application = 'rejected' WHERE regnumber = '20231007'
+[2025-05-27 14:39:01] Updated student info for 20231007
+[2025-05-27 14:39:01] Executing query: UPDATE rooms SET remain = remain + 1 WHERE id = 31
+[2025-05-27 14:39:01] Updated room remain for room ID: 31
+[2025-05-27 14:39:01] Executing query: DELETE FROM applications WHERE id = 7
+[2025-05-27 14:39:01] Deleted application ID: 7
+[2025-05-27 14:39:01] Successfully processed application ID: 7
+[2025-05-27 14:39:01] Script completed
+[2025-05-27 14:40:01] Script started
+[2025-05-27 14:40:01] Time limit set to: 1 minutes
+[2025-05-27 14:40:01] Connection file loaded successfully
+[2025-05-27 14:40:01] Database connection successful
+[2025-05-27 14:40:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 14:40:01] Found 0 applications to process
+[2025-05-27 14:40:01] No applications found that are older than 1 minutes
+[2025-05-27 14:40:01] Script completed
+[2025-05-27 14:41:01] Script started
+[2025-05-27 14:41:01] Time limit set to: 1 minutes
+[2025-05-27 14:41:01] Connection file loaded successfully
+[2025-05-27 14:41:01] Database connection successful
+[2025-05-27 14:41:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 14:41:01] Found 0 applications to process
+[2025-05-27 14:41:01] No applications found that are older than 1 minutes
+[2025-05-27 14:41:01] Script completed
+[2025-05-27 14:42:01] Script started
+[2025-05-27 14:42:01] Time limit set to: 1 minutes
+[2025-05-27 14:42:01] Connection file loaded successfully
+[2025-05-27 14:42:01] Database connection successful
+[2025-05-27 14:42:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 14:42:01] Found 0 applications to process
+[2025-05-27 14:42:01] No applications found that are older than 1 minutes
+[2025-05-27 14:42:01] Script completed
+[2025-05-27 14:43:01] Script started
+[2025-05-27 14:43:01] Time limit set to: 1 minutes
+[2025-05-27 14:43:01] Connection file loaded successfully
+[2025-05-27 14:43:01] Database connection successful
+[2025-05-27 14:43:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 14:43:01] Found 0 applications to process
+[2025-05-27 14:43:01] No applications found that are older than 1 minutes
+[2025-05-27 14:43:01] Script completed
+[2025-05-27 14:44:01] Script started
+[2025-05-27 14:44:01] Time limit set to: 1 minutes
+[2025-05-27 14:44:01] Connection file loaded successfully
+[2025-05-27 14:44:01] Database connection successful
+[2025-05-27 14:44:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 14:44:01] Found 0 applications to process
+[2025-05-27 14:44:01] No applications found that are older than 1 minutes
+[2025-05-27 14:44:01] Script completed
+[2025-05-27 14:45:01] Script started
+[2025-05-27 14:45:01] Time limit set to: 1 minutes
+[2025-05-27 14:45:01] Connection file loaded successfully
+[2025-05-27 14:45:01] Database connection successful
+[2025-05-27 14:45:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 14:45:01] Found 0 applications to process
+[2025-05-27 14:45:01] No applications found that are older than 1 minutes
+[2025-05-27 14:45:01] Script completed
+[2025-05-27 14:46:01] Script started
+[2025-05-27 14:46:01] Time limit set to: 1 minutes
+[2025-05-27 14:46:01] Connection file loaded successfully
+[2025-05-27 14:46:01] Database connection successful
+[2025-05-27 14:46:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 14:46:01] Found 0 applications to process
+[2025-05-27 14:46:01] No applications found that are older than 1 minutes
+[2025-05-27 14:46:01] Script completed
+[2025-05-27 14:47:01] Script started
+[2025-05-27 14:47:01] Time limit set to: 1 minutes
+[2025-05-27 14:47:01] Connection file loaded successfully
+[2025-05-27 14:47:01] Database connection successful
+[2025-05-27 14:47:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 14:47:01] Found 0 applications to process
+[2025-05-27 14:47:01] No applications found that are older than 1 minutes
+[2025-05-27 14:47:01] Script completed
+[2025-05-27 14:48:01] Script started
+[2025-05-27 14:48:01] Time limit set to: 1 minutes
+[2025-05-27 14:48:01] Connection file loaded successfully
+[2025-05-27 14:48:01] Database connection successful
+[2025-05-27 14:48:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 14:48:01] Found 0 applications to process
+[2025-05-27 14:48:01] No applications found that are older than 1 minutes
+[2025-05-27 14:48:01] Script completed
+[2025-05-27 14:49:01] Script started
+[2025-05-27 14:49:01] Time limit set to: 1 minutes
+[2025-05-27 14:49:01] Connection file loaded successfully
+[2025-05-27 14:49:01] Database connection successful
+[2025-05-27 14:49:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 14:49:01] Found 0 applications to process
+[2025-05-27 14:49:01] No applications found that are older than 1 minutes
+[2025-05-27 14:49:01] Script completed
+[2025-05-27 14:50:01] Script started
+[2025-05-27 14:50:01] Time limit set to: 1 minutes
+[2025-05-27 14:50:01] Connection file loaded successfully
+[2025-05-27 14:50:01] Database connection successful
+[2025-05-27 14:50:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 14:50:01] Found 0 applications to process
+[2025-05-27 14:50:01] No applications found that are older than 1 minutes
+[2025-05-27 14:50:01] Script completed
+[2025-05-27 14:51:01] Script started
+[2025-05-27 14:51:01] Time limit set to: 1 minutes
+[2025-05-27 14:51:01] Connection file loaded successfully
+[2025-05-27 14:51:01] Database connection successful
+[2025-05-27 14:51:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 14:51:01] Found 0 applications to process
+[2025-05-27 14:51:01] No applications found that are older than 1 minutes
+[2025-05-27 14:51:01] Script completed
+[2025-05-27 14:52:01] Script started
+[2025-05-27 14:52:01] Time limit set to: 1 minutes
+[2025-05-27 14:52:01] Connection file loaded successfully
+[2025-05-27 14:52:01] Database connection successful
+[2025-05-27 14:52:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 14:52:01] Found 0 applications to process
+[2025-05-27 14:52:01] No applications found that are older than 1 minutes
+[2025-05-27 14:52:01] Script completed
+[2025-05-27 14:53:01] Script started
+[2025-05-27 14:53:01] Time limit set to: 1 minutes
+[2025-05-27 14:53:01] Connection file loaded successfully
+[2025-05-27 14:53:01] Database connection successful
+[2025-05-27 14:53:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 14:53:01] Found 0 applications to process
+[2025-05-27 14:53:01] No applications found that are older than 1 minutes
+[2025-05-27 14:53:01] Script completed
+[2025-05-27 14:54:01] Script started
+[2025-05-27 14:54:01] Time limit set to: 1 minutes
+[2025-05-27 14:54:01] Connection file loaded successfully
+[2025-05-27 14:54:01] Database connection successful
+[2025-05-27 14:54:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 14:54:01] Found 0 applications to process
+[2025-05-27 14:54:01] No applications found that are older than 1 minutes
+[2025-05-27 14:54:01] Script completed
+[2025-05-27 14:55:01] Script started
+[2025-05-27 14:55:01] Time limit set to: 1 minutes
+[2025-05-27 14:55:01] Connection file loaded successfully
+[2025-05-27 14:55:01] Database connection successful
+[2025-05-27 14:55:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 14:55:01] Found 1 applications to process
+[2025-05-27 14:55:01] Processing application ID: 8 for student: 20231007
+[2025-05-27 14:55:01] Application created at: 2025-05-27 14:53:23
+[2025-05-27 14:55:01] Room ID: 41
+[2025-05-27 14:55:02] SMS sent to +250721686167 with status code: 201
+[2025-05-27 14:55:02] SMS sending status: Failed
+[2025-05-27 14:55:02] Executing query: UPDATE info SET current_application = 'rejected' WHERE regnumber = '20231007'
+[2025-05-27 14:55:02] Updated student info for 20231007
+[2025-05-27 14:55:02] Executing query: UPDATE rooms SET remain = remain + 1 WHERE id = 41
+[2025-05-27 14:55:02] Updated room remain for room ID: 41
+[2025-05-27 14:55:02] Executing query: DELETE FROM applications WHERE id = 8
+[2025-05-27 14:55:02] Deleted application ID: 8
+[2025-05-27 14:55:02] Successfully processed application ID: 8
+[2025-05-27 14:55:02] Script completed
+[2025-05-27 14:56:01] Script started
+[2025-05-27 14:56:01] Time limit set to: 1 minutes
+[2025-05-27 14:56:01] Connection file loaded successfully
+[2025-05-27 14:56:01] Database connection successful
+[2025-05-27 14:56:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 14:56:01] Found 0 applications to process
+[2025-05-27 14:56:01] No applications found that are older than 1 minutes
+[2025-05-27 14:56:01] Script completed
+[2025-05-27 14:57:01] Script started
+[2025-05-27 14:57:01] Time limit set to: 1 minutes
+[2025-05-27 14:57:01] Connection file loaded successfully
+[2025-05-27 14:57:01] Database connection successful
+[2025-05-27 14:57:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 14:57:01] Found 0 applications to process
+[2025-05-27 14:57:01] No applications found that are older than 1 minutes
+[2025-05-27 14:57:01] Script completed
+[2025-05-27 14:58:01] Script started
+[2025-05-27 14:58:01] Time limit set to: 1 minutes
+[2025-05-27 14:58:01] Connection file loaded successfully
+[2025-05-27 14:58:01] Database connection successful
+[2025-05-27 14:58:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 14:58:01] Found 0 applications to process
+[2025-05-27 14:58:01] No applications found that are older than 1 minutes
+[2025-05-27 14:58:01] Script completed
+[2025-05-27 14:59:01] Script started
+[2025-05-27 14:59:01] Time limit set to: 1 minutes
+[2025-05-27 14:59:01] Connection file loaded successfully
+[2025-05-27 14:59:01] Database connection successful
+[2025-05-27 14:59:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 14:59:01] Found 0 applications to process
+[2025-05-27 14:59:01] No applications found that are older than 1 minutes
+[2025-05-27 14:59:01] Script completed
+[2025-05-27 15:00:01] Script started
+[2025-05-27 15:00:01] Time limit set to: 1 minutes
+[2025-05-27 15:00:01] Connection file loaded successfully
+[2025-05-27 15:00:01] Database connection successful
+[2025-05-27 15:00:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 15:00:01] Found 0 applications to process
+[2025-05-27 15:00:01] No applications found that are older than 1 minutes
+[2025-05-27 15:00:01] Script completed
+[2025-05-27 15:01:01] Script started
+[2025-05-27 15:01:01] Time limit set to: 1 minutes
+[2025-05-27 15:01:01] Connection file loaded successfully
+[2025-05-27 15:01:01] Database connection successful
+[2025-05-27 15:01:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 15:01:01] Found 0 applications to process
+[2025-05-27 15:01:01] No applications found that are older than 1 minutes
+[2025-05-27 15:01:01] Script completed
+[2025-05-27 15:02:01] Script started
+[2025-05-27 15:02:01] Time limit set to: 1 minutes
+[2025-05-27 15:02:01] Connection file loaded successfully
+[2025-05-27 15:02:01] Database connection successful
+[2025-05-27 15:02:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 15:02:01] Found 0 applications to process
+[2025-05-27 15:02:01] No applications found that are older than 1 minutes
+[2025-05-27 15:02:01] Script completed
+[2025-05-27 15:03:01] Script started
+[2025-05-27 15:03:01] Time limit set to: 1 minutes
+[2025-05-27 15:03:01] Connection file loaded successfully
+[2025-05-27 15:03:01] Database connection successful
+[2025-05-27 15:03:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 15:03:01] Found 0 applications to process
+[2025-05-27 15:03:01] No applications found that are older than 1 minutes
+[2025-05-27 15:03:01] Script completed
+[2025-05-27 15:04:01] Script started
+[2025-05-27 15:04:01] Time limit set to: 1 minutes
+[2025-05-27 15:04:01] Connection file loaded successfully
+[2025-05-27 15:04:01] Database connection successful
+[2025-05-27 15:04:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 15:04:01] Found 0 applications to process
+[2025-05-27 15:04:01] No applications found that are older than 1 minutes
+[2025-05-27 15:04:01] Script completed
+[2025-05-27 15:05:01] Script started
+[2025-05-27 15:05:01] Time limit set to: 1 minutes
+[2025-05-27 15:05:01] Connection file loaded successfully
+[2025-05-27 15:05:01] Database connection successful
+[2025-05-27 15:05:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 15:05:01] Found 0 applications to process
+[2025-05-27 15:05:01] No applications found that are older than 1 minutes
+[2025-05-27 15:05:01] Script completed
+[2025-05-27 15:06:01] Script started
+[2025-05-27 15:06:01] Time limit set to: 1 minutes
+[2025-05-27 15:06:01] Connection file loaded successfully
+[2025-05-27 15:06:01] Database connection successful
+[2025-05-27 15:06:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 15:06:01] Found 0 applications to process
+[2025-05-27 15:06:01] No applications found that are older than 1 minutes
+[2025-05-27 15:06:01] Script completed
+[2025-05-27 15:07:01] Script started
+[2025-05-27 15:07:01] Time limit set to: 1 minutes
+[2025-05-27 15:07:01] Connection file loaded successfully
+[2025-05-27 15:07:01] Database connection successful
+[2025-05-27 15:07:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 15:07:01] Found 0 applications to process
+[2025-05-27 15:07:01] No applications found that are older than 1 minutes
+[2025-05-27 15:07:01] Script completed
+[2025-05-27 15:08:01] Script started
+[2025-05-27 15:08:01] Time limit set to: 1 minutes
+[2025-05-27 15:08:01] Connection file loaded successfully
+[2025-05-27 15:08:01] Database connection successful
+[2025-05-27 15:08:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 15:08:01] Found 0 applications to process
+[2025-05-27 15:08:01] No applications found that are older than 1 minutes
+[2025-05-27 15:08:01] Script completed
+[2025-05-27 15:09:01] Script started
+[2025-05-27 15:09:01] Time limit set to: 1 minutes
+[2025-05-27 15:09:01] Connection file loaded successfully
+[2025-05-27 15:09:01] Database connection successful
+[2025-05-27 15:09:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 15:09:01] Found 0 applications to process
+[2025-05-27 15:09:01] No applications found that are older than 1 minutes
+[2025-05-27 15:09:01] Script completed
+[2025-05-27 15:10:01] Script started
+[2025-05-27 15:10:01] Time limit set to: 1 minutes
+[2025-05-27 15:10:01] Connection file loaded successfully
+[2025-05-27 15:10:01] Database connection successful
+[2025-05-27 15:10:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 15:10:01] Found 0 applications to process
+[2025-05-27 15:10:01] No applications found that are older than 1 minutes
+[2025-05-27 15:10:01] Script completed
+[2025-05-27 15:11:01] Script started
+[2025-05-27 15:11:01] Time limit set to: 1 minutes
+[2025-05-27 15:11:01] Connection file loaded successfully
+[2025-05-27 15:11:01] Database connection successful
+[2025-05-27 15:11:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 15:11:01] Found 0 applications to process
+[2025-05-27 15:11:01] No applications found that are older than 1 minutes
+[2025-05-27 15:11:01] Script completed
+[2025-05-27 15:12:01] Script started
+[2025-05-27 15:12:01] Time limit set to: 1 minutes
+[2025-05-27 15:12:01] Connection file loaded successfully
+[2025-05-27 15:12:01] Database connection successful
+[2025-05-27 15:12:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 15:12:01] Found 0 applications to process
+[2025-05-27 15:12:01] No applications found that are older than 1 minutes
+[2025-05-27 15:12:01] Script completed
+[2025-05-27 15:21:01] Script started
+[2025-05-27 15:21:01] Time limit set to: 1 minutes
+[2025-05-27 15:21:01] Connection file loaded successfully
+[2025-05-27 15:21:01] Database connection successful
+[2025-05-27 15:21:02] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 15:21:02] Found 0 applications to process
+[2025-05-27 15:21:02] No applications found that are older than 1 minutes
+[2025-05-27 15:21:02] Script completed
+[2025-05-27 15:23:01] Script started
+[2025-05-27 15:23:01] Time limit set to: 1 minutes
+[2025-05-27 15:23:01] Connection file loaded successfully
+[2025-05-27 15:23:01] Database connection successful
+[2025-05-27 15:23:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 15:23:01] Found 0 applications to process
+[2025-05-27 15:23:01] No applications found that are older than 1 minutes
+[2025-05-27 15:23:01] Script completed
+[2025-05-27 15:25:01] Script started
+[2025-05-27 15:25:01] Time limit set to: 1 minutes
+[2025-05-27 15:25:02] Connection file loaded successfully
+[2025-05-27 15:25:02] Database connection successful
+[2025-05-27 15:25:02] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 15:25:02] Found 0 applications to process
+[2025-05-27 15:25:02] No applications found that are older than 1 minutes
+[2025-05-27 15:25:02] Script completed
+[2025-05-27 15:27:02] Script started
+[2025-05-27 15:27:02] Time limit set to: 1 minutes
+[2025-05-27 15:27:02] Connection file loaded successfully
+[2025-05-27 15:27:02] Database connection successful
+[2025-05-27 15:27:02] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 15:27:02] Found 0 applications to process
+[2025-05-27 15:27:02] No applications found that are older than 1 minutes
+[2025-05-27 15:27:02] Script completed
+[2025-05-27 15:29:01] Script started
+[2025-05-27 15:29:01] Time limit set to: 1 minutes
+[2025-05-27 15:29:02] Connection file loaded successfully
+[2025-05-27 15:29:02] Database connection successful
+[2025-05-27 15:29:02] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 15:29:02] Found 0 applications to process
+[2025-05-27 15:29:02] No applications found that are older than 1 minutes
+[2025-05-27 15:29:02] Script completed
+[2025-05-27 15:31:02] Script started
+[2025-05-27 15:31:02] Time limit set to: 1 minutes
+[2025-05-27 15:31:02] Connection file loaded successfully
+[2025-05-27 15:31:02] Database connection successful
+[2025-05-27 15:31:02] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 15:31:02] Found 0 applications to process
+[2025-05-27 15:31:02] No applications found that are older than 1 minutes
+[2025-05-27 15:31:02] Script completed
+[2025-05-27 15:33:02] Script started
+[2025-05-27 15:33:02] Time limit set to: 1 minutes
+[2025-05-27 15:33:02] Connection file loaded successfully
+[2025-05-27 15:33:02] Database connection successful
+[2025-05-27 15:33:02] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 15:33:02] Found 0 applications to process
+[2025-05-27 15:33:02] No applications found that are older than 1 minutes
+[2025-05-27 15:33:02] Script completed
+[2025-05-27 15:35:02] Script started
+[2025-05-27 15:35:02] Time limit set to: 1 minutes
+[2025-05-27 15:35:02] Connection file loaded successfully
+[2025-05-27 15:35:02] Database connection successful
+[2025-05-27 15:35:02] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 15:35:02] Found 0 applications to process
+[2025-05-27 15:35:02] No applications found that are older than 1 minutes
+[2025-05-27 15:35:02] Script completed
+[2025-05-27 15:37:02] Script started
+[2025-05-27 15:37:02] Time limit set to: 1 minutes
+[2025-05-27 15:37:02] Connection file loaded successfully
+[2025-05-27 15:37:02] Database connection successful
+[2025-05-27 15:37:02] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 15:37:02] Found 0 applications to process
+[2025-05-27 15:37:02] No applications found that are older than 1 minutes
+[2025-05-27 15:37:02] Script completed
+[2025-05-27 15:39:02] Script started
+[2025-05-27 15:39:02] Time limit set to: 1 minutes
+[2025-05-27 15:39:02] Connection file loaded successfully
+[2025-05-27 15:39:02] Database connection successful
+[2025-05-27 15:39:02] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 15:39:02] Found 0 applications to process
+[2025-05-27 15:39:02] No applications found that are older than 1 minutes
+[2025-05-27 15:39:02] Script completed
+[2025-05-27 15:41:02] Script started
+[2025-05-27 15:41:02] Time limit set to: 1 minutes
+[2025-05-27 15:41:02] Connection file loaded successfully
+[2025-05-27 15:41:02] Database connection successful
+[2025-05-27 15:41:02] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 15:41:02] Found 0 applications to process
+[2025-05-27 15:41:02] No applications found that are older than 1 minutes
+[2025-05-27 15:41:02] Script completed
+[2025-05-27 15:43:02] Script started
+[2025-05-27 15:43:02] Time limit set to: 1 minutes
+[2025-05-27 15:43:02] Connection file loaded successfully
+[2025-05-27 15:43:02] Database connection successful
+[2025-05-27 15:43:02] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 15:43:02] Found 0 applications to process
+[2025-05-27 15:43:02] No applications found that are older than 1 minutes
+[2025-05-27 15:43:02] Script completed
+[2025-05-27 15:45:03] Script started
+[2025-05-27 15:45:03] Time limit set to: 1 minutes
+[2025-05-27 15:49:02] Script started
+[2025-05-27 15:49:02] Time limit set to: 1 minutes
+[2025-05-27 15:51:02] Script started
+[2025-05-27 15:51:02] Time limit set to: 1 minutes
+[2025-05-27 15:51:02] Connection file loaded successfully
+[2025-05-27 15:51:02] Database connection successful
+[2025-05-27 15:51:02] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 15:51:02] Found 0 applications to process
+[2025-05-27 15:51:02] No applications found that are older than 1 minutes
+[2025-05-27 15:51:02] Script completed
+[2025-05-27 15:53:01] Script started
+[2025-05-27 15:53:01] Time limit set to: 1 minutes
+[2025-05-27 15:53:01] Connection file loaded successfully
+[2025-05-27 15:53:01] Database connection successful
+[2025-05-27 15:53:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 15:53:01] Found 0 applications to process
+[2025-05-27 15:53:01] No applications found that are older than 1 minutes
+[2025-05-27 15:53:01] Script completed
+[2025-05-27 15:55:01] Script started
+[2025-05-27 15:55:01] Time limit set to: 1 minutes
+[2025-05-27 15:55:01] Connection file loaded successfully
+[2025-05-27 15:55:01] Database connection successful
+[2025-05-27 15:55:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 15:55:02] Found 0 applications to process
+[2025-05-27 15:55:02] No applications found that are older than 1 minutes
+[2025-05-27 15:55:02] Script completed
+[2025-05-27 15:57:01] Script started
+[2025-05-27 15:57:01] Time limit set to: 1 minutes
+[2025-05-27 15:57:02] Connection file loaded successfully
+[2025-05-27 15:57:02] Database connection successful
+[2025-05-27 15:57:02] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 15:57:02] Found 0 applications to process
+[2025-05-27 15:57:02] No applications found that are older than 1 minutes
+[2025-05-27 15:57:02] Script completed
+[2025-05-27 15:59:02] Script started
+[2025-05-27 15:59:02] Time limit set to: 1 minutes
+[2025-05-27 15:59:02] Connection file loaded successfully
+[2025-05-27 15:59:02] Database connection successful
+[2025-05-27 15:59:02] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 15:59:02] Found 0 applications to process
+[2025-05-27 15:59:02] No applications found that are older than 1 minutes
+[2025-05-27 15:59:02] Script completed
+[2025-05-27 16:11:01] Script started
+[2025-05-27 16:11:01] Time limit set to: 1 minutes
+[2025-05-27 16:11:01] Connection file loaded successfully
+[2025-05-27 16:11:01] Database connection successful
+[2025-05-27 16:11:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 16:11:01] Found 0 applications to process
+[2025-05-27 16:11:01] No applications found that are older than 1 minutes
+[2025-05-27 16:11:01] Script completed
+[2025-05-27 16:21:01] Script started
+[2025-05-27 16:21:01] Time limit set to: 1 minutes
+[2025-05-27 16:21:01] Connection file loaded successfully
+[2025-05-27 16:21:01] Database connection successful
+[2025-05-27 16:21:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 16:21:01] Found 1 applications to process
+[2025-05-27 16:21:01] Processing application ID: 9 for student: 20231007
+[2025-05-27 16:21:01] Application created at: 2025-05-27 16:12:53
+[2025-05-27 16:21:01] Room ID: 41
+[2025-05-27 16:21:02] SMS sent to +250721686167 with status code: 201
+[2025-05-27 16:21:02] SMS sending status: Failed
+[2025-05-27 16:21:02] Executing query: UPDATE info SET current_application = 'rejected' WHERE regnumber = '20231007'
+[2025-05-27 16:21:02] Updated student info for 20231007
+[2025-05-27 16:21:02] Executing query: UPDATE rooms SET remain = remain + 1 WHERE id = 41
+[2025-05-27 16:21:02] Updated room remain for room ID: 41
+[2025-05-27 16:21:02] Executing query: DELETE FROM applications WHERE id = 9
+[2025-05-27 16:21:02] Deleted application ID: 9
+[2025-05-27 16:21:02] Successfully processed application ID: 9
+[2025-05-27 16:21:02] Script completed
+[2025-05-27 16:23:02] Script started
+[2025-05-27 16:23:02] Time limit set to: 1 minutes
+[2025-05-27 16:23:02] Connection file loaded successfully
+[2025-05-27 16:23:02] Database connection successful
+[2025-05-27 16:23:02] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 16:23:02] Found 0 applications to process
+[2025-05-27 16:23:02] No applications found that are older than 1 minutes
+[2025-05-27 16:23:02] Script completed
+[2025-05-27 16:23:20] Script started
+[2025-05-27 16:23:20] Time limit set to: 1 minutes
+[2025-05-27 16:23:20] Connection file loaded successfully
+[2025-05-27 16:23:20] Database connection successful
+[2025-05-27 16:23:20] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 16:23:20] Found 0 applications to process
+[2025-05-27 16:23:20] No applications found that are older than 1 minutes
+[2025-05-27 16:23:20] Script completed
+[2025-05-27 16:24:29] Script started
+[2025-05-27 16:24:29] Time limit set to: 1 minutes
+[2025-05-27 16:24:29] Connection file loaded successfully
+[2025-05-27 16:24:29] Database connection successful
+[2025-05-27 16:24:29] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 16:24:29] Found 1 applications to process
+[2025-05-27 16:24:29] Processing application ID: 10 for student: 20231007
+[2025-05-27 16:24:29] Application created at: 2025-05-27 16:22:39
+[2025-05-27 16:24:29] Room ID: 41
+[2025-05-27 16:24:29] SMS sent to +250721686167 with status code: 201
+[2025-05-27 16:24:29] SMS sending status: Failed
+[2025-05-27 16:24:29] Executing query: UPDATE info SET current_application = 'auto-rejected' WHERE regnumber = '20231007'
+[2025-05-27 16:24:29] Updated student info for 20231007
+[2025-05-27 16:24:29] Executing query: UPDATE rooms SET remain = remain + 1 WHERE id = 41
+[2025-05-27 16:24:29] Updated room remain for room ID: 41
+[2025-05-27 16:24:29] Executing query: DELETE FROM applications WHERE id = 10
+[2025-05-27 16:24:29] Deleted application ID: 10
+[2025-05-27 16:24:29] Successfully processed application ID: 10
+[2025-05-27 16:24:29] Script completed
+[2025-05-27 16:31:01] Script started
+[2025-05-27 16:31:01] Time limit set to: 1 minutes
+[2025-05-27 16:31:01] Connection file loaded successfully
+[2025-05-27 16:31:01] Database connection successful
+[2025-05-27 16:31:01] Executing query: SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+              FROM applications a 
+              JOIN info i ON i.regnumber = a.regnumber 
+              JOIN rooms r ON r.id = a.room_id 
+              JOIN hostels h ON h.id = r.hostel_id 
+              WHERE a.status = 'pending' 
+              AND TIMESTAMPDIFF(MINUTE, a.created_at, NOW()) >= 1
+[2025-05-27 16:31:01] Found 0 applications to process
+[2025-05-27 16:31:01] No applications found that are older than 1 minutes
+[2025-05-27 16:31:01] Script completed

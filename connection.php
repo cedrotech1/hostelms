@@ -1,14 +1,13 @@
 <?php
-// Prevent any output
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 
 // Default database configuration
-// $dbHost = 'localhost';
-// $dbPort = '3306';
-// $dbName = 'hostel';
-// $dbUser = 'root';
-// $dbPassword = '';
+$dbHost = 'localhost';
+$dbPort = '3306';
+$dbName = 'hostel';
+$dbUser = 'root';
+$dbPassword = '';
 
 // Try to load environment variables if loadEnv.php exists
 if (file_exists(__DIR__ . '/../loadEnv.php')) {
@@ -19,9 +18,10 @@ if (file_exists(__DIR__ . '/../loadEnv.php')) {
         // Override defaults with environment variables if they exist
         $dbHost = getenv('DB_HOST') ?: $dbHost;
         $dbPort = getenv('DB_PORT') ?: $dbPort;
-        $dbName = getenv('DB_HOSTEL') ?: $dbName;
+        $dbName = getenv('DB_HOSTEL') ?: $dbName; // Use DB_HOSTEL
         $dbUser = getenv('DB_USER') ?: $dbUser;
         $dbPassword = getenv('DB_PASSWORD') ?: $dbPassword;
+        // $timeLimit = getenv('TIME') ?: 1; // Load TIME variable
     }
 }
 
@@ -36,13 +36,4 @@ if ($connection->connect_error) {
 
 // Set charset to ensure proper encoding
 $connection->set_charset("utf8mb4");
-
-if($connection){
-
-}
-
-
-
 ?>
-
-<!-- $connection = mysqli_connect('localhost', 'root', 'YOUR_PASSWORD_HERE', 'ur-student-card', 3306); -->
