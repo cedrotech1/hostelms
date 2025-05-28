@@ -1,6 +1,6 @@
 @echo off
 :: Set your desired time interval in minutes here
-set INTERVAL=10
+set INTERVAL=1
 
 :: Check for admin rights
 net session >nul 2>&1

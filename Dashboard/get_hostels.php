@@ -26,7 +26,11 @@ if ($dropdown) {
             <?php while ($hostel = mysqli_fetch_assoc($query)): ?>
             <tr>
                 <td><?php echo $hostel['id']; ?></td>
-                <td><?php echo htmlspecialchars($hostel['name']); ?></td>
+                <td>
+                    <a href="hostel.php?hostel_id=<?php echo $hostel['id']; ?>">
+                        <?php echo htmlspecialchars($hostel['name']); ?>
+                    </a>
+                </td>
                 <td>
                     <button class="btn btn-sm btn-primary" onclick="editHostel(<?php echo $hostel['id']; ?>, '<?php echo htmlspecialchars($hostel['name']); ?>', <?php echo $hostel['campus_id']; ?>)">Edit</button>
                     <button class="btn btn-sm btn-danger" onclick="deleteHostel(<?php echo $hostel['id']; ?>)">Delete</button>

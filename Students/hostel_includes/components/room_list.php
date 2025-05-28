@@ -56,7 +56,7 @@ function displayRoomList($connection, $hostel_id, $page = 1) {
                     </h6>
                     <span class="badge bg-success">
                         <i class="bi bi-check-circle me-1"></i>
-                        Available
+                        Availables
                     </span>
                 </div>
                 <div class="room-body">

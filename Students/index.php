@@ -4,7 +4,7 @@ require_once 'connection.php';
 
 // Check if student is logged in
 if (!isset($_SESSION['student_id'])) {
-    header("Location: login.php");
+    header("Location: logout.php");
     exit();
 }
 
@@ -12,6 +12,8 @@ $student_regnumber = $_SESSION['student_regnumber'];
 $student_campus = $_SESSION['student_campus'];
 $student_gender = $_SESSION['student_gender'];
 $student_year = $_SESSION['student_year'];
+$student_college = $_SESSION['student_college'];
+$student_school = $_SESSION['student_school'];
 
 // Check if student has an active application
 $application_query = "SELECT a.*, r.room_code, h.name as hostel_name 
@@ -41,7 +43,7 @@ $hostels_stmt->execute();
 $hostels = $hostels_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
 // Function to check hostel eligibility
-function checkHostelEligibility($connection, $hostel_id, $student_gender, $student_year)
+function checkHostelEligibility($connection, $hostel_id, $student_gender, $student_year, $student_college, $student_school)
 {
     $attributes_query = "SELECT attribute_key, attribute_value FROM hostel_attributes WHERE hostel_id = ?";
     $attributes_stmt = $connection->prepare($attributes_query);
@@ -64,12 +66,22 @@ function checkHostelEligibility($connection, $hostel_id, $student_gender, $stude
         return false;
     }
 
+    // Check college eligibility
+    if (isset($attributes['college']) && $attributes['college'] !== $student_college) {
+        return false;
+    }
+
+    // Check school eligibility
+    if (isset($attributes['school']) && $attributes['school'] !== $student_school) {
+        return false;
+    }
+
     return true;
 }
 
 // Filter eligible hostels
-$eligible_hostels = array_filter($hostels, function ($hostel) use ($connection, $student_gender, $student_year) {
-    return checkHostelEligibility($connection, $hostel['id'], $student_gender, $student_year);
+$eligible_hostels = array_filter($hostels, function ($hostel) use ($connection, $student_gender, $student_year, $student_college, $student_school) {
+    return checkHostelEligibility($connection, $hostel['id'], $student_gender, $student_year, $student_college, $student_school);
 });
 ?>
 
