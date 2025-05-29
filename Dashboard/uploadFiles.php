@@ -88,8 +88,9 @@ $result = $connection->query($sql);
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>UR</title>
+    <title>UR-HOSTELS</title>
     <link href="assets/img/icon1.png" rel="icon">
+    <link href="assets/img/icon1.png" rel="apple-touch-icon">
     <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
     <link href="assets/css/style.css" rel="stylesheet">

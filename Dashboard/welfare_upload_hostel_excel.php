@@ -1,114 +1,225 @@
 <?php
+// Prevent any output before JSON response
+ob_start();
+
+// Increase memory limit and execution time for large files
+ini_set('memory_limit', '512M');
+set_time_limit(300); // 5 minutes
+
+// Include files
 include('connection.php');
-header('Content-Type: application/json');
-mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+include('./includes/auth.php');
 
-// Start session and check if user is logged in
-// session_start();
-// if (!isset($_SESSION['campus'])) {
-//     http_response_code(401);
-//     echo json_encode(['message' => 'Unauthorized access']);
-//     exit;
-// }
-
-$userid=$_SESSION['id'];
-$ok1 = mysqli_query($connection, "select * from users where id=$userid");
-                  while ($row = mysqli_fetch_array($ok1)) {
-                    $id = $row["id"];
-                
-                    $campus = $row["campus"];
-                    
-                }
-
-$user_campus_id =$campus;
-
-$data = json_decode(file_get_contents('php://input'), true);
-
-if (!isset($data['data']) || !is_array($data['data'])) {
-    http_response_code(400);
-    echo json_encode(['message' => 'Invalid input data']);
+// Check user role
+if (!isset($_SESSION['id'])) {
+    header('Content-Type: application/json');
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'User not authenticated',
+        'data' => ['errors' => ['Authentication required']]
+    ]);
     exit;
 }
 
-$rows = $data['data'];
-$inserted = 0;
+// Check user role
+$userId = $_SESSION['id'];
+$roleQuery = "SELECT role FROM users WHERE id = '$userId'";
+$roleResult = $connection->query($roleQuery);
 
-foreach ($rows as $row) {
-    $campus_name     = trim($row[0] ?? '');
-    $hostelname      = trim($row[1] ?? '');
-    $room_code       = trim($row[2] ?? '');
-    $number_of_beds  = (int)($row[3] ?? 0);
-
-    if (!$campus_name || !$hostelname || !$room_code || $number_of_beds <= 0) {
-        continue; // Skip invalid rows
-    }
-
-    // Verify that the campus name matches the user's allocated campus
-    $stmt = $connection->prepare("SELECT id FROM campuses WHERE id = ? AND name = ?");
-    $stmt->bind_param("is", $user_campus_id, $campus_name);
-    $stmt->execute();
-    $stmt->store_result();
-
-    if ($stmt->num_rows === 0) {
-        continue; // Skip if campus name doesn't match user's allocated campus
-    }
-    $stmt->close();
-
-    // 1. Get or insert campus
-    $stmt = $connection->prepare("SELECT id FROM campuses WHERE id = ?");
-    $stmt->bind_param("i", $user_campus_id);
-    $stmt->execute();
-    $stmt->store_result();
-
-    if ($stmt->num_rows === 0) {
-        $stmt->close();
-        continue; // Skip if campus doesn't exist
-    } else {
-        $stmt->bind_result($campus_id);
-        $stmt->fetch();
-        $stmt->close();
-    }
-
-    // 2. Get or insert hostel
-    $stmt = $connection->prepare("SELECT id FROM hostels WHERE name = ? AND campus_id = ?");
-    $stmt->bind_param("si", $hostelname, $campus_id);
-    $stmt->execute();
-    $stmt->store_result();
-
-    if ($stmt->num_rows === 0) {
-        $stmt->close();
-        $insert_hostel = $connection->prepare("INSERT INTO hostels (name, campus_id) VALUES (?, ?)");
-        $insert_hostel->bind_param("si", $hostelname, $campus_id);
-        $insert_hostel->execute();
-        $hostel_id = $insert_hostel->insert_id;
-        $insert_hostel->close();
-    } else {
-        $stmt->bind_result($hostel_id);
-        $stmt->fetch();
-        $stmt->close();
-    }
-
-    // 3. Check for existing room
-    $stmt = $connection->prepare("SELECT id FROM rooms WHERE room_code = ? AND hostel_id = ?");
-    $stmt->bind_param("si", $room_code, $hostel_id);
-    $stmt->execute();
-    $stmt->store_result();
-
-    if ($stmt->num_rows === 0) {
-        $stmt->close();
-        $insert_room = $connection->prepare("INSERT INTO rooms (room_code, number_of_beds, remain, hostel_id) VALUES (?, ?, ?, ?)");
-        $insert_room->bind_param("siii", $room_code, $number_of_beds, $number_of_beds, $hostel_id);
-        $insert_room->execute();
-        $insert_room->close();
-        $inserted++;
-    } else {
-        $stmt->close(); // Room already exists, skip insertion
-    }
+if (!$roleResult || $roleResult->num_rows === 0) {
+    header('Content-Type: application/json');
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'User role not found',
+        'data' => ['errors' => ['Invalid user role']]
+    ]);
+    exit;
 }
 
-if ($inserted > 0) {
-    echo json_encode(['message' => "$inserted rows inserted successfully"]);
-} else {
-    echo json_encode(['message' => 'No new rows were inserted (duplicates or invalid data)']);
+$userRole = $roleResult->fetch_assoc()['role'];
+if ($userRole !== 'warefare' && $userRole !== 'information_modifier') {
+    header('Content-Type: application/json');
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'Unauthorized access',
+        'data' => ['errors' => ['Insufficient permissions']]
+    ]);
+    exit;
+}
+
+// Clear any output buffers
+ob_end_clean();
+
+// Set JSON header
+header('Content-Type: application/json');
+
+// Function to send JSON response
+function sendJsonResponse($status, $message, $data = null) {
+    $response = [
+        'status' => $status,
+        'message' => $message
+    ];
+    if ($data !== null) {
+        $response['data'] = $data;
+    }
+    echo json_encode($response);
+    exit;
+}
+
+try {
+    // Get JSON data
+    $input = file_get_contents("php://input");
+    $data = json_decode($input, true);
+
+    if (!isset($data['data']) || !is_array($data['data']) || empty($data['data'])) {
+        sendJsonResponse('error', 'Invalid or empty data received');
+    }
+
+    // Get the header row (first row) to determine column indexes
+    $headers = array_map('strtolower', $data['data'][0]);
+
+    // Required columns
+    $required_columns = [
+        'campus',
+        'hostel name',
+        'room code',
+        'number of beds'
+    ];
+
+    // Validate all required columns exist
+    $missing_columns = [];
+    foreach ($required_columns as $column) {
+        if (!in_array($column, $headers)) {
+            $missing_columns[] = $column;
+        }
+    }
+
+    if (!empty($missing_columns)) {
+        sendJsonResponse('error', 'Missing required columns: ' . implode(', ', $missing_columns));
+    }
+
+    // Find indexes based on column names
+    $campusIndex = array_search('campus', $headers);
+    $hostelNameIndex = array_search('hostel name', $headers);
+    $roomCodeIndex = array_search('room code', $headers);
+    $bedsIndex = array_search('number of beds', $headers);
+
+    // Get user's assigned campus (only for welfare users)
+    $userCampus = null;
+    if ($userRole === 'warefare') {
+        $campusQuery = "SELECT c.name FROM campuses c 
+                       INNER JOIN users u ON u.campus = c.id 
+                       WHERE u.id = '$userId'";
+        $campusResult = $connection->query($campusQuery);
+        
+        if (!$campusResult || $campusResult->num_rows === 0) {
+            sendJsonResponse('error', 'User is not associated with any campus');
+        }
+        
+        $userCampus = strtolower(trim($campusResult->fetch_assoc()['name']));
+    }
+
+    // Skip the header row and process data rows
+    $dataRows = array_slice($data['data'], 1);
+    $results = [
+        'success' => [],
+        'errors' => []
+    ];
+
+    // Prepare batch insert
+    $batchSize = 100; // Process 100 rows at a time
+    $totalRows = count($dataRows);
+    $processedRows = 0;
+    $batchValues = [];
+    $batchErrors = [];
+
+    foreach ($dataRows as $rowIndex => $row) {
+        $rowNumber = $rowIndex + 2; // +2 because we skipped header and array is 0-based
+        
+        // Check if row is empty or contains only whitespace
+        $isEmptyRow = true;
+        foreach ($row as $cell) {
+            if (trim($cell) !== '') {
+                $isEmptyRow = false;
+                break;
+            }
+        }
+        
+        if ($isEmptyRow) {
+            continue; // Skip empty rows silently
+        }
+
+        // Validate required fields
+        if (empty($row[$campusIndex]) || empty($row[$hostelNameIndex]) || 
+            empty($row[$roomCodeIndex]) || empty($row[$bedsIndex])) {
+            $batchErrors[] = "Row $rowNumber: Missing required fields";
+            continue;
+        }
+
+        $campusInput = strtolower(trim($connection->real_escape_string($row[$campusIndex])));
+        $hostelName = trim($connection->real_escape_string($row[$hostelNameIndex]));
+        $roomCode = trim($connection->real_escape_string($row[$roomCodeIndex]));
+        $numberOfBeds = (int)$row[$bedsIndex];
+
+        // Validate campus matches user's assigned campus (only for welfare users)
+        if ($userRole === 'warefare' && $campusInput !== $userCampus) {
+            $batchErrors[] = "Row $rowNumber: Campus '$campusInput' does not match your assigned campus '$userCampus'";
+            continue;
+        }
+
+        // Validate number of beds
+        if ($numberOfBeds <= 0) {
+            $batchErrors[] = "Row $rowNumber: Number of beds must be greater than 0";
+            continue;
+        }
+
+        // Check if campus exists
+        $campusResult = $connection->query("SELECT id FROM campuses WHERE LOWER(TRIM(name)) = '$campusInput'");
+        if (!$campusResult || $campusResult->num_rows === 0) {
+            $batchErrors[] = "Row $rowNumber: Campus '$campusInput' does not exist";
+            continue;
+        }
+        $campusId = $campusResult->fetch_assoc()['id'];
+
+        // Check if hostel exists
+        $hostelResult = $connection->query("SELECT id FROM hostels WHERE name = '$hostelName' AND campus_id = $campusId");
+        if (!$hostelResult || $hostelResult->num_rows === 0) {
+            // Create new hostel
+            if (!$connection->query("INSERT INTO hostels (name, campus_id) VALUES ('$hostelName', $campusId)")) {
+                $batchErrors[] = "Row $rowNumber: Failed to create hostel '$hostelName'";
+                continue;
+            }
+            $hostelId = $connection->insert_id;
+        } else {
+            $hostelId = $hostelResult->fetch_assoc()['id'];
+        }
+
+        // Check if room already exists
+        $roomResult = $connection->query("SELECT id FROM rooms WHERE room_code = '$roomCode' AND hostel_id = $hostelId");
+        if ($roomResult && $roomResult->num_rows > 0) {
+            $batchErrors[] = "Row $rowNumber: Room '$roomCode' already exists in hostel '$hostelName'";
+            continue;
+        }
+
+        // Insert room
+        if (!$connection->query("INSERT INTO rooms (room_code, number_of_beds, remain, hostel_id) 
+                               VALUES ('$roomCode', $numberOfBeds, $numberOfBeds, $hostelId)")) {
+            $batchErrors[] = "Row $rowNumber: Failed to create room '$roomCode'";
+            continue;
+        }
+
+        $results['success'][] = "Row $rowNumber: Successfully added room '$roomCode' to hostel '$hostelName'";
+        $processedRows++;
+    }
+
+    // Send final response
+    if (empty($results['errors'])) {
+        sendJsonResponse('success', "Successfully processed $processedRows records", $results);
+    } else {
+        sendJsonResponse('partial', "Processed $processedRows records with some errors", $results);
+    }
+
+} catch (Exception $e) {
+    sendJsonResponse('error', 'An error occurred: ' . $e->getMessage());
 }
 ?>

@@ -103,6 +103,7 @@ include 'connection.php';
             color: #0d6efd;
         }
     </style>
+    <title>UR-HOSTELS</title>
 </head>
 
 <body>

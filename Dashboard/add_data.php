@@ -28,13 +28,13 @@ $existingData = checkExistingData($connection); // Check if data exists
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>UR-HUYE-CARDS</title>
+  <title>UR-HOSTELS</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
 
   <!-- Favicons -->
-  <link href="./icon1.png" rel="icon">
-  <link href="./icon1.png" rel="apple-touch-icon">
+  <link href="assets/img/icon1.png" rel="icon">
+  <link href="assets/img/icon1.png" rel="apple-touch-icon">
 
   <!-- Google Fonts -->
   <link href="https://fonts.gstatic.com" rel="preconnect">
@@ -114,6 +114,122 @@ include("./includes/menu.php");
           </div>
         </div>
       </div><!-- End Left side columns -->
+      <!-- template for data and file upload -->
+      <div class="col-lg-6">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Template & Instructions</h5>
+            
+            <!-- Download Template Section -->
+            <div class="mb-4">
+              <h6 class="fw-bold">Download Template</h6>
+              <p class="text-muted">Use our  template to ensure your data is correctly structured or make sure header of each column is correct as in that template </p>
+              <button onclick="downloadTemplate()" class="btn btn-primary">
+                <i class="bi bi-download me-1"></i> Download Template
+              </button>
+            </div>
+
+            <!-- Instructions Section -->
+            <div class="mb-4">
+              <h6 class="fw-bold">Instructions for Data Upload</h6>
+              <div class="alert alert-info">
+                <h6 class="alert-heading">Important Notes:</h6>
+                <ol class="mb-0">
+                  <li>All fields marked with * are required</li>
+                  <li>File must be in Excel (.xlsx) or CSV format</li>
+                  <!-- <li>Maximum file size: 5MB</li> -->
+                  <li>Do not modify the header row OR make sure header of each column is correct as in that template</li>
+                  <li>Save Excel files as CSV before uploading that is good plactice </li>
+               
+                </ol>
+              </div>
+            </div>
+
+            <!-- Field Requirements -->
+            <div class="mb-4">
+              <h6 class="fw-bold">Field Requirements</h6>
+              <div class="table-responsive">
+                <table class="table table-sm">
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Requirements</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Registration Number*</td>
+                      <td>Unique student ID (e.g., 2023/1234)</td>
+                    </tr>
+                    <tr>
+                      <td>Campus*</td>
+                      <td>Must match existing campus name exactly</td>
+                    </tr>
+                    <tr>
+                      <td>College*</td>
+                      <td>Student's college name</td>
+                    </tr>
+                    <tr>
+                      <td>Sirname*</td>
+                      <td>Student's sirname</td>
+                    </tr>
+                    <tr>
+                      <td>Lastname*</td>
+                      <td>Student's lastname</td>
+                    </tr>
+                    <tr>
+                      <td>School*</td>
+                      <td>Student's school name</td>
+                    </tr>
+                    <tr>
+                      <td>Program*</td>
+                      <td>Student's program name</td>
+                    </tr>
+                    <tr>
+                      <td>Year of Study*</td>
+                      <td>Current year (1-5)</td>
+                    </tr>
+                    <tr>
+                      <td>Email*</td>
+                      <td>Valid email address</td>
+                    </tr>
+                    <tr>
+                      <td>Gender*</td>
+                      <td>Male/Female or M/F</td>
+                    </tr>
+                    <tr>
+                      <td>National ID*</td>
+                      <td>Valid national ID number</td>
+                    </tr>
+                    <tr>
+                      <td>Phone*</td>
+                      <td>10-digit number starting with 0</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Common Issues -->
+            <div class="mb-4">
+              <h6 class="fw-bold">Common Issues & Solutions</h6>
+              <div class="alert alert-warning">
+                <ul class="mb-0">
+                  <li>Ensure all required fields are filled</li>
+                  <li>Check that campus names match exactly</li>
+                  <li>Registration numbers must be unique means no two students can have the same registration number</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Support -->
+            <div>
+              <h6 class="fw-bold">Need Help?</h6>
+              <p class="text-muted">If you encounter any issues, please contact the system administrator or refer to the user manual.</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -158,7 +274,16 @@ include("./includes/menu.php");
           var data = new Uint8Array(e.target.result);
           var workbook = XLSX.read(data, { type: 'array' });
           var firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-          var excelRows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 }).slice(1); // Skip first row (headers)
+          
+          // Convert to array with empty string for empty cells
+          var excelRows = XLSX.utils.sheet_to_json(firstSheet, { 
+              header: 1,
+              defval: '',
+              blankrows: false
+          });
+          
+          // Filter out completely empty rows
+          excelRows = excelRows.filter(row => row.some(cell => cell !== ''));
           
           // Send data to the server
           uploadToServer(excelRows);
@@ -171,18 +296,23 @@ include("./includes/menu.php");
   function readCSV(file) {
       Papa.parse(file, {
           complete: function (results) {
-              var csvRows = results.data.slice(1); // Skip first row (headers)
+              // Filter out completely empty rows
+              var filteredData = results.data.filter(row => 
+                  row.some(cell => cell !== '' && cell !== null)
+              );
               
               // Send data to the server
-              uploadToServer(csvRows);
+              uploadToServer(filteredData);
+          },
+          skipEmptyLines: true,
+          transform: function(value) {
+              return value.trim();
           }
       });
   }
 
   // Function to upload data to the server
   function uploadToServer(dataRows) {
-      console.log(dataRows);  // Debugging
-
       fetch('upload_excel.php', {
           method: 'POST',
           headers: {
@@ -190,14 +320,28 @@ include("./includes/menu.php");
           },
           body: JSON.stringify({ data: dataRows })
       })
-      .then(response => response.text())
-      .then(responseText => {
-          console.log(responseText);
-          alert("DONE");
-          window.location.href = "add_data.php";
+      .then(response => {
+          if (!response.ok) {
+              throw new Error('Network response was not ok');
+          }
+          return response.json();
+      })
+      .then(response => {
+          if (response.status === 'error') {
+              throw new Error(response.message);
+          }
+          showResultsModal(response);
       })
       .catch(error => {
           console.error('Error:', error);
+          showResultsModal({
+              status: 'error',
+              message: error.message || 'An error occurred while processing the file. Please try again.',
+              data: {
+                  errors: [error.message],
+                  success: []
+              }
+          });
       })
       .finally(() => {
           // Re-enable the button after processing
@@ -205,6 +349,140 @@ include("./includes/menu.php");
           uploadButton.disabled = false;
           uploadButton.innerHTML = "Save Data";
       });
+  }
+
+  // Function to display results in a modal
+  function showResultsModal(response) {
+      // Create modal HTML
+      var modalHtml = `
+          <div class="modal fade" id="resultsModal" tabindex="-1">
+              <div class="modal-dialog modal-lg">
+                  <div class="modal-content">
+                      <div class="modal-header">
+                          <h5 class="modal-title">Upload Results</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                      </div>
+                      <div class="modal-body">
+                          <div class="alert alert-${response.status === 'success' ? 'success' : 
+                                               response.status === 'partial' ? 'warning' : 'danger'}">
+                              ${response.message}
+                          </div>
+                          ${response.data.errors.length > 0 ? `
+                              <div class="mt-3">
+                                  <h6>Errors:</h6>
+                                  <div class="table-responsive">
+                                      <table class="table table-sm table-bordered">
+                                          <thead class="table-light">
+                                              <tr>
+                                                  <th>Row</th>
+                                                  <th>Error</th>
+                                              </tr>
+                                          </thead>
+                                          <tbody>
+                                              ${response.data.errors.map(error => {
+                                                  const match = error.match(/Row (\d+): (.*)/);
+                                                  return `
+                                                      <tr>
+                                                          <td>${match ? match[1] : 'N/A'}</td>
+                                                          <td>${match ? match[2] : error}</td>
+                                                      </tr>
+                                                  `;
+                                              }).join('')}
+                                          </tbody>
+                                      </table>
+                                  </div>
+                              </div>
+                          ` : ''}
+                          ${response.data.success.length > 0 ? `
+                              <div class="mt-3">
+                                  <h6>Successful Uploads:</h6>
+                                  <div class="table-responsive">
+                                      <table class="table table-sm table-bordered">
+                                          <thead class="table-light">
+                                              <tr>
+                                                  <th>Row</th>
+                                                  <th>Details</th>
+                                              </tr>
+                                          </thead>
+                                          <tbody>
+                                              ${response.data.success.map(success => {
+                                                  const match = success.match(/Row (\d+): (.*)/);
+                                                  return `
+                                                      <tr>
+                                                          <td>${match ? match[1] : 'N/A'}</td>
+                                                          <td>${match ? match[2] : success}</td>
+                                                      </tr>
+                                                  `;
+                                              }).join('')}
+                                          </tbody>
+                                      </table>
+                                  </div>
+                              </div>
+                          ` : ''}
+                      </div>
+                      <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                          ${response.status === 'success' ? `
+                              <button type="button" class="btn btn-primary" onclick="window.location.reload()">Refresh Page</button>
+                          ` : ''}
+                      </div>
+                  </div>
+              </div>
+          </div>
+      `;
+
+      // Add modal to body
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+      // Show modal
+      var modal = new bootstrap.Modal(document.getElementById('resultsModal'));
+      modal.show();
+
+      // Remove modal from DOM after it's hidden
+      document.getElementById('resultsModal').addEventListener('hidden.bs.modal', function () {
+          this.remove();
+      });
+  }
+
+  function downloadTemplate() {
+      // Define the CSV content
+      const headers = [
+          'regnumber',
+          'campus',
+          'college',
+          'sirname',
+          'lastname',
+          'school',
+          'program',
+          'yearofstudy',
+          'email',
+          'gender',
+          'nid',
+          'phone'
+      ];
+
+      // Example data
+      const exampleData = [
+          ['201018991', 'huye', 'College of Science', 'John', 'Doe', 'School of Engineering', 'Computer Science', '1', 'john.doe@example.com', 'Male', '1234567890123456', '781234567'],
+          ['201018992', 'huye', 'College of Science', 'Jane', 'Smith', 'School of Engineering', 'Information Technology', '2', 'jane.smith@example.com', 'Female', '1234567890123457', '781234568']
+      ];
+
+      // Convert to CSV format
+      let csvContent = headers.join(',') + '\n';
+      exampleData.forEach(row => {
+          csvContent += row.join(',') + '\n';
+      });
+
+      // Create and trigger download
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', 'student_data_template.csv');
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
   }
 </script>
 

@@ -1,7 +1,8 @@
 <?php
 include('connection.php');
 include ('./includes/auth.php');
-checkUserRole(['information_modifier']);
+// checkUserRole(['information_modifier']);
+// checkUserRole(['warefare']);
 
 
 // Initialize variables
@@ -30,29 +31,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['search'])) {
         $college = $row['college'];
         $school = $row['school'];
         $program = $row['program'];
-        $picture = $row['picture'];
-        $status = $row['status'];
+        $nid = $row['nid'];  // Get NID from database
+        $phone = $row['phone'];  // Get phone from database
         $isViewing = true; 
 
-        // Check for corresponding entry in the `student_ids` table
-        $sql1 = "SELECT * FROM student_ids WHERE regnumber = ?";
-        $stmt1 = $connection->prepare($sql1);
-        $stmt1->bind_param("s", $regnumber);
-        $stmt1->execute();
-        $result1 = $stmt1->get_result();
-
-        if ($result1->num_rows > 0) {
-            // Student exists in both tables
-            $row1 = $result1->fetch_assoc();
-            $nid = $row1['nid'];
-            $phone1 = $row1['phone'];
-        } else {
-            // Student exists only in the `info` table
-            $nid = ""; // Set empty value for National ID
-            $phone1 = ""; // Set empty value for Phone
-            $message = "Student found, but no ID or phone information available.";
-            $messageType = "warning";
-        }
     } else {
         // No student found in the `info` table
         $message = "No student found with this registration number.";
@@ -61,59 +43,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['search'])) {
     }
 }
 
+
 // Update or insert student IDs (nid and phone)
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
     $studentemail = $_POST['email'];
-    $regnumber1 = $_POST['regnumber'];
     $regnumber = $_POST['regnumber1'];
     $nid = $_POST['nid'];
     $phone = $_POST['phone'];
     $name = $_POST['names'];
 
-    if($regnumber1!=$regnumber){
-
-        $sql4 = "UPDATE student_ids SET regnumber=? WHERE regnumber=?"; // Corrected SQL syntax
-        $stmt4 = $connection->prepare($sql4);
-        $stmt4->bind_param("ss", $regnumber, $regnumber1);
-        
-
-    }
-
-    // Update the `info` table
-    $sql = "UPDATE info SET names = ?, regnumber=? WHERE regnumber = ?";
+    // Update the `info` table with NID and phone
+    $sql = "UPDATE info SET names = ?, nid = ?, phone = ? WHERE regnumber = ?";
     $stmt = $connection->prepare($sql);
-    $stmt->bind_param("sss", $name,  $regnumber1, $regnumber);
-    $stmt->execute();
-
-    // Check if the student exists in `student_ids`
-    $sql2 = "SELECT * FROM student_ids WHERE regnumber = ?";
-    $stmt2 = $connection->prepare($sql2);
-    $stmt2->bind_param("s", $regnumber);
-    $stmt2->execute();
-    $result2 = $stmt2->get_result();
-
-    if ($result2->num_rows > 0) {
-        // Update the existing record in `student_ids`
-        $sql3 = "UPDATE student_ids SET nid = ?, phone = ? WHERE regnumber = ?";
-        $stmt3 = $connection->prepare($sql3);
-        $stmt3->bind_param("sss", $nid, $phone, $regnumber);
-        $stmt3->execute();
-
-
-        // $sql3 = "UPDATE info SET names = ? WHERE regnumber = ?";
-        // $stmt3 = $connection->prepare($sql3);
-        // $stmt3->bind_param("sss", $nid, $regnumber);
-        // $stmt3->execute();
+    $stmt->bind_param("ssss", $name, $nid, $phone, $regnumber);
+    
+    if ($stmt->execute()) {
+        $message = "Student data updated successfully.";
+        $messageType = "success";
     } else {
-        // Insert a new record in `student_ids`
-        $sql4 = "INSERT INTO student_ids (regnumber, nid, phone) VALUES (?, ?, ?)";
-        $stmt4 = $connection->prepare($sql4);
-        $stmt4->bind_param("sss", $regnumber, $nid, $phone);
-        $stmt4->execute();
+        $message = "Error updating student data: " . $connection->error;
+        $messageType = "danger";
     }
-
-    $message = "Student data updated successfully.";
-    $messageType = "success";
 }
 
 ?>
@@ -126,7 +76,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>UR-HUYE-CARDS</title>
+    <title>UR-HOSTELS</title>
     <link href="./icon1.png" rel="icon">
     <link href="./icon1.png" rel="apple-touch-icon">
     <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -210,14 +160,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
                             <div class="col-sm-12 my-3">
                                 <div class="input-group has-validation">
                                     <span class="input-group-text">Phone</span>
-                                    <input type="text" name="phone" class="form-control" value="<?php echo $phone1; ?>" required>
+                                    <input type="text" name="phone" class="form-control" value="<?php echo $phone; ?>" required>
                                 </div>
                             </div>
 
                             <div class="col-sm-12 my-3">
                                 <div class="input-group has-validation">
-                                    <span class="input-group-text">National id number</span>
-                                    <input type="number" name="nid" class="form-control" value="<?php echo $nid; ?>" required>
+                                    <span class="input-group-text">National ID (NID)</span>
+                                    <input type="text" name="nid" class="form-control" value="<?php echo $nid; ?>" required>
                                 </div>
                             </div>
 
@@ -246,56 +196,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
                                 </div>
                             </div>
 
-                            <div class="col-sm-12 my-3">
-                            
-                            <?php
-                                                                if (!$picture == null) {
-                                                                    ?><br>
-                                                                    <img src="../Students/<?php echo $picture; ?>" alt=""
-                                                                        style="width:3.7cm;margin-top:0cm">
-
-                                                                        <?php
-                                                                        if($status=='rejected')
-                                                                        {
-                                                                            ?>
-                                                                            <div alt=""
-                                                                            style="padding:0.4cm;margin-top:0.3cm;border:1px solid red;color:red">
-                                                                            picture rejected
-                                                                        </div>
-                                                                       
-                                                                        <?php
-
-                                                                        }
-                                                                       else if($status=='accepted')
-                                                                        {
-                                                                            ?>
-                                                                            <div alt=""
-                                                                            style="padding:0.4cm;margin-top:0.3cm;border:1px solid green;color:green">
-                                                                            picture re acepted
-                                                                        </div>
-                                                                       
-                                                                        <?php
-
-                                                                        }
-
-
-                                                                         ?>
-
-
-                                                               
-                                                                    <?php
-                                                                } else {
-                                                                    ?>
-                                                                    
-                                                                    <div alt=""
-                                                                        style="padding:0.4cm;margin-top:0.3cm;border:1px solid red;color:red">
-                                                                        student has not yet upload picture
-                                                                    </div>
-                                                                   
-                                                                    <?php
-                                                                }
-                                                                ?>
-                            </div>
+                        
                             <br>
                             <div class="row">
                                 <div class="col-6">

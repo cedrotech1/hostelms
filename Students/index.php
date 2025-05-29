@@ -91,9 +91,9 @@ $eligible_hostels = array_filter($hostels, function ($hostel) use ($connection, 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Select Hostel - UR Hostel System</title>
-    <link href="assets/img/icon1.png" rel="icon">
-    <link href="assets/img/icon1.png" rel="apple-touch-icon">
+    <title>UR-HOSTELS</title>
+    <link href="../assets/img/icon1.png" rel="icon">
+    <link href="../assets/img/icon1.png" rel="apple-touch-icon">
     <link href="https://fonts.gstatic.com" rel="preconnect">
     <link
         href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"

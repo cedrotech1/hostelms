@@ -138,14 +138,13 @@ if ($result && mysqli_num_rows($result) > 0) {
     echo '<table class="table table-hover table-striped">
             <thead class="table-light">
                 <tr>
-                    <th><a href="#" onclick="sortApplications(\'regnumber\')" class="text-dark">Reg Number <i class="bi bi-arrow-down-up"></i></a></th>
-                    <th><a href="#" onclick="sortApplications(\'name\')" class="text-dark">Student Name <i class="bi bi-arrow-down-up"></i></a></th>
-                    <th><a href="#" onclick="sortApplications(\'room\')" class="text-dark">Room Details <i class="bi bi-arrow-down-up"></i></a></th>
-                    <th><a href="#" onclick="sortApplications(\'status\')" class="text-dark">Status <i class="bi bi-arrow-down-up"></i></a></th>
-                    <th>Payment Proof</th>
-                    <th><a href="#" onclick="sortApplications(\'created_at\')" class="text-dark">Application Date <i class="bi bi-arrow-down-up"></i></a></th>
-                    <th><a href="#" onclick="sortApplications(\'updated_at\')" class="text-dark">Last Updated <i class="bi bi-arrow-down-up"></i></a></th>
-                    <th class="text-center">Actions</th>
+                    <th style="width: 12%"><a href="#" onclick="sortApplications(\'regnumber\')" class="text-dark">Reg Number <i class="bi bi-arrow-down-up"></i></a></th>
+                    <th style="width: 20%"><a href="#" onclick="sortApplications(\'name\')" class="text-dark">Student Name <i class="bi bi-arrow-down-up"></i></a></th>
+                    <th style="width: 20%"><a href="#" onclick="sortApplications(\'room\')" class="text-dark">Room Details <i class="bi bi-arrow-down-up"></i></a></th>
+                    <th style="width: 12%"><a href="#" onclick="sortApplications(\'status\')" class="text-dark">Status <i class="bi bi-arrow-down-up"></i></a></th>
+                    <th style="width: 12%"><a href="#" onclick="sortApplications(\'created_at\')" class="text-dark">Application Date <i class="bi bi-arrow-down-up"></i></a></th>
+                    <th style="width: 12%"><a href="#" onclick="sortApplications(\'updated_at\')" class="text-dark">Last Updated <i class="bi bi-arrow-down-up"></i></a></th>
+                    <th style="width: 12%" class="text-center">Actions</th>
                 </tr>
             </thead>
             <tbody>';
@@ -171,7 +170,6 @@ if ($result && mysqli_num_rows($result) > 0) {
                 $status_class = 'status-' . $app['status'];
         }
         
-        $slep_path = !empty($app['slep']) ? '../Students/uploads/receipts/' . $app['slep'] : '';
         $time_ago = getTimeAgo($app['updated_at']);
         
         echo '<tr>
@@ -179,39 +177,12 @@ if ($result && mysqli_num_rows($result) > 0) {
                 <td>' . htmlspecialchars($app['names']) . '</td>
                 <td>' . htmlspecialchars($app['room_code']) . ' (' . htmlspecialchars($app['hostel_name']) . ')</td>
                 <td><span class="status-badge ' . $status_class . '">' . ucfirst($app['status']) . '</span></td>
-                <td>';
-        
-        if (!empty($slep_path)) {
-            echo '<button class="btn btn-sm btn-info" onclick="showSlepImage(\'' . $slep_path . '\')">
-                    <i class="bi bi-image"></i> Receipt
-                  </button>';
-        } else {
-            echo '<span class="text-muted">No Receipt</span>';
-        }
-        
-        echo '</td>
                 <td>' . date('M d, Y', strtotime($app['created_at'])) . '</td>
                 <td><small class="text-muted">' . $time_ago . '</small></td>
                 <td class="text-center">
-                    <div class="action-buttons">';
-        
-        // View details button for all applications
-        echo '<button class="btn btn-sm btn-info" onclick="viewApplicationDetails(' . $app['id'] . ')">
-                <i class="bi bi-eye"></i> View
-              </button>';
-        
-        // Approve/Reject buttons based on status
-        if ($app['status'] === 'paid') {
-            echo '<button class="btn btn-sm btn-success" onclick="updateApplicationStatus(' . $app['id'] . ', \'approve\')">
-                     <i class="bi bi-check-circle"></i>
-                     Approve
-                  </button>';
-            echo '<button class="btn btn-sm btn-danger" onclick="updateApplicationStatus(' . $app['id'] . ', \'reject\')">
-                    <i class="bi bi-x-circle"></i> Reject
-                  </button>';
-        }
-        
-        echo '</div>
+                    <button class="btn btn-sm btn-info" onclick="viewApplicationDetails(' . $app['id'] . ')">
+                        <i class="bi bi-eye"></i> View
+                    </button>
                 </td>
             </tr>';
     }

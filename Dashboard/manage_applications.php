@@ -60,11 +60,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>Manage Applications - UR-HUYE</title>
+    <title>UR-HOSTELS</title>
     
     <!-- Favicons -->
-    <link href="./icon1.png" rel="icon">
-    <link href="./icon1.png" rel="apple-touch-icon">
+    <link href="assets/img/icon1.png" rel="icon">
+    <link href="assets/img/icon1.png" rel="apple-touch-icon">
     
     <!-- Google Fonts -->
     <link href="https://fonts.gstatic.com" rel="preconnect">
@@ -93,6 +93,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .status-approved { background-color: #28a745; color: #fff; }
         .status-rejected { background-color: #dc3545; color: #fff; }
         
+        /* Add table styles */
+        .table {
+            width: 100%;
+            table-layout: fixed;
+        }
+        
+        .table th, .table td {
+            padding: 0.75rem;
+            vertical-align: middle;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .table th a {
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        /* Responsive table */
+        @media (max-width: 992px) {
+            .table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+        }
+        
         .slep-image {
             max-width: 100%;
             height: auto;
@@ -101,19 +131,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         .action-buttons {
-            display: flex;
-            gap: 0.5rem;
-            justify-content: center;
+            display: none; /* Hide action buttons in table */
         }
         
         .btn-approve {
             background-color: #28a745;
             color: white;
+            padding: 0.5rem 1.5rem;
         }
         
         .btn-reject {
             background-color: #dc3545;
             color: white;
+            padding: 0.5rem 1.5rem;
         }
         
         .btn-approve:hover {
@@ -126,8 +156,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: white;
         }
         
-        .modal-xl {
-            max-width: 90%;
+        .modal-fullscreen {
+            max-width: 85%;
+            margin: 0 auto;
         }
         
         .slep-modal .modal-body {
@@ -151,6 +182,79 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .slep-modal .modal-footer {
             background-color: #fff;
             border-top: 2px solid #dee2e6;
+        }
+        .card {
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+        .card-header {
+            padding: 0.75rem 1rem;
+        }
+        .table th {
+            width: 40%;
+            background-color: #f8f9fa;
+        }
+        #receipt-container {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+        #detail-receipt {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        #detail-receipt:hover {
+            transform: scale(1.02);
+        }
+        .receipt-section {
+            height: 80vh;
+            background-color: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .receipt-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        #receipt-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            overflow: hidden;
+        }
+        #detail-receipt {
+            max-height: 75vh;
+            max-width: 100%;
+            object-fit: contain;
+        }
+        .receipt-actions {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+        .details-section {
+            padding: 2rem;
+            background-color: white;
+        }
+        .btn-view-proof {
+            background-color: #0d6efd;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+        .btn-view-proof:hover {
+            background-color: #0b5ed7;
+            color: white;
         }
     </style>
 </head>
@@ -207,44 +311,90 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <!-- Application Details Modal -->
     <div class="modal fade" id="applicationDetailsModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-fullscreen">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header bg-light">
                     <h5 class="modal-title">Application Details</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h6 class="mb-3">Student Information</h6>
-                            <table class="table table-sm">
-                                <tr><th>Registration Number:</th><td id="detail-regnumber"></td></tr>
-                                <tr><th>Name:</th><td id="detail-name"></td></tr>
-                                <tr><th>Gender:</th><td id="detail-gender"></td></tr>
-                                <tr><th>Year of Study:</th><td id="detail-year"></td></tr>
-                                <tr><th>Email:</th><td id="detail-email"></td></tr>
-                                <tr><th>Phone:</th><td id="detail-phone"></td></tr>
-                            </table>
+                <div class="modal-body p-0">
+                    <!-- Receipt Section (will be shown/hidden based on receipt availability) -->
+                    <div id="receipt-section" class="receipt-section" style="display: none;">
+                        <div class="receipt-container">
+                            <div id="receipt-container" class="text-center">
+                                <img id="detail-receipt" class="img-fluid" src="" alt="Receipt Document">
+                            </div>
+                            <div class="receipt-actions">
+                                <button id="viewFullScreenBtn" class="btn btn-primary">
+                                    <i class="bi bi-arrows-fullscreen"></i> View Full Screen
+                                </button>
+                                <button id="downloadReceiptBtn" class="btn btn-secondary">
+                                    <i class="bi bi-download"></i> Download
+                                </button>
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <h6 class="mb-3">Academic Information</h6>
-                            <table class="table table-sm">
-                                <tr><th>Campus:</th><td id="detail-campus"></td></tr>
-                                <tr><th>College:</th><td id="detail-college"></td></tr>
-                                <tr><th>School:</th><td id="detail-school"></td></tr>
-                                <tr><th>Program:</th><td id="detail-program"></td></tr>
-                            </table>
-                            <h6 class="mb-3 mt-4">Room Information</h6>
-                            <table class="table table-sm">
-                                <tr><th>Room Code:</th><td id="detail-room"></td></tr>
-                                <tr><th>Hostel:</th><td id="detail-hostel"></td></tr>
-                                <tr><th>Status:</th><td id="detail-status"></td></tr>
-                                <tr><th>Applied Date:</th><td id="detail-date"></td></tr>
-                            </table>
+                    </div>
+
+                    <!-- Details Section -->
+                    <div class="details-section">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header bg-primary text-white">
+                                        <h6 class="mb-0">Student Information</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <table class="table table-sm">
+                                            <tr><th>Registration Number:</th><td id="detail-regnumber"></td></tr>
+                                            <tr><th>Name:</th><td id="detail-name"></td></tr>
+                                            <tr><th>Gender:</th><td id="detail-gender"></td></tr>
+                                            <tr><th>Year of Study:</th><td id="detail-year"></td></tr>
+                                            <tr><th>Email:</th><td id="detail-email"></td></tr>
+                                            <tr><th>Phone:</th><td id="detail-phone"></td></tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header bg-primary text-white">
+                                        <h6 class="mb-0">Academic Information</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <table class="table table-sm">
+                                            <tr><th>Campus:</th><td id="detail-campus"></td></tr>
+                                            <tr><th>College:</th><td id="detail-college"></td></tr>
+                                            <tr><th>School:</th><td id="detail-school"></td></tr>
+                                            <tr><th>Program:</th><td id="detail-program"></td></tr>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="card mt-3">
+                                    <div class="card-header bg-primary text-white">
+                                        <h6 class="mb-0">Room Information</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <table class="table table-sm">
+                                            <tr><th>Room Code:</th><td id="detail-room"></td></tr>
+                                            <tr><th>Hostel:</th><td id="detail-hostel"></td></tr>
+                                            <tr><th>Status:</th><td id="detail-status"></td></tr>
+                                            <tr><th>Applied Date:</th><td id="detail-date"></td></tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer bg-light">
+                    <div id="action-buttons" class="d-flex gap-2">
+                        <button type="button" class="btn btn-approve" onclick="updateApplicationStatus(currentApplicationId, 'approve')">
+                            <i class="bi bi-check-circle"></i> Approve
+                        </button>
+                        <button type="button" class="btn btn-reject" onclick="updateApplicationStatus(currentApplicationId, 'reject')">
+                            <i class="bi bi-x-circle"></i> Reject
+                        </button>
+                    </div>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
@@ -309,6 +459,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         let currentSortBy = 'updated_at';
         let currentSortOrder = 'ASC';
         const perPage = 10;
+        let currentApplicationId = null;
 
         // Load applications
         function loadApplications() {
@@ -451,6 +602,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // View application details
         function viewApplicationDetails(id) {
+            currentApplicationId = id;
             fetch(`get_application_details.php?id=${id}`)
                 .then(response => response.json())
                 .then(data => {
@@ -472,6 +624,62 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             `<span class="status-badge status-${app.status}">${app.status}</span>`;
                         document.getElementById('detail-date').textContent = 
                             new Date(app.created_at).toLocaleDateString();
+                        
+                        // Handle receipt display
+                        const receiptSection = document.getElementById('receipt-section');
+                        const receiptContainer = document.getElementById('receipt-container');
+                        const receiptImg = document.getElementById('detail-receipt');
+                        
+                        if (app.slep && app.slep.trim() !== '') {
+                            // Show receipt section
+                            receiptSection.style.display = 'flex';
+                            
+                            // Add error handling for the image
+                            receiptImg.onerror = function() {
+                                receiptContainer.innerHTML = `
+                                    <div class="alert alert-warning">
+                                        Failed to load receipt image. 
+                                        <br>Path: ${app.slep}
+                                        <br>Please check if the file exists and is accessible.
+                                    </div>`;
+                            };
+                            
+                            // Ensure the path is absolute and includes the uploads directory
+                            let receiptPath = app.slep;
+                            if (!receiptPath.startsWith('http')) {
+                                receiptPath = '../Students/uploads/receipts/' + receiptPath;
+                            }
+                            
+                            console.log('Full receipt path:', receiptPath); // Debug log
+                            
+                            // Set the image source
+                            receiptImg.src = receiptPath;
+                            
+                            // Set up full screen view button
+                            document.getElementById('viewFullScreenBtn').onclick = function() {
+                                window.open(receiptPath, '_blank');
+                            };
+                            
+                            // Set up download button
+                            document.getElementById('downloadReceiptBtn').onclick = function() {
+                                const link = document.createElement('a');
+                                link.href = receiptPath;
+                                link.download = 'receipt_' + app.regnumber + '.jpg';
+                                document.body.appendChild(link);
+                                link.click();
+                                document.body.removeChild(link);
+                            };
+                        } else {
+                            receiptContainer.innerHTML = '<div class="alert alert-info">No receipt document uploaded</div>';
+                        }
+
+                        // Show/hide action buttons based on status
+                        const actionButtons = document.getElementById('action-buttons');
+                        if (app.status === 'pending') {
+                            actionButtons.style.display = 'flex';
+                        } else {
+                            actionButtons.style.display = 'none';
+                        }
                         
                         const modal = new bootstrap.Modal(document.getElementById('applicationDetailsModal'));
                         modal.show();
@@ -503,15 +711,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    showAlert('Application status updated successfully');
-                    loadApplications(); // Reload the applications list
+                    // Show success message
+                    showAlert(`Application ${status === 'approve' ? 'approved' : 'rejected'} successfully!`);
+                    
+                    // Close the modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('applicationDetailsModal'));
+                    modal.hide();
+                    
+                    // Reload the applications list
+                    loadApplications();
                 } else {
-                    showAlert(data.message || 'Error updating application status', 'danger');
+                    showAlert(data.message || `Error ${status === 'approve' ? 'approving' : 'rejecting'} application`, 'danger');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                showAlert('Error updating application status', 'danger');
+                showAlert(`Error ${status === 'approve' ? 'approving' : 'rejecting'} application`, 'danger');
             });
         }
 

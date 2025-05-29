@@ -179,7 +179,9 @@ if($role === 'warefare'){
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>Manage Hostels - UR-HUYE</title>
+    <title>UR-HOSTELS</title>
+    <link href="assets/img/icon1.png" rel="icon">
+    <link href="assets/img/icon1.png" rel="apple-touch-icon">
     
     <!-- Include your existing CSS files -->
     <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">

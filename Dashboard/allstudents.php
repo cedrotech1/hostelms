@@ -8,13 +8,13 @@ include('connection.php');
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>UR-HUYE</title>
+    <title>UR-HOSTELS</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
     <!-- Favicons -->
-    <link href="./icon1.png" rel="icon">
-    <link href="./icon1.png" rel="apple-touch-icon">
+    <link href="assets/img/icon1.png" rel="icon">
+    <link href="assets/img/icon1.png" rel="apple-touch-icon">
 
     <!-- Google Fonts -->
     <link href="https://fonts.gstatic.com" rel="preconnect">
@@ -61,7 +61,7 @@ include('connection.php');
                         <div class="card">
                             <div class="card-body">
                                 <br>
-                                <h5 class="card-title">LIST OF ALL CARDS</h5>
+                                <h5 class="card-title">LIST OF ALL STUDENTS</h5>
 
                                 <div class="col-md-12 table-responsive">
                                     <table class="table datatable table-striped table-hover">
@@ -79,6 +79,7 @@ include('connection.php');
                                                 <!-- <th><b>Program</b></th> -->
                                                 <th><b>Year</b></th>
                                                 <th><b>Phone</b></th>
+                                                <th><b>NID</b></th>
                                                 
 
                                              
@@ -133,6 +134,7 @@ include('connection.php');
                                                     <!-- <td><?php //echo $row['program']; ?></td> -->
                                                     <td><?php echo $row['yearofstudy']; ?></td>
                                                     <td><?php echo $row['phone']; ?></td>
+                                                    <td><?php echo $row['nid']; ?></td>
                                                    
 
                                                 </tr>
