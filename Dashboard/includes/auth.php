@@ -8,11 +8,54 @@
  */
 function checkUserRole(array $allowedRoles)
 {
+    // Check if user is logged in
+    if (!isset($_SESSION['user_id'])) {
+        header("HTTP/1.1 401 Unauthorized");
+        include '../401.php';
+        exit();
+    }
+
     // Check if the user's role exists in the session
     if (!isset($_SESSION['role']) || !in_array($_SESSION['role'], $allowedRoles)) {
-        // Redirect to index.php if the role is not allowed
-        echo "<script>window.location.href='./index.php'</script>";
-        exit; // Stop further script execution
+        header("HTTP/1.1 403 Forbidden");
+        include '../403.php';
+        exit();
+    }
+}
+
+/**
+ * Function to check if user is logged in
+ */
+function checkLogin()
+{
+    if (!isset($_SESSION['user_id'])) {
+        header("HTTP/1.1 401 Unauthorized");
+        include '../401.php';
+        exit();
+    }
+}
+
+/**
+ * Function to check if user is admin
+ */
+function checkAdmin()
+{
+    if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+        header("HTTP/1.1 403 Forbidden");
+        include '../403.php';
+        exit();
+    }
+}
+
+/**
+ * Function to check if user is student
+ */
+function checkStudent()
+{
+    if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'student') {
+        header("HTTP/1.1 403 Forbidden");
+        include '../403.php';
+        exit();
     }
 }
 ?>

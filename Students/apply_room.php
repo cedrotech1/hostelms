@@ -105,19 +105,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['room_id']) && isset($
         // Commit transaction
         $connection->commit();
         
-        $_SESSION['success_message'] = "Your application has been submitted successfully!";
-        header("Location: index.php");
+        if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+            // AJAX request
+            header('Content-Type: application/json');
+            echo json_encode(['success' => true, 'message' => 'Your application has been submitted successfully!']);
+        } else {
+            // Regular form submission
+            $_SESSION['success_message'] = "Your application has been submitted successfully!";
+            header("Location: index.php");
+        }
         exit();
 
     } catch (Exception $e) {
         // Rollback transaction on error
         $connection->rollback();
-        $_SESSION['error_message'] = $e->getMessage();
-        header("Location: index.php");
+        
+        if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+            // AJAX request
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        } else {
+            // Regular form submission
+            $_SESSION['error_message'] = $e->getMessage();
+            header("Location: index.php");
+        }
         exit();
     }
 } else {
     header("Location: index.php");
     exit();
+}
+
+// Add SweetAlert script at the end of the file
+if (isset($_SESSION['show_success_alert'])) {
+    echo "<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                title: 'Success!',
+                text: 'Your application has been submitted successfully!',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            });
+        });
+    </script>";
+    unset($_SESSION['show_success_alert']);
 }
 ?> 

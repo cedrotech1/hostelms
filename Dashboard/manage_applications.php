@@ -458,8 +458,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         let currentStatus = '';
         let currentSortBy = 'updated_at';
         let currentSortOrder = 'ASC';
-        const perPage = 10;
+        let perPage = 10;
         let currentApplicationId = null;
+        let updateInterval = null; // Variable to hold the interval timer
+        const updateIntervalTime = 1000; // Update interval in milliseconds (e.g., 30 seconds)
 
         // Load applications
         function loadApplications() {
@@ -476,6 +478,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     document.getElementById('applicationsList').innerHTML = 
                         '<div class="alert alert-danger">Error loading applications. Please try again.</div>';
                 });
+        }
+
+        // Function to start the periodic updates
+        function startPeriodicUpdates() {
+            // Clear any existing interval before starting a new one
+            if (updateInterval) {
+                clearInterval(updateInterval);
+            }
+            updateInterval = setInterval(loadApplications, updateIntervalTime);
+            console.log(`Started periodic updates every ${updateIntervalTime / 1000} seconds.`);
+        }
+
+        // Function to stop the periodic updates (e.g., when the modal is open)
+        function stopPeriodicUpdates() {
+            if (updateInterval) {
+                clearInterval(updateInterval);
+                updateInterval = null;
+                console.log('Stopped periodic updates.');
+            }
         }
 
         // Update sort indicators
@@ -552,10 +573,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Search applications
-        function searchApplications() {
+        // Debounce function to limit how often a function is called
+        function debounce(func, delay) {
+            let timeoutId;
+            return function(...args) {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => {
+                    func.apply(this, args);
+                }, delay);
+            };
+        }
+
+        // Debounced search function
+        const debouncedSearchApplications = debounce(() => {
             currentSearch = document.getElementById('searchInput').value;
-            currentPage = 1;
+            currentPage = 1; // Reset to first page on new search
             loadApplications();
+        }, 300); // 300ms delay
+
+        function searchApplications() {
+            // This function is now just a wrapper to call the debounced version
+            debouncedSearchApplications();
         }
 
         // Filter by status
@@ -602,6 +640,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // View application details
         function viewApplicationDetails(id) {
+            // Stop periodic updates when modal is open to avoid conflicts
+            stopPeriodicUpdates();
+
             currentApplicationId = id;
             fetch(`get_application_details.php?id=${id}`)
                 .then(response => response.json())
@@ -634,16 +675,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             // Show receipt section
                             receiptSection.style.display = 'flex';
                             
-                            // Add error handling for the image
-                            receiptImg.onerror = function() {
-                                receiptContainer.innerHTML = `
-                                    <div class="alert alert-warning">
-                                        Failed to load receipt image. 
-                                        <br>Path: ${app.slep}
-                                        <br>Please check if the file exists and is accessible.
-                                    </div>`;
-                            };
-                            
                             // Ensure the path is absolute and includes the uploads directory
                             let receiptPath = app.slep;
                             if (!receiptPath.startsWith('http')) {
@@ -652,23 +683,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             
                             console.log('Full receipt path:', receiptPath); // Debug log
                             
-                            // Set the image source
-                            receiptImg.src = receiptPath;
+                            // Create new image element to handle loading
+                            const newImg = new Image();
+                            newImg.className = 'img-fluid';
+                            newImg.alt = 'Receipt Document';
                             
-                            // Set up full screen view button
-                            document.getElementById('viewFullScreenBtn').onclick = function() {
-                                window.open(receiptPath, '_blank');
+                            // Set up error handling
+                            newImg.onerror = function() {
+                                receiptContainer.innerHTML = `
+                                    <div class="alert alert-warning">
+                                        Failed to load receipt image. 
+                                        <br>Path: ${receiptPath}
+                                        <br>Please check if the file exists and is accessible.
+                                    </div>`;
                             };
                             
-                            // Set up download button
-                            document.getElementById('downloadReceiptBtn').onclick = function() {
-                                const link = document.createElement('a');
-                                link.href = receiptPath;
-                                link.download = 'receipt_' + app.regnumber + '.jpg';
-                                document.body.appendChild(link);
-                                link.click();
-                                document.body.removeChild(link);
+                            // Set up success handling
+                            newImg.onload = function() {
+                                // Replace the container content with the loaded image
+                                receiptContainer.innerHTML = '';
+                                receiptContainer.appendChild(newImg);
+                                
+                                // Set up full screen view button
+                                const viewFullScreenBtn = document.getElementById('viewFullScreenBtn');
+                                if (viewFullScreenBtn) {
+                                    viewFullScreenBtn.onclick = function() {
+                                        window.open(receiptPath, '_blank');
+                                    };
+                                }
+                                
+                                // Set up download button
+                                const downloadReceiptBtn = document.getElementById('downloadReceiptBtn');
+                                if (downloadReceiptBtn) {
+                                    downloadReceiptBtn.onclick = function() {
+                                        const link = document.createElement('a');
+                                        link.href = receiptPath;
+                                        link.download = 'receipt_' + app.regnumber + '.jpg';
+                                        document.body.appendChild(link);
+                                        link.click();
+                                        document.body.removeChild(link);
+                                    };
+                                }
                             };
+                            
+                            // Start loading the image
+                            newImg.src = receiptPath;
+                            
                         } else {
                             receiptContainer.innerHTML = '<div class="alert alert-info">No receipt document uploaded</div>';
                         }
@@ -683,6 +743,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         
                         const modal = new bootstrap.Modal(document.getElementById('applicationDetailsModal'));
                         modal.show();
+                        
+                        // Add event listener for modal close to resume updates
+                        document.getElementById('applicationDetailsModal').addEventListener('hidden.bs.modal', startPeriodicUpdates, { once: true });
+
                     } else {
                         showAlert(data.message || 'Error loading application details', 'danger');
                     }
@@ -718,8 +782,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     const modal = bootstrap.Modal.getInstance(document.getElementById('applicationDetailsModal'));
                     modal.hide();
                     
-                    // Reload the applications list
-                    loadApplications();
+                    // Reload the applications list (this will also be triggered by the periodic update soon after)
+                    // loadApplications(); // Optional: Can rely solely on the periodic update after modal closes
                 } else {
                     showAlert(data.message || `Error ${status === 'approve' ? 'approving' : 'rejecting'} application`, 'danger');
                 }
@@ -761,8 +825,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         });
 
-        // Initial load
+        // Initial load and start periodic updates
         loadApplications();
+        startPeriodicUpdates();
     </script>
 </body>
 </html>

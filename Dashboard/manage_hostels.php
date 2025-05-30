@@ -210,8 +210,10 @@ if($role === 'warefare'){
             <div class="row">
                 <div class="col-lg-12">
                     <!-- Campus Section -->
+                    <a href="add_hostel.php"><button class="btn btn-primary mb-3"> <span class="bi bi-upload"></span> upload excel file</button></a> 
                     <div class="card">
                         <div class="card-body">
+                        
                             <div class="d-flex justify-content-between align-items-center mb-3 p-2">
                                 <h5 class="card-title">
                                     <i class="bi bi-building me-2"></i>Campuses

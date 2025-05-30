@@ -6,7 +6,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 - Page Not Found</title>
+    <title>403 - Access Forbidden | UR-HOSTELS</title>
+    <link href="icon1.png" rel="icon">
+    <link href="icon1.png" rel="apple-touch-icon">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
@@ -198,15 +200,14 @@
             <img src="https://snipboard.io/ogVdE9.jpg" alt="Company Logo" class="img-fluid" onerror="handleImageError()" onload="handleImageLoad()">
         </div>
         <div class="skeleton-text skeleton-error-code"></div>
-        <div class="error-code">404</div>
+        <div class="error-code">403</div>
         
         <div class="skeleton-text skeleton-message"></div>
-        <div class="error-message">Oops! Page Not Found</div>
+        <div class="error-message">Access Forbidden</div>
         
         <div class="skeleton-text skeleton-description"></div>
         <p class="error-description">
-            The page you are looking for might have been removed, had its name changed, 
-            or is temporarily unavailable.
+            Sorry, you don't have permission to access this page. This could be because your session has expired or you don't have the necessary permissions.
         </p>
        
         <div class="suggestions">
@@ -214,18 +215,18 @@
             <h5>Here are some helpful links:</h5>
             <div class="suggestion-item">
                 <div class="skeleton-text skeleton-suggestion"></div>
-                <i class="fas fa-info-circle"></i>
-                <a href="about.php">About Us</a>
+                <i class="fas fa-home"></i>
+                <a href="index.php">Go to Homepage</a>
             </div>
             <div class="suggestion-item">
                 <div class="skeleton-text skeleton-suggestion"></div>
-                <i class="fas fa-envelope"></i>
-                <a href="contact.php">Contact Support</a>
+                <i class="fas fa-sign-in-alt"></i>
+                <a href="login.php">Login Again</a>
             </div>
             <div class="suggestion-item">
                 <div class="skeleton-text skeleton-suggestion"></div>
                 <i class="fas fa-question-circle"></i>
-                <a href="help.php">Help Center</a>
+                <a href="help.php">Need Help?</a>
             </div>
         </div>
     </div>
@@ -247,13 +248,6 @@
                 document.getElementById('errorContainer').classList.remove('loading');
             }, 1000);
         }
-
-        // Initial loading state
-        window.addEventListener('load', function() {
-            setTimeout(() => {
-                document.getElementById('errorContainer').classList.remove('loading');
-            }, 1000);
-        });
     </script>
 </body>
 </html> 

@@ -26,6 +26,8 @@ require_once 'room_list.php';
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
 let refreshInterval;
 let currentHostelId = null;
@@ -106,13 +108,11 @@ function updateRoomList(data) {
                                 
                             </div>
                             <div class="room-actions">
-                                <form action="apply_room.php" method="POST" class="d-inline">
+                                <form action="apply_room.php" method="POST" class="d-inline apply-room-form">
                                     <input type="hidden" name="room_id" value="${room.id}">
                                     <input type="hidden" name="hostel_id" value="${data.hostel_id}">
-                                    <button type="submit" class="btn btn-sm btn-primary" 
+                                    <button type="submit" class="btn btn-sm btn-primary apply-btn" 
                                             ${room.remain <= 0 ? 'disabled' : ''}>
-                                           
-                                            
                                         <i class="bi bi-check-circle me-1"></i>
                                         Apply
                                     </button>
@@ -175,6 +175,72 @@ document.getElementById('roomsModal').addEventListener('hidden.bs.modal', functi
     currentHostelId = null;
     currentPage = 1;
     isRefreshing = false;
+});
+
+// Handle room application form submission
+document.addEventListener('submit', function(e) {
+    if (e.target.classList.contains('apply-room-form')) {
+        e.preventDefault();
+        
+        const form = e.target;
+        const submitBtn = form.querySelector('.apply-btn');
+        const originalBtnText = submitBtn.innerHTML;
+        
+        // Disable button and show loading state
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Applying...';
+        
+        // Get form data
+        const formData = new FormData(form);
+        
+        // Send AJAX request
+        fetch('apply_room.php', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show success message
+                Swal.fire({
+                    title: 'Success!',
+                    text: data.message,
+                    icon: 'success',
+                    confirmButtonText: 'OK',
+                    timer: 3000,
+                    timerProgressBar: true
+                }).then((result) => {
+                    // Redirect to index.php regardless of whether user clicked OK or timer finished
+                    window.location.href = 'index.php';
+                });
+            } else {
+                // Show error message
+                Swal.fire({
+                    title: 'Error!',
+                    text: data.message,
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                title: 'Error!',
+                text: 'An error occurred while submitting your application. Please try again.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        })
+        .finally(() => {
+            // Reset button state
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
+        });
+    }
 });
 </script>
 

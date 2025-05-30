@@ -1,5 +1,29 @@
 <?php
+session_start();
 include 'connection.php';
+
+// Check if user is logged in
+if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
+    header("Location: ../login.php");
+    exit();
+}
+
+// Get user's role and ID
+$userRole = $_SESSION['role'];
+$userId = $_SESSION['id'];
+
+// Fetch user's campus information
+$userCampus = null;
+$campusQuery = "SELECT u.campus, c.name as campus_name 
+                FROM users u 
+                LEFT JOIN campuses c ON u.campus = c.id 
+                WHERE u.id = $userId";
+$campusResult = mysqli_query($connection, $campusQuery);
+
+if ($campusResult && $row = mysqli_fetch_assoc($campusResult)) {
+    $userCampus = $row['campus'];
+    $_SESSION['campus_name'] = $row['campus_name'];
+}
 
 // Initialize statistics arrays
 $stats = [
@@ -30,6 +54,12 @@ $stats = [
 ];
 
 try {
+    // Modify the campus-level statistics query based on user role
+    $campusCondition = "";
+    if ($userRole === 'warefare') {
+        $campusCondition = "WHERE c.id = $userCampus";
+    }
+
     // Get campus-level statistics
     $query = "SELECT 
                 c.id AS campus_id,
@@ -46,6 +76,7 @@ try {
             LEFT JOIN hostels h ON h.campus_id = c.id
             LEFT JOIN rooms r ON r.hostel_id = h.id
             LEFT JOIN applications a ON a.room_id = r.id
+            $campusCondition
             GROUP BY c.id, c.name
             ORDER BY c.name;
             ";
@@ -72,6 +103,11 @@ try {
     }
 
     // Get hostel-level statistics
+    $hostelCondition = "";
+    if ($userRole === 'warefare') {
+        $hostelCondition = "WHERE h.campus_id = $userCampus";
+    }
+
     $query = "SELECT 
     h.id AS hostel_id,
     h.name AS hostel_name,
@@ -87,6 +123,7 @@ FROM hostels h
 LEFT JOIN campuses c ON h.campus_id = c.id
 LEFT JOIN rooms r ON r.hostel_id = h.id
 LEFT JOIN applications a ON a.room_id = r.id
+$hostelCondition
 GROUP BY h.id, h.name, c.name
 ORDER BY c.name, h.name;
 ";
@@ -168,6 +205,11 @@ ORDER BY c.name, h.name;
     }
 
     // Get applications by campus
+    $applicationsCondition = "";
+    if ($userRole === 'warefare') {
+        $applicationsCondition = "WHERE c.id = $userCampus";
+    }
+
     $query = "SELECT 
                 c.name as campus_name,
                 COUNT(*) as total,
@@ -178,6 +220,7 @@ ORDER BY c.name, h.name;
              JOIN rooms r ON a.room_id = r.id
              JOIN hostels h ON r.hostel_id = h.id
              JOIN campuses c ON h.campus_id = c.id
+             $applicationsCondition
              GROUP BY c.id, c.name
              ORDER BY total DESC";
 
