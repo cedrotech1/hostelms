@@ -26,6 +26,7 @@ if ($campusResult && $row = mysqli_fetch_assoc($campusResult)) {
 }
 
 // Initialize statistics arrays
+// sta
 $stats = [
     'overall' => [
         'total_campuses' => 0,
