@@ -1,8 +1,8 @@
 <?php
 include('connection.php');
 
-include ('./includes/auth.php');
-checkUserRole(['information_modifier']);
+// include ('./includes/auth.php');
+// checkUserRole(['information_modifier']);
 
 
 // Function to check if there's data in the system
@@ -86,9 +86,8 @@ include("./includes/menu.php");
           <div class="card-body">
               <br>
              
-
-              <?php if ($existingData=1) : ?><br/>
-                <h5 class="card-title">UPLOAD STUDENT INFORMATION FORM</h5>
+              <?php if ($existingData == 1) : ?><br/>
+                <h5 class="card-title">UPLOAD HOSTEL INFORMATION FORM</h5>
                 <br>
                 <div class="col-md-12">
                 <div class="form-floating">
@@ -158,52 +157,36 @@ include("./includes/menu.php");
                   </thead>
                   <tbody>
                     <tr>
-                      <td>Registration Number*</td>
-                      <td>Unique student ID (e.g., 2023/1234)</td>
-                    </tr>
-                    <tr>
                       <td>Campus*</td>
                       <td>Must match existing campus name exactly</td>
                     </tr>
                     <tr>
-                      <td>College*</td>
-                      <td>Student's college name</td>
+                      <td>Building Code*</td>
+                      <td>Unique identifier for the building</td>
                     </tr>
                     <tr>
-                      <td>Sirname*</td>
-                      <td>Student's sirname</td>
+                      <td>Hostel Name*</td>
+                      <td>Name of the hostel (must be unique within campus)</td>
                     </tr>
                     <tr>
-                      <td>Lastname*</td>
-                      <td>Student's lastname</td>
+                      <td>Room Code*</td>
+                      <td>Unique identifier for the room</td>
                     </tr>
                     <tr>
-                      <td>School*</td>
-                      <td>Student's school name</td>
-                    </tr>
-                    <tr>
-                      <td>Program*</td>
-                      <td>Student's program name</td>
-                    </tr>
-                    <tr>
-                      <td>Year of Study*</td>
-                      <td>Current year (1-5)</td>
-                    </tr>
-                    <tr>
-                      <td>Email*</td>
-                      <td>Valid email address</td>
+                      <td>Number of Beds*</td>
+                      <td>Total number of beds in the room</td>
                     </tr>
                     <tr>
                       <td>Gender*</td>
-                      <td>Male/Female or M/F</td>
+                      <td>M for Male, F for Female</td>
                     </tr>
                     <tr>
-                      <td>National ID*</td>
-                      <td>Valid national ID number</td>
+                      <td>Year*</td>
+                      <td>Year of study (1-6)</td>
                     </tr>
                     <tr>
-                      <td>Phone*</td>
-                      <td>10-digit number starting with 0</td>
+                      <td>Other Names</td>
+                      <td>Additional names or descriptions (optional)</td>
                     </tr>
                   </tbody>
                 </table>
@@ -313,7 +296,7 @@ include("./includes/menu.php");
 
   // Function to upload data to the server
   function uploadToServer(dataRows) {
-      fetch('upload_excel.php', {
+      fetch('welfare_upload_hostel_excel.php', {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json'

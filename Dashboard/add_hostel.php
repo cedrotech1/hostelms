@@ -20,6 +20,33 @@ function checkExistingData($connection) {
 }
 
 $existingData = checkExistingData($connection); // Check if data exists
+
+$fields = array(
+    'name',
+    'building_code',
+    'othernames',
+    'gender',
+    'year',
+    'campus_id'
+);
+
+// Get session ID for tracking
+$session_id = $_SESSION['id'];
+
+// Update the SQL query to include createdBy and updatedBy
+$sql = "INSERT INTO hostels (name, building_code, othernames, gender, year, campus_id, createdBy, updatedBy) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+$stmt = $connection->prepare($sql);
+$stmt->bind_param("sssssiii", 
+    $name, 
+    $building_code, 
+    $othernames, 
+    $gender, 
+    $year, 
+    $campus_id,
+    $session_id,  // createdBy
+    $session_id   // updatedBy
+);
 ?>
 
 <!DOCTYPE html>
@@ -139,6 +166,9 @@ include("./includes/menu.php");
                   <li>File must be in Excel (.xlsx) or CSV format</li>
                   <li>Do not modify the header row OR make sure header of each column is correct as in that template</li>
                   <li>Save Excel files as CSV before uploading that is good practice</li>
+                  <li>Building Code must be unique for each building</li>
+                  <li>Gender must be either 'M' or 'F' (capital letters)</li>
+                  <li>Year must be a valid year of study (1, 2, 3, 4, etc.)</li>
                   <?php if ($userRole === 'warefare'): ?>
                   <li>You can only upload hostels for your assigned campus</li>
                   <?php else: ?>
@@ -165,6 +195,10 @@ include("./includes/menu.php");
                       <td><?php echo $userRole === 'warefare' ? 'Your assigned campus name' : 'Any valid campus name'; ?></td>
                     </tr>
                     <tr>
+                      <td>Building Code*</td>
+                      <td>Unique identifier for the building (e.g., B001)</td>
+                    </tr>
+                    <tr>
                       <td>Hostel Name*</td>
                       <td>Name of the hostel</td>
                     </tr>
@@ -175,6 +209,18 @@ include("./includes/menu.php");
                     <tr>
                       <td>Number of Beds*</td>
                       <td>Total number of beds in the room</td>
+                    </tr>
+                    <tr>
+                      <td>Other Names</td>
+                      <td>Additional names or identifiers for the hostel (e.g., Block A)</td>
+                    </tr>
+                    <tr>
+                      <td>Gender*</td>
+                      <td>M or F (capital letters)</td>
+                    </tr>
+                    <tr>
+                      <td>Year*</td>
+                      <td>Year of study (1, 2, 3, 4, etc.)</td>
                     </tr>
                   </tbody>
                 </table>
@@ -192,8 +238,11 @@ include("./includes/menu.php");
                   <?php else: ?>
                   <li>Check that campus name exists in the system</li>
                   <?php endif; ?>
+                  <li>Building Code must be unique and properly formatted</li>
                   <li>Room codes must be unique within each hostel</li>
                   <li>Number of beds must be a positive integer</li>
+                  <li>Gender must be exactly 'M' or 'F' (capital letters)</li>
+                  <li>Year must be a valid year of study (1, 2, 3, 4, etc.)</li>
                 </ul>
               </div>
             </div>
@@ -219,10 +268,10 @@ include("./includes/menu.php");
     
     // Create worksheet with headers
     var ws_data = [
-      ['Campus', 'Hostel Name', 'Room Code', 'Number of Beds'],
-      ['Huye', 'Bengazi', 'A101', '4'],
-      ['Huye', 'Bengazi', 'A102', '4'],
-      ['Huye', 'Bengazi', 'B101', '2']
+      ['Campus', 'Building Code', 'Hostel Name', 'Room Code', 'Number of Beds', 'Other Names', 'Gender', 'Year'],
+      ['Huye', 'B001', 'Bengazi', 'A101', '4', 'Block A', 'M', '1'],
+      ['Huye', 'B001', 'Bengazi', 'A102', '4', 'Block A', 'M', '1'],
+      ['Huye', 'B002', 'Bengazi', 'B101', '2', 'Block B', 'F', '2']
     ];
     
     var ws = XLSX.utils.aoa_to_sheet(ws_data);
@@ -305,7 +354,7 @@ include("./includes/menu.php");
           skipEmptyLines: true,
           transform: function(value) {
               return value.trim();
-          }
+          } 
       });
   }
 

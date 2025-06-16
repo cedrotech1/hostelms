@@ -20,11 +20,7 @@
                             <i class="bi bi-upload"></i><span>Upload student information</span>
                         </a>
                     </li>
-                        <!-- <li>
-                            <a class="nav-link collapsed" href="add_hostel.php">
-                                <i class="bi bi-person-plus"></i><span>upload hostels </span>
-                            </a>
-                        </li> -->
+                       
                     <!-- <li>
                         <a class="nav-link collapsed" href="allstudents.php">
                             <i class="bi bi-card-heading"></i><span>All students</span>
@@ -80,6 +76,18 @@
                     <i class="bi bi-house-door"></i><span>Dashboard</span>
                 </a>
             </li>
+            <!-- laptop -->
+            <!-- <li class="nav-item">
+                <a class="nav-link collapsed" href="laptop_add_data.php">
+                    <i class="bi bi-people"></i><span>upload labtops</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="laptop_data.php">
+                    <i class="bi bi-people"></i><span> labtops</span>
+                </a>
+            </li> -->
+
             <li class="nav-item">
                 <a class="nav-link collapsed" href="add_user.php">
                     <i class="bi bi-people"></i><span>Manage Users</span>
@@ -95,6 +103,7 @@
                             <i class="bi bi-upload"></i><span>Upload student information</span>
                         </a>
                     </li>
+                    
                   
 
                   

@@ -1,7 +1,8 @@
 <?php
+session_start();
 include('connection.php');
-include ('./includes/auth.php');
-checkUserRole(['information_modifier']);
+// include ('./includes/auth.php');
+// checkUserRole(['information_modifier']);
 
 
 
@@ -38,7 +39,7 @@ if (isset($_POST['update'])) {
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>UR-HOSTELS</title>
+  <title>UR-TIMETABLE</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
 
@@ -73,8 +74,8 @@ if (isset($_POST['update'])) {
 <body>
 
   <?php
-  include("./includes/header.php");
-  include("./includes/menu.php");
+  // include("./includes/header.php");
+  // include("./includes/menu.php");
   ?>
 
 

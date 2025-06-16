@@ -1,7 +1,7 @@
 <?php
 include('connection.php');
-include ('./includes/auth.php');
-checkUserRole(['information_modifier']);
+// include ('./includes/auth.php');
+// checkUserRole(['information_modifier']);
 
 $userid=$_SESSION['id'];
 

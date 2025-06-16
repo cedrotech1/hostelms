@@ -35,6 +35,37 @@ function getRooms($connection, $hostel_id, $page = 1, $per_page = 10) {
     ];
 }
 
+function getRoomsJson($connection, $hostel_id, $page = 1, $per_page = 10) {
+    $offset = ($page - 1) * $per_page;
+    
+    // Get total count for pagination
+    $count_query = "SELECT COUNT(*) as total FROM rooms WHERE hostel_id = ? AND remain > 0";
+    $count_stmt = $connection->prepare($count_query);
+    $count_stmt->bind_param("i", $hostel_id);
+    $count_stmt->execute();
+    $total = $count_stmt->get_result()->fetch_assoc()['total'];
+    
+    // Get rooms for current page with application counts
+    $query = "SELECT r.*, 
+              (SELECT COUNT(*) FROM applications a WHERE a.room_id = r.id AND a.status != 'rejected') as current_applications
+              FROM rooms r 
+              WHERE r.hostel_id = ? AND r.remain > 0 
+              ORDER BY r.room_code 
+              LIMIT ? OFFSET ?";
+    $stmt = $connection->prepare($query);
+    $stmt->bind_param("iii", $hostel_id, $per_page, $offset);
+    $stmt->execute();
+    $rooms = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    
+    return [
+        'success' => true,
+        'rooms' => $rooms,
+        'total' => $total,
+        'total_pages' => ceil($total / $per_page),
+        'current_page' => $page
+    ];
+}
+
 function displayRoomList($connection, $hostel_id, $page = 1) {
     $result = getRooms($connection, $hostel_id, $page);
     $rooms = $result['rooms'];
