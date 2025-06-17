@@ -847,14 +847,19 @@ if($role === 'warefare'){
                         
                         <div class="mb-3">
                             <label for="year" class="form-label">Year *</label>
-                            <select class="form-select" id="year" name="year" required>
-                                <option value="">Select Year</option>
-                                <option value="1">Year 1</option>
-                                <option value="2">Year 2</option>
-                                <option value="3">Year 3</option>
-                                <option value="4">Year 4</option>
-                                <option value="5">Year 5</option>
-                            </select>
+                            <div class="border rounded p-2">
+                                <div class="d-flex flex-wrap gap-2" id="yearOptions">
+                                    <?php
+                                    for ($i = 1; $i <= 5; $i++) {
+                                        echo '<div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="year[]" value="' . $i . '" id="year' . $i . '">
+                                            <label class="form-check-label" for="year' . $i . '">Year ' . $i . '</label>
+                                        </div>';
+                                    }
+                                    ?>
+                                </div>
+                            </div>
+                            <input type="hidden" id="year" name="year">
                         </div>
 
                         <div class="mb-3">
@@ -869,41 +874,56 @@ if($role === 'warefare'){
                         <div id="editFields" style="display: none;">
                             <div class="mb-3">
                                 <label for="intake" class="form-label">Intake</label>
-                                <select class="form-select" id="intake" name="intake">
-                                    <option value="">Select Intake</option>
-                                    <?php
-                                    $intakes_query = mysqli_query($connection, "SELECT DISTINCT intake FROM info WHERE intake IS NOT NULL AND intake != '' ORDER BY intake");
-                                    while ($intake = mysqli_fetch_assoc($intakes_query)) {
-                                        echo "<option value='" . htmlspecialchars($intake['intake']) . "'>" . htmlspecialchars($intake['intake']) . "</option>";
-                                    }
-                                    ?>
-                                </select>
+                                <div class="border rounded p-2">
+                                    <div class="d-flex flex-wrap gap-2" id="intakeOptions">
+                                        <?php
+                                        $intakes_query = mysqli_query($connection, "SELECT DISTINCT intake FROM info WHERE intake IS NOT NULL AND intake != '' ORDER BY intake");
+                                        while ($intake = mysqli_fetch_assoc($intakes_query)) {
+                                            echo '<div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="intake[]" value="' . htmlspecialchars($intake['intake']) . '" id="intake_' . md5($intake['intake']) . '">
+                                                <label class="form-check-label" for="intake_' . md5($intake['intake']) . '">' . htmlspecialchars($intake['intake']) . '</label>
+                                            </div>';
+                                        }
+                                        ?>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="intake" name="intake">
                             </div>
 
                             <div class="mb-3">
                                 <label for="college" class="form-label">College</label>
-                                <select class="form-select" id="college" name="college">
-                                    <option value="">Select College</option>
-                                    <?php
-                                    $colleges_query = mysqli_query($connection, "SELECT DISTINCT college FROM info WHERE college IS NOT NULL AND college != '' ORDER BY college");
-                                    while ($college = mysqli_fetch_assoc($colleges_query)) {
-                                        echo "<option value='" . htmlspecialchars($college['college']) . "'>" . htmlspecialchars($college['college']) . "</option>";
-                                    }
-                                    ?>
-                                </select>
+                                <div class="border rounded p-2">
+                                    <div class="d-flex flex-wrap gap-2" id="collegeOptions">
+                                        <?php
+                                        $colleges_query = mysqli_query($connection, "SELECT DISTINCT college FROM info WHERE college IS NOT NULL AND college != '' ORDER BY college");
+                                        while ($college = mysqli_fetch_assoc($colleges_query)) {
+                                            echo '<div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="college[]" value="' . htmlspecialchars($college['college']) . '" id="college_' . md5($college['college']) . '">
+                                                <label class="form-check-label" for="college_' . md5($college['college']) . '">' . htmlspecialchars($college['college']) . '</label>
+                                            </div>';
+                                        }
+                                        ?>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="college" name="college">
                             </div>
 
                             <div class="mb-3">
                                 <label for="school" class="form-label">School</label>
-                                <select class="form-select" id="school" name="school">
-                                    <option value="">Select School</option>
-                                    <?php
-                                    $schools_query = mysqli_query($connection, "SELECT DISTINCT school FROM info WHERE school IS NOT NULL AND school != '' ORDER BY school");
-                                    while ($school = mysqli_fetch_assoc($schools_query)) {
-                                        echo "<option value='" . htmlspecialchars($school['school']) . "'>" . htmlspecialchars($school['school']) . "</option>";
-                                    }
-                                    ?>
-                                </select>
+                                <div class="border rounded p-2">
+                                    <div class="d-flex flex-wrap gap-2" id="schoolOptions">
+                                        <?php
+                                        $schools_query = mysqli_query($connection, "SELECT DISTINCT school FROM info WHERE school IS NOT NULL AND school != '' ORDER BY school");
+                                        while ($school = mysqli_fetch_assoc($schools_query)) {
+                                            echo '<div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="school[]" value="' . htmlspecialchars($school['school']) . '" id="school_' . md5($school['school']) . '">
+                                                <label class="form-check-label" for="school_' . md5($school['school']) . '">' . htmlspecialchars($school['school']) . '</label>
+                                            </div>';
+                                        }
+                                        ?>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="school" name="school">
                             </div>
 
                             <div class="mb-3">
@@ -1659,6 +1679,7 @@ if($role === 'warefare'){
                     // Show modal
                     const modal = new bootstrap.Modal(document.getElementById('hostelModal'));
                     modal.show();
+                    highlightCurrentValues(hostel);
                 } else {
                     throw new Error(data.message || 'Failed to load hostel data');
                 }
@@ -2088,83 +2109,102 @@ if($role === 'warefare'){
             destroyAllTooltips();
             const detailsContent = document.getElementById('detailsContent');
             
-            // Create student indicators section
+            // Create student indicators section with improved design
             const studentIndicators = `
                 <div class="card mb-3">
                     <div class="card-header bg-primary text-white py-2">
                         <div class="d-flex justify-content-between align-items-center">
                             <h6 class="mb-0"><i class="bi bi-people-fill me-1"></i>Student Indicators</h6>
-                            <small class="badge bg-light text-primary">${hostel.year ? `Year ${hostel.year}` : 'Not specified'}</small>
                         </div>
                     </div>
-                    <div class="card-body p-2">
-                        <div class="row g-2">
+                    <div class="card-body p-3">
+                        <div class="row g-3">
                             <div class="col-md-6">
-                                <div class="d-flex align-items-center p-2 bg-light rounded">
-                                    <i class="bi bi-gender-ambiguous ${hostel.gender === 'M' ? 'text-primary' : hostel.gender === 'F' ? 'text-danger' : 'text-secondary'} me-2"></i>
-                                    <div>
-                                        <small class="text-muted d-block">Gender</small>
-                                        <small class="d-block">
+                                <div class="d-flex align-items-center p-3 bg-light rounded shadow-sm">
+                                    <div class="flex-shrink-0">
+                                        <i class="bi bi-gender-ambiguous ${hostel.gender === 'M' ? 'text-primary' : hostel.gender === 'F' ? 'text-danger' : 'text-secondary'} fs-4"></i>
+                                    </div>
+                                    <div class="ms-3">
+                                        <h6 class="mb-1">Gender</h6>
+                                        <p class="mb-0">
                                             ${hostel.gender === 'M' ? 
                                                 '<i class="bi bi-gender-male text-primary"></i> Male' : 
                                                 hostel.gender === 'F' ? 
                                                 '<i class="bi bi-gender-female text-danger"></i> Female' : 
                                                 '<i class="bi bi-question-circle text-secondary"></i> Not specified'}
-                                        </small>
+                                        </p>
                                     </div>
                                 </div>
                             </div>
+                            ${hostel.college ? `
                             <div class="col-md-6">
-                                <div class="d-flex align-items-center p-2 bg-light rounded">
-                                    <i class="bi bi-building text-primary me-2"></i>
-                                    <div>
-                                        <small class="text-muted d-block">College</small>
-                                        <small class="d-block">${hostel.college || '<i class="bi bi-dash text-secondary"></i> Not specified'}</small>
+                                <div class="d-flex align-items-center p-3 bg-light rounded shadow-sm">
+                                    <div class="flex-shrink-0">
+                                        <i class="bi bi-building text-primary fs-4"></i>
+                                    </div>
+                                    <div class="ms-3">
+                                        <h6 class="mb-1">College</h6>
+                                        <p class="mb-0">${hostel.college.split(',').map(c => `<span class="badge bg-primary me-1">${c}</span>`).join('')}</p>
                                     </div>
                                 </div>
                             </div>
+                            ` : ''}
+                            ${hostel.school ? `
                             <div class="col-md-6">
-                                <div class="d-flex align-items-center p-2 bg-light rounded">
-                                    <i class="bi bi-mortarboard text-primary me-2"></i>
-                                    <div>
-                                        <small class="text-muted d-block">School</small>
-                                        <small class="d-block">${hostel.school || '<i class="bi bi-dash text-secondary"></i> Not specified'}</small>
+                                <div class="d-flex align-items-center p-3 bg-light rounded shadow-sm">
+                                    <div class="flex-shrink-0">
+                                        <i class="bi bi-mortarboard text-primary fs-4"></i>
+                                    </div>
+                                    <div class="ms-3">
+                                        <h6 class="mb-1">School</h6>
+                                        <p class="mb-0">${hostel.school.split(',').map(s => `<span class="badge bg-primary me-1">${s}</span>`).join('')}</p>
                                     </div>
                                 </div>
                             </div>
+                            ` : ''}
+                            ${hostel.year ? `
                             <div class="col-md-6">
-                                <div class="d-flex align-items-center p-2 bg-light rounded">
-                                    <i class="bi bi-calendar3 text-primary me-2"></i>
-                                    <div>
-                                        <small class="text-muted d-block">Year</small>
-                                        <small class="d-block">${hostel.year ? `Year ${hostel.year}` : '<i class="bi bi-dash text-secondary"></i> Not specified'}</small>
+                                <div class="d-flex align-items-center p-3 bg-light rounded shadow-sm">
+                                    <div class="flex-shrink-0">
+                                        <i class="bi bi-calendar3 text-primary fs-4"></i>
+                                    </div>
+                                    <div class="ms-3">
+                                        <h6 class="mb-1">Year</h6>
+                                        <p class="mb-0">${hostel.year.split(',').map(y => `<span class="badge bg-primary me-1">Year ${y}</span>`).join('')}</p>
                                     </div>
                                 </div>
                             </div>
+                            ` : ''}
                             <div class="col-md-6">
-                                <div class="d-flex align-items-center p-2 bg-light rounded">
-                                    <i class="bi bi-wheelchair text-primary me-2"></i>
-                                    <div>
-                                        <small class="text-muted d-block">Disability Access</small>
-                                        <small class="d-block">
+                                <div class="d-flex align-items-center p-3 bg-light rounded shadow-sm">
+                                    <div class="flex-shrink-0">
+                                        <i class="bi bi-wheelchair text-primary fs-4"></i>
+                                    </div>
+                                    <div class="ms-3">
+                                        <h6 class="mb-1">Disability Access</h6>
+                                        <p class="mb-0">
                                             ${hostel.disability === '1' || hostel.disability === 1 ? 
-                                                '<i class="bi bi-check-circle text-success"></i> Accessible' : 
+                                                '<span class="badge bg-success"><i class="bi bi-check-circle"></i> Accessible</span>' : 
                                                 hostel.disability === '0' || hostel.disability === 0 ? 
-                                                '<i class="bi bi-x-circle text-danger"></i> Not Accessible' : 
-                                                '<i class="bi bi-question-circle text-secondary"></i> Not Specified'}
-                                        </small>
+                                                '<span class="badge bg-danger"><i class="bi bi-x-circle"></i> Not Accessible</span>' : 
+                                                '<span class="badge bg-secondary"><i class="bi bi-question-circle"></i> Not Specified</span>'}
+                                        </p>
                                     </div>
                                 </div>
                             </div>
+                            ${hostel.intake ? `
                             <div class="col-md-6">
-                                <div class="d-flex align-items-center p-2 bg-light rounded">
-                                    <i class="bi bi-calendar-event text-primary me-2"></i>
-                                    <div>
-                                        <small class="text-muted d-block">Intake</small>
-                                        <small class="d-block">${hostel.intake || '<i class=\"bi bi-dash text-secondary\"></i> Not specified'}</small>
+                                <div class="d-flex align-items-center p-3 bg-light rounded shadow-sm">
+                                    <div class="flex-shrink-0">
+                                        <i class="bi bi-calendar-event text-primary fs-4"></i>
+                                    </div>
+                                    <div class="ms-3">
+                                        <h6 class="mb-1">Intake</h6>
+                                        <p class="mb-0">${hostel.intake.split(',').map(i => `<span class="badge bg-primary me-1">${i}</span>`).join('')}</p>
                                     </div>
                                 </div>
                             </div>
+                            ` : ''}
                         </div>
                     </div>
                 </div>
@@ -2389,6 +2429,175 @@ if($role === 'warefare'){
                     });
                 }
             });
+        }
+
+        // Function to handle intake management
+        document.getElementById('addIntakeBtn')?.addEventListener('click', function() {
+            const intakeInput = document.getElementById('intake');
+            const intakeList = document.getElementById('intakeList');
+            const intakeValue = intakeInput.value.trim();
+            
+            if (intakeValue) {
+                // Create new badge
+                const badge = document.createElement('div');
+                badge.className = 'badge bg-primary me-2 mb-2';
+                badge.textContent = intakeValue;
+                
+                // Add delete button
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'btn-close btn-close-white ms-2';
+                deleteBtn.style.fontSize = '0.5rem';
+                deleteBtn.onclick = function() {
+                    badge.remove();
+                };
+                
+                badge.appendChild(deleteBtn);
+                intakeList.appendChild(badge);
+                intakeInput.value = '';
+            }
+        });
+
+        // Function to validate year input
+        document.getElementById('year')?.addEventListener('input', function(e) {
+            // Remove any non-numeric characters except commas
+            this.value = this.value.replace(/[^0-9,]/g, '');
+            
+            // Remove consecutive commas
+            this.value = this.value.replace(/,+/g, ',');
+            
+            // Remove leading and trailing commas
+            this.value = this.value.replace(/^,|,$/g, '');
+        });
+
+        // Function to handle year selection
+        function updateYearValue() {
+            const selectedYears = Array.from(document.querySelectorAll('input[name="year[]"]:checked'))
+                .map(cb => cb.value)
+                .sort()
+                .join(',');
+            document.getElementById('year').value = selectedYears;
+        }
+
+        // Function to handle intake selection
+        function updateIntakeValue() {
+            const selectedIntakes = Array.from(document.querySelectorAll('input[name="intake[]"]:checked'))
+                .map(cb => cb.value)
+                .sort()
+                .join(',');
+            document.getElementById('intake').value = selectedIntakes;
+        }
+
+        // Add event listeners for year checkboxes
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('input[name="year[]"]').forEach(checkbox => {
+                checkbox.addEventListener('change', updateYearValue);
+            });
+
+            document.querySelectorAll('input[name="intake[]"]').forEach(checkbox => {
+                checkbox.addEventListener('change', updateIntakeValue);
+            });
+        });
+
+        // Function to highlight current values when editing
+        function highlightCurrentValues(hostel) {
+            if (hostel.year) {
+                const years = hostel.year.split(',');
+                years.forEach(year => {
+                    const checkbox = document.querySelector(`input[name="year[]"][value="${year}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+                updateYearValue();
+            }
+
+            if (hostel.intake) {
+                const intakes = hostel.intake.split(',');
+                intakes.forEach(intake => {
+                    const checkbox = document.querySelector(`input[name="intake[]"][value="${intake}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+                updateIntakeValue();
+            }
+        }
+
+        // Add these JavaScript functions for college and school
+        // Function to handle college selection
+        function updateCollegeValue() {
+            const selectedColleges = Array.from(document.querySelectorAll('input[name="college[]"]:checked'))
+                .map(cb => cb.value)
+                .sort()
+                .join(',');
+            document.getElementById('college').value = selectedColleges;
+        }
+
+        // Function to handle school selection
+        function updateSchoolValue() {
+            const selectedSchools = Array.from(document.querySelectorAll('input[name="school[]"]:checked'))
+                .map(cb => cb.value)
+                .sort()
+                .join(',');
+            document.getElementById('school').value = selectedSchools;
+        }
+
+        // Update the DOMContentLoaded event listener
+        document.addEventListener('DOMContentLoaded', function() {
+            // Existing event listeners
+            document.querySelectorAll('input[name="year[]"]').forEach(checkbox => {
+                checkbox.addEventListener('change', updateYearValue);
+            });
+
+            document.querySelectorAll('input[name="intake[]"]').forEach(checkbox => {
+                checkbox.addEventListener('change', updateIntakeValue);
+            });
+
+            // New event listeners for college and school
+            document.querySelectorAll('input[name="college[]"]').forEach(checkbox => {
+                checkbox.addEventListener('change', updateCollegeValue);
+            });
+
+            document.querySelectorAll('input[name="school[]"]').forEach(checkbox => {
+                checkbox.addEventListener('change', updateSchoolValue);
+            });
+        });
+
+        // Update the highlightCurrentValues function
+        function highlightCurrentValues(hostel) {
+            // Existing year and intake highlighting
+            if (hostel.year) {
+                const years = hostel.year.split(',');
+                years.forEach(year => {
+                    const checkbox = document.querySelector(`input[name="year[]"][value="${year}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+                updateYearValue();
+            }
+
+            if (hostel.intake) {
+                const intakes = hostel.intake.split(',');
+                intakes.forEach(intake => {
+                    const checkbox = document.querySelector(`input[name="intake[]"][value="${intake}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+                updateIntakeValue();
+            }
+
+            // New college and school highlighting
+            if (hostel.college) {
+                const colleges = hostel.college.split(',');
+                colleges.forEach(college => {
+                    const checkbox = document.querySelector(`input[name="college[]"][value="${college}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+                updateCollegeValue();
+            }
+
+            if (hostel.school) {
+                const schools = hostel.school.split(',');
+                schools.forEach(school => {
+                    const checkbox = document.querySelector(`input[name="school[]"][value="${school}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+                updateSchoolValue();
+            }
         }
     </script>
 </body>
