@@ -77,6 +77,7 @@ try {
             'id' => $row['id'],
             'room_code' => $row['room_code'],
             'number_of_beds' => $row['number_of_beds'],
+            'status' => $row['status'],
             'remain' => $row['remain'],
             'created_by' => $row['created_by'],
             'updated_by' => $row['updated_by'],

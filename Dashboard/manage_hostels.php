@@ -1,4 +1,38 @@
 <?php
+// Start output buffering
+ob_start();
+
+// Error handling
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+
+// Set error handler to catch all errors
+function handleError($errno, $errstr, $errfile, $errline) {
+    ob_clean();
+    header('Content-Type: application/json');
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Server error: ' . $errstr
+    ]);
+    exit;
+}
+set_error_handler('handleError');
+
+// Set exception handler
+function handleException($e) {
+    ob_clean();
+    header('Content-Type: application/json');
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Server error: ' . $e->getMessage()
+    ]);
+    exit;
+}
+set_exception_handler('handleException');
+
 include('connection.php');
 include('./includes/auth.php');
 // session_start();
@@ -10,17 +44,56 @@ $mycampus = $row['campus'];
 $role=$row['role'];
 
 // Handle AJAX requests
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' || isset($_GET['action'])) {
+    // Clear any previous output
+    ob_clean();
+    
+    // Set JSON header
     header('Content-Type: application/json');
     
     try {
-        $action = $_POST['action'] ?? '';
+        // Log the incoming request data
+        error_log('Request data: ' . print_r($_REQUEST, true));
+        
+        $action = $_POST['action'] ?? $_GET['action'] ?? '';
         
         switch ($action) {
+            case 'get_hostel':
+                // Validate required fields
+                $hostel_id = $_POST['id'] ?? $_GET['id'] ?? null;
+                if (empty($hostel_id)) {
+                    throw new Exception('Hostel ID is required');
+                }
+
+                // Get hostel data
+                $stmt = $connection->prepare("
+                    SELECT h.*, c.name as campus_name, 
+                           u1.names as created_by, u2.names as updated_by
+                    FROM hostels h
+                    LEFT JOIN campuses c ON h.campus_id = c.id
+                    LEFT JOIN users u1 ON h.createdBy = u1.id
+                    LEFT JOIN users u2 ON h.updatedBy = u2.id
+                    WHERE h.id = ?
+                ");
+                $stmt->bind_param("i", $hostel_id);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                $hostel = $result->fetch_assoc();
+
+                if ($hostel) {
+                    echo json_encode([
+                        'success' => true,
+                        'data' => $hostel
+                    ]);
+                } else {
+                    throw new Exception('Hostel not found');
+                }
+                break;
+
             case 'add_hostel':
                 // Validate required fields
-                if (empty($_POST['name']) || empty($_POST['building_code']) || empty($_POST['campus_id'])) {
-                    throw new Exception('Name, Building Code, and Campus are required fields');
+                if (empty($_POST['name']) || empty($_POST['building_code']) || empty($_POST['campus_id']) || empty($_POST['gender']) || empty($_POST['year'])) {
+                    throw new Exception('Name, Building Code, Campus, Gender, and Year are required fields');
                 }
 
                 // Check if hostel name already exists in the campus
@@ -41,18 +114,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     throw new Exception('A hostel with this building code already exists in this campus');
                 }
 
+                // Store values in variables
+                $name = $_POST['name'];
+                $building_code = $_POST['building_code'];
+                $othernames = $_POST['othernames'] ?? '';
+                $gender = $_POST['gender'];
+                $year = $_POST['year'];
+                $intake = $_POST['intake'] ?? null;
+                $campus_id = $_POST['campus_id'];
+                $status = 'draft';
+                $createdBy = $_SESSION['id'];
+                $updatedBy = $_SESSION['id'];
+
                 // Insert new hostel with user tracking
-                $stmt = $connection->prepare("INSERT INTO hostels (name, building_code, othernames, gender, year, campus_id, status, createdBy, updatedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                $stmt->bind_param("sssssissi", 
-                    $_POST['name'],
-                    $_POST['building_code'],
-                    $_POST['othernames'],
-                    $_POST['gender'],
-                    $_POST['year'],
-                    $_POST['campus_id'],
-                    'draft',  // Set default status to draft
-                    $_SESSION['id'],
-                    $_SESSION['id']
+                $stmt = $connection->prepare("INSERT INTO hostels (name, building_code, othernames, gender, year, intake, campus_id, status, createdBy, updatedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("ssssssssii", 
+                    $name,
+                    $building_code,
+                    $othernames,
+                    $gender,
+                    $year,
+                    $intake,
+                    $campus_id,
+                    $status,
+                    $createdBy,
+                    $updatedBy
                 );
 
                 if ($stmt->execute()) {
@@ -71,9 +157,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     throw new Exception('ID, Name, Building Code, and Campus are required fields');
                 }
 
+                // Store values in variables
+                $id = $_POST['id'];
+                $name = $_POST['name'];
+                $building_code = $_POST['building_code'];
+                $othernames = $_POST['othernames'] ?? '';
+                $gender = $_POST['gender'];
+                $year = $_POST['year'];
+                $intake = $_POST['intake'] ?? null;
+                $campus_id = $_POST['campus_id'];
+                $college = $_POST['college'] ?? '';
+                $school = $_POST['school'] ?? '';
+                $disability = $_POST['disability'] ?? '';
+                $status = $_POST['status'] ?? 'draft';
+                $updatedBy = $_SESSION['id'];
+
                 // Check if hostel name already exists in the campus (excluding current hostel)
                 $stmt = $connection->prepare("SELECT id FROM hostels WHERE name = ? AND campus_id = ? AND id != ?");
-                $stmt->bind_param("sii", $_POST['name'], $_POST['campus_id'], $_POST['id']);
+                $stmt->bind_param("sii", $name, $campus_id, $id);
                 $stmt->execute();
                 $result = $stmt->get_result();
                 if ($result->num_rows > 0) {
@@ -82,7 +183,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 // Check if building code already exists in the campus (excluding current hostel)
                 $stmt = $connection->prepare("SELECT id FROM hostels WHERE building_code = ? AND campus_id = ? AND id != ?");
-                $stmt->bind_param("sii", $_POST['building_code'], $_POST['campus_id'], $_POST['id']);
+                $stmt->bind_param("sii", $building_code, $campus_id, $id);
                 $stmt->execute();
                 $result = $stmt->get_result();
                 if ($result->num_rows > 0) {
@@ -90,20 +191,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 // Update hostel with user tracking
-                $stmt = $connection->prepare("UPDATE hostels SET name = ?, building_code = ?, othernames = ?, gender = ?, year = ?, campus_id = ?, college = ?, school = ?, disability = ?, status = ?, updatedBy = ? WHERE id = ?");
-                $stmt->bind_param("sssssissisii", 
-                    $_POST['name'],
-                    $_POST['building_code'],
-                    $_POST['othernames'],
-                    $_POST['gender'],
-                    $_POST['year'],
-                    $_POST['campus_id'],
-                    $_POST['college'],
-                    $_POST['school'],
-                    $_POST['disability'],
-                    $_POST['status'],
-                    $_SESSION['id'],
-                    $_POST['id']
+                $stmt = $connection->prepare("UPDATE hostels SET name = ?, building_code = ?, othernames = ?, gender = ?, year = ?, intake = ?, campus_id = ?, college = ?, school = ?, disability = ?, status = ?, updatedBy = ? WHERE id = ?");
+                $stmt->bind_param("sssssssssisii", 
+                    $name,
+                    $building_code,
+                    $othernames,
+                    $gender,
+                    $year,
+                    $intake,
+                    $campus_id,
+                    $college,
+                    $school,
+                    $disability,
+                    $status,
+                    $updatedBy,
+                    $id
                 );
 
                 if ($stmt->execute()) {
@@ -116,188 +218,201 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 break;
 
+            case 'add_room':
+                // Validate required fields
+                if (empty($_POST['hostel_id']) || empty($_POST['room_code']) || empty($_POST['number_of_beds'])) {
+                    throw new Exception('Hostel ID, Room Code, and Number of Beds are required fields');
+                }
+
+                // Check if room code already exists in the hostel
+                $stmt = $connection->prepare("SELECT id FROM rooms WHERE room_code = ? AND hostel_id = ?");
+                $stmt->bind_param("si", $_POST['room_code'], $_POST['hostel_id']);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                if ($result->num_rows > 0) {
+                    throw new Exception('A room with this code already exists in this hostel');
+                }
+
+                // Store values in variables
+                $hostel_id = $_POST['hostel_id'];
+                $room_code = $_POST['room_code'];
+                $number_of_beds = $_POST['number_of_beds'];
+                $remain = $number_of_beds; // Set remain equal to number_of_beds initially
+                $createdBy = $_SESSION['id'];
+                $updatedBy = $_SESSION['id'];
+
+                // Insert new room
+                $stmt = $connection->prepare("INSERT INTO rooms (hostel_id, room_code, number_of_beds, remain, createdBy, updatedBy) VALUES (?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("isiiii", 
+                    $hostel_id,
+                    $room_code,
+                    $number_of_beds,
+                    $remain,
+                    $createdBy,
+                    $updatedBy
+                );
+
+                if ($stmt->execute()) {
+                    echo json_encode([
+                        'success' => true,
+                        'message' => 'Room added successfully'
+                    ]);
+                } else {
+                    throw new Exception('Failed to add room: ' . $stmt->error);
+                }
+                break;
+
+            case 'edit_room':
+                // Validate required fields
+                if (empty($_POST['room_id']) || empty($_POST['hostel_id']) || empty($_POST['room_code']) || empty($_POST['number_of_beds'])) {
+                    throw new Exception('Room ID, Hostel ID, Room Code, and Number of Beds are required fields');
+                }
+
+                // Check if room code already exists in the hostel (excluding current room)
+                $stmt = $connection->prepare("SELECT id FROM rooms WHERE room_code = ? AND hostel_id = ? AND id != ?");
+                $stmt->bind_param("sii", $_POST['room_code'], $_POST['hostel_id'], $_POST['room_id']);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                if ($result->num_rows > 0) {
+                    throw new Exception('A room with this code already exists in this hostel');
+                }
+
+                // Get current room data
+                $stmt = $connection->prepare("SELECT number_of_beds, remain FROM rooms WHERE id = ?");
+                $stmt->bind_param("i", $_POST['room_id']);
+                $stmt->execute();
+                $current_room = $stmt->get_result()->fetch_assoc();
+
+                if (!$current_room) {
+                    throw new Exception('Room not found');
+                }
+
+                // Calculate new remain value
+                $old_beds = $current_room['number_of_beds'];
+                $old_remain = $current_room['remain'];
+                $new_beds = $_POST['number_of_beds'];
+                $bed_difference = $new_beds - $old_beds;
+                $new_remain = $old_remain + $bed_difference;
+
+                // Ensure remain doesn't go below 0
+                if ($new_remain < 0) {
+                    throw new Exception('Cannot reduce number of beds below current occupancy');
+                }
+
+                // Store values in variables
+                $room_id = $_POST['room_id'];
+                $hostel_id = $_POST['hostel_id'];
+                $room_code = $_POST['room_code'];
+                $number_of_beds = $new_beds;
+                $updatedBy = $_SESSION['id'];
+
+                // Update room
+                $stmt = $connection->prepare("UPDATE rooms SET room_code = ?, number_of_beds = ?, remain = ?, updatedBy = ? WHERE id = ? AND hostel_id = ?");
+                $stmt->bind_param("siiiii", 
+                    $room_code,
+                    $number_of_beds,
+                    $new_remain,
+                    $updatedBy,
+                    $room_id,
+                    $hostel_id
+                );
+
+                if ($stmt->execute()) {
+                    echo json_encode([
+                        'success' => true,
+                        'message' => 'Room updated successfully'
+                    ]);
+                } else {
+                    throw new Exception('Failed to update room: ' . $stmt->error);
+                }
+                break;
+
+            case 'delete_room':
+                // Validate required fields
+                if (empty($_POST['room_id'])) {
+                    throw new Exception('Room ID is required');
+                }
+
+                // Store values in variables
+                $room_id = $_POST['room_id'];
+
+                // Delete room
+                $stmt = $connection->prepare("DELETE FROM rooms WHERE id = ?");
+                $stmt->bind_param("i", $room_id);
+
+                if ($stmt->execute()) {
+                    echo json_encode([
+                        'success' => true,
+                        'message' => 'Room deleted successfully'
+                    ]);
+                } else {
+                    throw new Exception('Failed to delete room: ' . $stmt->error);
+                }
+                break;
+
+            case 'update_room_status':
+                // Validate required fields
+                if (empty($_POST['room_id']) || empty($_POST['status'])) {
+                    throw new Exception('Room ID and Status are required fields');
+                }
+
+                // Validate status value
+                $valid_statuses = ['draft', 'published', 'reserved'];
+                if (!in_array($_POST['status'], $valid_statuses)) {
+                    throw new Exception('Invalid status value');
+                }
+
+                // Store values in variables
+                $room_id = $_POST['room_id'];
+                $status = $_POST['status'];
+                $updatedBy = $_SESSION['id'];
+
+                // Update room status
+                $stmt = $connection->prepare("UPDATE rooms SET status = ?, updatedBy = ? WHERE id = ?");
+                $stmt->bind_param("sii", 
+                    $status,
+                    $updatedBy,
+                    $room_id
+                );
+
+                if ($stmt->execute()) {
+                    echo json_encode([
+                        'success' => true,
+                        'message' => 'Room status updated successfully'
+                    ]);
+                } else {
+                    throw new Exception('Failed to update room status: ' . $stmt->error);
+                }
+                break;
+
             case 'delete_hostel':
                 // Validate required fields
                 if (empty($_POST['id'])) {
                     throw new Exception('Hostel ID is required');
                 }
 
-                // Start transaction
-                $connection->begin_transaction();
+                // Store values in variables
+                $hostel_id = $_POST['id'];
 
-                try {
-                    // Delete associated rooms first
-                    $stmt = $connection->prepare("DELETE FROM rooms WHERE hostel_id = ?");
-                    $stmt->bind_param("i", $_POST['id']);
-                    $stmt->execute();
+                // First delete all rooms in the hostel
+                $stmt = $connection->prepare("DELETE FROM rooms WHERE hostel_id = ?");
+                $stmt->bind_param("i", $hostel_id);
+                $stmt->execute();
 
-                    // Delete the hostel
-                    $stmt = $connection->prepare("DELETE FROM hostels WHERE id = ?");
-                    $stmt->bind_param("i", $_POST['id']);
-                    $stmt->execute();
+                // Then delete the hostel
+                $stmt = $connection->prepare("DELETE FROM hostels WHERE id = ?");
+                $stmt->bind_param("i", $hostel_id);
 
-                    // Commit transaction
-                    $connection->commit();
-
+                if ($stmt->execute()) {
                     echo json_encode([
                         'success' => true,
-                        'message' => 'Hostel and associated rooms deleted successfully'
+                        'message' => 'Hostel and its rooms deleted successfully'
                     ]);
-                } catch (Exception $e) {
-                    // Rollback transaction on error
-                    $connection->rollback();
-                    throw new Exception('Failed to delete hostel: ' . $e->getMessage());
+                } else {
+                    throw new Exception('Failed to delete hostel: ' . $stmt->error);
                 }
                 break;
-                
-            case 'add_room':
-                // Validate required fields
-                if (empty($_POST['room_code']) || empty($_POST['number_of_beds']) || empty($_POST['hostel_id'])) {
-                    throw new Exception('All required fields must be filled');
-                }
-                
-                $room_code = mysqli_real_escape_string($connection, $_POST['room_code']);
-                $number_of_beds = (int)$_POST['number_of_beds'];
-                $hostel_id = (int)$_POST['hostel_id'];
-                
-                // Validate number of beds
-                if ($number_of_beds < 1) {
-                    throw new Exception('Number of beds must be greater than 0');
-                }
-                
-                // Check if room code already exists in the hostel
-                $check_query = "SELECT id FROM rooms WHERE room_code = ? AND hostel_id = ?";
-                $check_stmt = mysqli_prepare($connection, $check_query);
-                mysqli_stmt_bind_param($check_stmt, "si", $room_code, $hostel_id);
-                mysqli_stmt_execute($check_stmt);
-                $check_result = mysqli_stmt_get_result($check_stmt);
-                
-                if (mysqli_num_rows($check_result) > 0) {
-                    throw new Exception('Room code already exists in this hostel');
-                }
-                
-                // Insert new room with user tracking
-                $query = "INSERT INTO rooms (room_code, number_of_beds, hostel_id, remain, createdBy, updatedBy) VALUES (?, ?, ?, ?, ?, ?)";
-                $stmt = mysqli_prepare($connection, $query);
-                mysqli_stmt_bind_param($stmt, "siiiii", 
-                    $room_code, 
-                    $number_of_beds, 
-                    $hostel_id, 
-                    $number_of_beds,
-                    $_SESSION['id'],
-                    $_SESSION['id']
-                );
-                
-                if (!mysqli_stmt_execute($stmt)) {
-                    throw new Exception('Database error: ' . mysqli_stmt_error($stmt));
-                }
-                
-                echo json_encode([
-                    'success' => true,
-                    'message' => 'Room added successfully'
-                ]);
-                break;
-                
-            case 'edit_room':
-                // Validate required fields
-                if (empty($_POST['room_code']) || empty($_POST['number_of_beds']) || empty($_POST['hostel_id'])) {
-                    throw new Exception('All required fields must be filled');
-                }
-                
-                $room_code = mysqli_real_escape_string($connection, $_POST['room_code']);
-                $number_of_beds = (int)$_POST['number_of_beds'];
-                $hostel_id = (int)$_POST['hostel_id'];
-                $room_id = (int)$_POST['room_id'];
-                
-                // Validate number of beds
-                if ($number_of_beds < 1) {
-                    throw new Exception('Number of beds must be greater than 0');
-                }
-                
-                // Check if room code already exists in other rooms of the same hostel
-                $check_query = "SELECT id FROM rooms WHERE room_code = ? AND hostel_id = ? AND id != ?";
-                $check_stmt = mysqli_prepare($connection, $check_query);
-                mysqli_stmt_bind_param($check_stmt, "sii", $room_code, $hostel_id, $room_id);
-                mysqli_stmt_execute($check_stmt);
-                $check_result = mysqli_stmt_get_result($check_stmt);
-                
-                if (mysqli_num_rows($check_result) > 0) {
-                    throw new Exception('Room code already exists in this hostel');
-                }
-                
-                // Get current room data
-                $current_query = "SELECT number_of_beds, remain FROM rooms WHERE id = ?";
-                $current_stmt = mysqli_prepare($connection, $current_query);
-                mysqli_stmt_bind_param($current_stmt, "i", $room_id);
-                mysqli_stmt_execute($current_stmt);
-                $current_result = mysqli_stmt_get_result($current_stmt);
-                $current_room = mysqli_fetch_assoc($current_result);
-                
-                if (!$current_room) {
-                    throw new Exception('Room not found');
-                }
-                
-                // Calculate new remaining beds
-                $bed_difference = $number_of_beds - $current_room['number_of_beds'];
-                $new_remain = $current_room['remain'] + $bed_difference;
-                
-                // Ensure remaining beds doesn't go below 0
-                $new_remain = max(0, $new_remain);
-                
-                // Update room with user tracking
-                $query = "UPDATE rooms SET room_code = ?, number_of_beds = ?, remain = ?, updatedBy = ? WHERE id = ?";
-                $stmt = mysqli_prepare($connection, $query);
-                mysqli_stmt_bind_param($stmt, "siiii", 
-                    $room_code, 
-                    $number_of_beds, 
-                    $new_remain,
-                    $_SESSION['id'],
-                    $room_id
-                );
-                
-                if (!mysqli_stmt_execute($stmt)) {
-                    throw new Exception('Database error: ' . mysqli_stmt_error($stmt));
-                }
-                
-                echo json_encode([
-                    'success' => true,
-                    'message' => 'Room updated successfully'
-                ]);
-                break;
-                
-            case 'delete_room':
-                if (empty($_POST['room_id'])) {
-                    throw new Exception('Room ID is required');
-                }
-                
-                $room_id = (int)$_POST['room_id'];
-                
-                // Check if room exists and get hostel_id
-                $check_query = "SELECT hostel_id FROM rooms WHERE id = ?";
-                $check_stmt = mysqli_prepare($connection, $check_query);
-                mysqli_stmt_bind_param($check_stmt, "i", $room_id);
-                mysqli_stmt_execute($check_stmt);
-                $check_result = mysqli_stmt_get_result($check_stmt);
-                
-                if (mysqli_num_rows($check_result) === 0) {
-                    throw new Exception('Room not found');
-                }
-                
-                // Delete the room
-                $delete_query = "DELETE FROM rooms WHERE id = ?";
-                $delete_stmt = mysqli_prepare($connection, $delete_query);
-                mysqli_stmt_bind_param($delete_stmt, "i", $room_id);
-                
-                if (!mysqli_stmt_execute($delete_stmt)) {
-                    throw new Exception('Database error: ' . mysqli_stmt_error($delete_stmt));
-                }
-                
-                echo json_encode([
-                    'success' => true,
-                    'message' => 'Room deleted successfully'
-                ]);
-                break;
-                
+
             case 'add_campus':
                 // Validate required fields
                 if (empty($_POST['campus_name'])) {
@@ -313,12 +428,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     throw new Exception('A campus with this name already exists');
                 }
 
-                // Insert new campus with user tracking
+                // Store values in variables
+                $name = $_POST['campus_name'];
+                $createdBy = $_SESSION['id'];
+                $updatedBy = $_SESSION['id'];
+
+                // Insert new campus
                 $stmt = $connection->prepare("INSERT INTO campuses (name, createdBy, updatedBy) VALUES (?, ?, ?)");
                 $stmt->bind_param("sii", 
-                    $_POST['campus_name'],
-                    $_SESSION['id'],
-                    $_SESSION['id']
+                    $name,
+                    $createdBy,
+                    $updatedBy
                 );
 
                 if ($stmt->execute()) {
@@ -346,12 +466,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     throw new Exception('A campus with this name already exists');
                 }
 
-                // Update campus with user tracking
+                // Store values in variables
+                $id = $_POST['campus_id'];
+                $name = $_POST['campus_name'];
+                $updatedBy = $_SESSION['id'];
+
+                // Update campus
                 $stmt = $connection->prepare("UPDATE campuses SET name = ?, updatedBy = ? WHERE id = ?");
                 $stmt->bind_param("sii", 
-                    $_POST['campus_name'],
-                    $_SESSION['id'],
-                    $_POST['campus_id']
+                    $name,
+                    $updatedBy,
+                    $id
                 );
 
                 if ($stmt->execute()) {
@@ -370,67 +495,69 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     throw new Exception('Campus ID is required');
                 }
 
-                // Start transaction
-                $connection->begin_transaction();
+                // Store values in variables
+                $campus_id = $_POST['campus_id'];
 
-                try {
-                    // Delete associated rooms first
-                    $stmt = $connection->prepare("
-                        DELETE r FROM rooms r 
-                        INNER JOIN hostels h ON r.hostel_id = h.id 
-                        WHERE h.campus_id = ?
-                    ");
-                    $stmt->bind_param("i", $_POST['campus_id']);
-                    $stmt->execute();
+                // First delete all hostels and their rooms in the campus
+                $stmt = $connection->prepare("
+                    DELETE r FROM rooms r 
+                    INNER JOIN hostels h ON r.hostel_id = h.id 
+                    WHERE h.campus_id = ?
+                ");
+                $stmt->bind_param("i", $campus_id);
+                $stmt->execute();
 
-                    // Delete associated hostels
-                    $stmt = $connection->prepare("DELETE FROM hostels WHERE campus_id = ?");
-                    $stmt->bind_param("i", $_POST['campus_id']);
-                    $stmt->execute();
+                // Then delete all hostels in the campus
+                $stmt = $connection->prepare("DELETE FROM hostels WHERE campus_id = ?");
+                $stmt->bind_param("i", $campus_id);
+                $stmt->execute();
 
-                    // Delete the campus
-                    $stmt = $connection->prepare("DELETE FROM campuses WHERE id = ?");
-                    $stmt->bind_param("i", $_POST['campus_id']);
-                    $stmt->execute();
+                // Finally delete the campus
+                $stmt = $connection->prepare("DELETE FROM campuses WHERE id = ?");
+                $stmt->bind_param("i", $campus_id);
 
-                    // Commit transaction
-                    $connection->commit();
-
+                if ($stmt->execute()) {
                     echo json_encode([
                         'success' => true,
-                        'message' => 'Campus and all associated hostels and rooms deleted successfully'
+                        'message' => 'Campus and all associated data deleted successfully'
                     ]);
-                } catch (Exception $e) {
-                    // Rollback transaction on error
-                    $connection->rollback();
-                    throw new Exception('Failed to delete campus: ' . $e->getMessage());
+                } else {
+                    throw new Exception('Failed to delete campus: ' . $stmt->error);
                 }
                 break;
 
-            case 'update_status':
-                if (empty($_POST['id']) || empty($_POST['status'])) {
-                    throw new Exception('Hostel ID and status are required');
+            case 'update_hostel_status':
+                // Validate required fields
+                if (empty($_POST['hostel_id']) || empty($_POST['status'])) {
+                    throw new Exception('Hostel ID and Status are required fields');
                 }
 
+                // Validate status value
                 $valid_statuses = ['draft', 'published'];
                 if (!in_array($_POST['status'], $valid_statuses)) {
                     throw new Exception('Invalid status value');
                 }
 
+                // Store values in variables
+                $hostel_id = $_POST['hostel_id'];
+                $status = $_POST['status'];
+                $updatedBy = $_SESSION['id'];
+
+                // Update hostel status
                 $stmt = $connection->prepare("UPDATE hostels SET status = ?, updatedBy = ? WHERE id = ?");
                 $stmt->bind_param("sii", 
-                    $_POST['status'],
-                    $_SESSION['id'],
-                    $_POST['id']
+                    $status,
+                    $updatedBy,
+                    $hostel_id
                 );
 
                 if ($stmt->execute()) {
                     echo json_encode([
                         'success' => true,
-                        'message' => 'Status updated successfully'
+                        'message' => 'Hostel status updated successfully'
                     ]);
                 } else {
-                    throw new Exception('Failed to update status: ' . $stmt->error);
+                    throw new Exception('Failed to update hostel status: ' . $stmt->error);
                 }
                 break;
 
@@ -438,6 +565,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception('Invalid action');
         }
     } catch (Exception $e) {
+        // Clear any output and set error response
+        ob_clean();
         http_response_code(400);
         echo json_encode([
             'success' => false,
@@ -587,7 +716,7 @@ if($role === 'warefare'){
                                         <tr>
                                             <th>Name</th>
                                             <th>Building Code</th>
-                                            <th>Other Names</th>
+                                            <!-- <th>Other Names</th> -->
                                             <th>Gender</th>
                                             <th>Year</th>
                                             
@@ -630,6 +759,7 @@ if($role === 'warefare'){
                                             <th>Room Code</th>
                                             <th>Number of Beds</th>
                                             <th>Available Beds</th>
+                                            <th>Status</th>
                                             <th class="text-center">Actions</th>
                                         </tr>
                                     </thead>
@@ -689,6 +819,7 @@ if($role === 'warefare'){
                     <form id="hostelForm">
                         <input type="hidden" id="hostel_id" name="hostel_id">
                         <input type="hidden" id="campus_id" name="campus_id">
+                        <input type="hidden" id="action" name="action" value="add_hostel">
                         
                         <div class="mb-3">
                             <label for="name" class="form-label">Hostel Name *</label>
@@ -736,6 +867,19 @@ if($role === 'warefare'){
 
                         <!-- Fields for editing only -->
                         <div id="editFields" style="display: none;">
+                            <div class="mb-3">
+                                <label for="intake" class="form-label">Intake</label>
+                                <select class="form-select" id="intake" name="intake">
+                                    <option value="">Select Intake</option>
+                                    <?php
+                                    $intakes_query = mysqli_query($connection, "SELECT DISTINCT intake FROM info WHERE intake IS NOT NULL AND intake != '' ORDER BY intake");
+                                    while ($intake = mysqli_fetch_assoc($intakes_query)) {
+                                        echo "<option value='" . htmlspecialchars($intake['intake']) . "'>" . htmlspecialchars($intake['intake']) . "</option>";
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+
                             <div class="mb-3">
                                 <label for="college" class="form-label">College</label>
                                 <select class="form-select" id="college" name="college">
@@ -949,7 +1093,7 @@ if($role === 'warefare'){
                 if (tbody) {
                     tbody.innerHTML = `
                         <tr>
-                            <td colspan="8" class="text-center">Please select a hostel to view rooms</td>
+                            <td colspan="5" class="text-center">Please select a hostel to view rooms</td>
                         </tr>
                     `;
                 }
@@ -975,7 +1119,7 @@ if($role === 'warefare'){
                     if (!data.rooms || data.rooms.length === 0) {
                         tbody.innerHTML = `
                             <tr>
-                                <td colspan="8" class="text-center">No rooms found for this hostel</td>
+                                <td colspan="5" class="text-center">No rooms found for this hostel</td>
                             </tr>
                         `;
                         return;
@@ -987,6 +1131,7 @@ if($role === 'warefare'){
                             <td>${room.room_code}</td>
                             <td>${room.number_of_beds}</td>
                             <td>${room.remain}</td>
+                            <td>${getRoomStatusBadge(room.status)}</td>
                             <td class="text-center">
                                 <button class="btn btn-sm btn-info" data-bs-toggle="tooltip" data-bs-placement="top" title="View Details" onclick="viewRoomDetails(${JSON.stringify(room).replace(/"/g, '&quot;')})">
                                     <i class="bi bi-eye"></i>
@@ -997,56 +1142,14 @@ if($role === 'warefare'){
                                 <button class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete Room" onclick="deleteRoom(${room.id})">
                                     <i class="fas fa-trash"></i>
                                 </button>
+                                ${getRoomStatusButton(room)}
                             </td>
                         `;
                         tbody.appendChild(row);
                     });
 
-                    // Update pagination if it exists
-                    const pagination = document.getElementById('roomPagination');
-                    if (pagination && data.total_pages) {
-                        let html = '';
-                        
-                        // Previous button
-                        html += `
-                            <li class="page-item ${data.current_page === 1 ? 'disabled' : ''}">
-                                <a class="page-link" href="#" onclick="changePage(${data.current_page - 1})">Previous</a>
-                            </li>
-                        `;
-                        
-                        // Page numbers
-                        for (let i = 1; i <= data.total_pages; i++) {
-                            html += `
-                                <li class="page-item ${data.current_page === i ? 'active' : ''}">
-                                    <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
-                                </li>
-                            `;
-                        }
-                        
-                        // Next button
-                        html += `
-                            <li class="page-item ${data.current_page === data.total_pages ? 'disabled' : ''}">
-                                <a class="page-link" href="#" onclick="changePage(${data.current_page + 1})">Next</a>
-                            </li>
-                        `;
-                        
-                        pagination.innerHTML = html;
-                    }
-
-                    // Update pagination info if elements exist
-                    const startElement = document.getElementById('roomStart');
-                    const endElement = document.getElementById('roomEnd');
-                    const totalElement = document.getElementById('roomTotal');
-                    
-                    if (startElement) startElement.textContent = data.start;
-                    if (endElement) endElement.textContent = data.end;
-                    if (totalElement) totalElement.textContent = data.total;
-
-                    // Initialize tooltips for dynamically added elements
-                    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-                    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                        return new bootstrap.Tooltip(tooltipTriggerEl);
-                    });
+                    // Initialize tooltips after adding all rows
+                    initializeTooltips();
                 })
                 .catch(error => {
                     console.error('Error loading rooms:', error);
@@ -1054,13 +1157,78 @@ if($role === 'warefare'){
                     if (tbody) {
                         tbody.innerHTML = `
                             <tr>
-                                <td colspan="8" class="text-center text-danger">
+                                <td colspan="5" class="text-center text-danger">
                                     Error loading rooms. Please try again.
                                 </td>
                             </tr>
                         `;
                     }
                 });
+        }
+
+        // Helper function to get room status badge
+        function getRoomStatusBadge(status) {
+            const statusConfig = {
+                'draft': { class: 'warning', icon: 'bi-clock', text: 'Draft' },
+                'published': { class: 'success', icon: 'bi-globe', text: 'Published' },
+                'reserved': { class: 'danger', icon: 'bi-lock', text: 'Reserved' }
+            };
+            const config = statusConfig[status] || { class: 'secondary', icon: 'bi-question-circle', text: 'Unknown' };
+            return `<span class="badge bg-${config.class}"><i class="bi ${config.icon}"></i> ${config.text}</span>`;
+        }
+
+        // Helper function to get room status button
+        function getRoomStatusButton(room) {
+            if (room.status === 'draft') {
+                return `
+                    <button class="btn btn-sm btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Publish Room" onclick="updateRoomStatus(${room.id}, 'published')">
+                        <i class="bi bi-globe"></i> Publish
+                    </button>
+                `;
+            } else if (room.status === 'published') {
+                return `
+                    <button class="btn btn-sm btn-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="Reserve Room" onclick="updateRoomStatus(${room.id}, 'reserved')">
+                        <i class="bi bi-lock"></i> Reserve
+                    </button>
+                `;
+            } else if (room.status === 'reserved') {
+                return `
+                    <button class="btn btn-sm btn-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Publish Room" onclick="updateRoomStatus(${room.id}, 'published')">
+                        <i class="bi bi-globe"></i> Publish
+                    </button>
+                `;
+            }
+            return '';
+        }
+
+        // Function to update room status
+        function updateRoomStatus(roomId, newStatus) {
+            const formData = new FormData();
+            formData.append('action', 'update_room_status');
+            formData.append('room_id', roomId);
+            formData.append('status', newStatus);
+            
+            fetch('manage_hostels.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    loadRooms(); // Refresh the room list silently
+                } else {
+                    showAlert('error', 'Error', data.message || 'Failed to update room status');
+                }
+            })
+            .catch(error => {
+                console.error('Error updating room status:', error);
+                showAlert('error', 'Error', 'An error occurred while updating room status: ' + error.message);
+            });
         }
 
         // Function to edit room
@@ -1288,11 +1456,9 @@ if($role === 'warefare'){
                         row.innerHTML = `
                             <td>${hostel.name}</td>
                             <td>${hostel.building_code}</td>
-                            <td>${hostel.othernames || '-'}</td>
-                            <td>${hostel.gender === 'M' ? '<i class="bi bi-gender-male text-primary"></i> Male' : 
-                                hostel.gender === 'F' ? '<i class="bi bi-gender-female text-danger"></i> Female' : '-'}</td>
-                            <td>${hostel.year || '-'}</td>
-                          
+                            <td>${hostel.gender === 'M' ? '<i class="bi bi-gender-male text-primary"></i> M' : 
+                                hostel.gender === 'F' ? '<i class="bi bi-gender-female text-danger"></i> F' : '-'}</td>
+                            <td>${hostel.year ? `Year ${hostel.year}` : '-'}</td>
                             <td>${getStatusBadge(hostel.status)}</td>
                             <td class="text-center">
                                 <button class="btn btn-sm btn-info" data-bs-toggle="tooltip" data-bs-placement="top" title="View Details" onclick="viewHostelDetails(${JSON.stringify(hostel).replace(/"/g, '&quot;')})">
@@ -1307,16 +1473,14 @@ if($role === 'warefare'){
                                 <button class="btn btn-sm btn-info" data-bs-toggle="tooltip" data-bs-placement="top" title="View Rooms" onclick="showRooms(${hostel.id})">
                                     <i class="fas fa-door-open"></i> View Rooms
                                 </button>
+                                ${getHostelStatusButton(hostel)}
                             </td>
                         `;
                         tbody.appendChild(row);
                     });
 
-                    // Initialize tooltips for dynamically added elements
-                    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-                    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                        return new bootstrap.Tooltip(tooltipTriggerEl);
-                    });
+                    // Initialize tooltips after adding all rows
+                    initializeTooltips();
                 })
                 .catch(error => {
                     console.error('Error loading hostels:', error);
@@ -1331,6 +1495,54 @@ if($role === 'warefare'){
                         `;
                     }
                 });
+        }
+
+        // Helper function to get hostel status button
+        function getHostelStatusButton(hostel) {
+            if (hostel.status === 'draft') {
+                return `
+                    <button class="btn btn-sm btn-success" data-bs- toggle="tooltip" data-bs-placement="top" title="Publish Hostel" onclick="updateHostelStatus(${hostel.id}, 'published')">
+                        <i class="bi bi-globe"></i> Publish
+                    </button>
+                `;
+            } else if (hostel.status === 'published') {
+                return `
+                    <button class="btn btn-sm btn-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="Set to Draft" onclick="updateHostelStatus(${hostel.id}, 'draft')">
+                        <i class="bi bi-clock"></i> Set to Draft
+                    </button>
+                `;
+            }
+            return '';
+        }
+
+        // Function to update hostel status
+        function updateHostelStatus(hostelId, newStatus) {
+            const formData = new FormData();
+            formData.append('action', 'update_hostel_status');
+            formData.append('hostel_id', hostelId);
+            formData.append('status', newStatus);
+            
+            fetch('manage_hostels.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    loadHostels(); // Refresh the hostel list silently
+                } else {
+                    showAlert('error', 'Error', data.message || 'Failed to update hostel status');
+                }
+            })
+            .catch(error => {
+                console.error('Error updating hostel status:', error);
+                showAlert('error', 'Error', 'An error occurred while updating hostel status: ' + error.message);
+            });
         }
 
         // Function to show add hostel modal
@@ -1385,174 +1597,20 @@ if($role === 'warefare'){
 
         // Function to edit hostel
         function editHostel(id) {
-            console.log('Editing hostel:', id);
-            fetch(`get_hostel_details.php?id=${id}`)
-                .then(response => {
-                    console.log('Response status:', response.status);
-                    if (!response.ok) {
-                        return response.json().then(data => {
-                            throw new Error(data.message || `HTTP error! status: ${response.status}`);
-                        });
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Received hostel data:', data);
-                    if (!data.success) {
-                        throw new Error(data.message || 'Failed to load hostel details');
-                    }
+            destroyAllTooltips();
+            // Get hostel data using POST
+            const formData = new FormData();
+            formData.append('action', 'get_hostel');
+            formData.append('id', id);
 
-                    const hostel = data.hostel;
-                    const modal = document.getElementById('hostelModal');
-                    const modalLabel = document.getElementById('hostelModalLabel');
-                    const form = document.getElementById('hostelForm');
-                    
-                    if (!modal || !modalLabel || !form) {
-                        console.error('Required elements not found:', {
-                            modal: !!modal,
-                            modalLabel: !!modalLabel,
-                            form: !!form
-                        });
-                        return;
-                    }
-
-                    // Populate form fields
-                    document.getElementById('hostel_id').value = hostel.id;
-                    document.getElementById('name').value = hostel.name;
-                    document.getElementById('building_code').value = hostel.building_code;
-                    document.getElementById('othernames').value = hostel.othernames || '';
-                    document.getElementById('gender').value = hostel.gender;
-                    document.getElementById('year').value = hostel.year || '';
-                    document.getElementById('campus_id').value = hostel.campus_id;
-                    
-                    // Show and set status field
-                    const statusField = document.getElementById('status').parentElement;
-                    if (statusField) {
-                        statusField.style.display = 'block';
-                    }
-                    document.getElementById('status').value = hostel.status || 'draft';
-                    
-                    // Show and populate edit-only fields
-                    const editFields = document.getElementById('editFields');
-                    if (editFields) {
-                        editFields.style.display = 'block';
-                        document.getElementById('college').value = hostel.college || '';
-                        document.getElementById('school').value = hostel.school || '';
-                        document.getElementById('disability').value = hostel.disability || '';
-                    }
-                    
-                    // Store current campus ID
-                    currentCampusId = hostel.campus_id;
-                    
-                    // Update modal title
-                    modalLabel.textContent = 'Edit Hostel';
-                    
-                    // Show modal
-                    const modalInstance = new bootstrap.Modal(modal);
-                    modalInstance.show();
-                })
-                .catch(error => {
-                    console.error('Error loading hostel details:', error);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Failed to load hostel details: ' + error.message
-                    });
-                });
-        }
-
-        // Function to save hostel
-        function saveHostel() {
-            const form = document.getElementById('hostelForm');
-            if (!form) {
-                console.error('Hostel form not found');
-                return;
-            }
-
-            // Get form data
-            const formData = new FormData(form);
-            const hostelId = formData.get('hostel_id');
-            const name = formData.get('name');
-            const buildingCode = formData.get('building_code');
-            const campusId = formData.get('campus_id');
-            const gender = formData.get('gender');
-            const year = formData.get('year');
-            
-            // Set the correct action based on whether we're adding or editing
-            formData.set('action', hostelId ? 'edit_hostel' : 'add_hostel');
-
-            // If editing, ensure we have the ID and campus_id
-            if (hostelId) {
-                formData.set('id', hostelId); // Add the ID for edit operation
-                if (!campusId) {
-                    formData.set('campus_id', currentCampusId);
+            // Show loading state
+            Swal.fire({
+                title: 'Loading...',
+                text: 'Please wait while we load the hostel data',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
                 }
-            }
-
-            // Validate required fields
-            if (!name || !buildingCode || !campusId || !gender || !year) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Validation Error',
-                    text: 'Please fill in all required fields (Name, Building Code, Campus, Gender, and Year)'
-                });
-                return;
-            }
-
-            // Validate name format
-            if (name.trim().length < 2) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Validation Error',
-                    text: 'Hostel name must be at least 2 characters long'
-                });
-                return;
-            }
-
-            // Validate building code format
-            if (buildingCode.trim().length < 2) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Validation Error',
-                    text: 'Building code must be at least 2 characters long'
-                });
-                return;
-            }
-
-            // Strict validation for gender
-            if (gender !== 'M' && gender !== 'F') {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Validation Error',
-                    text: 'Gender must be either Male (M) or Female (F)'
-                });
-                return;
-            }
-
-            // Validate year value
-            if (!['1', '2', '3', '4', '5'].includes(year)) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Validation Error',
-                    text: 'Please select a valid year (1-5)'
-                });
-                return;
-            }
-
-            // Additional validation for edit operation
-            if (hostelId && !formData.get('id')) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Validation Error',
-                    text: 'Hostel ID is missing'
-                });
-                return;
-            }
-
-            console.log('Saving hostel:', {
-                action: formData.get('action'),
-                hostelId,
-                formData: Object.fromEntries(formData)
             });
 
             fetch('manage_hostels.php', {
@@ -1560,7 +1618,6 @@ if($role === 'warefare'){
                 body: formData
             })
             .then(response => {
-                console.log('Response status:', response.status);
                 if (!response.ok) {
                     return response.json().then(data => {
                         throw new Error(data.message || `HTTP error! status: ${response.status}`);
@@ -1569,92 +1626,129 @@ if($role === 'warefare'){
                 return response.json();
             })
             .then(data => {
-                console.log('Save response:', data);
                 if (data.success) {
-                    // Close modal
-                    const modal = document.getElementById('hostelModal');
-                    if (modal) {
-                        const modalInstance = bootstrap.Modal.getInstance(modal);
-                        if (modalInstance) {
-                            modalInstance.hide();
-                        }
+                    const hostel = data.data;
+                    
+                    // Set form values
+                    document.getElementById('hostel_id').value = hostel.id;
+                    document.getElementById('campus_id').value = hostel.campus_id;
+                    document.getElementById('name').value = hostel.name;
+                    document.getElementById('building_code').value = hostel.building_code;
+                    document.getElementById('othernames').value = hostel.othernames || '';
+                    document.getElementById('gender').value = hostel.gender;
+                    document.getElementById('year').value = hostel.year;
+                    document.getElementById('status').value = hostel.status;
+                    
+                    // Show edit-only fields
+                    const editFields = document.getElementById('editFields');
+                    if (editFields) {
+                        editFields.style.display = 'block';
                     }
+                    
+                    // Set edit-only field values
+                    document.getElementById('college').value = hostel.college || '';
+                    document.getElementById('school').value = hostel.school || '';
+                    document.getElementById('disability').value = hostel.disability || '';
+                    
+                    // Update modal title
+                    document.getElementById('hostelModalLabel').textContent = 'Edit Hostel';
+                    
+                    // Close loading state
+                    Swal.close();
+                    
+                    // Show modal
+                    const modal = new bootstrap.Modal(document.getElementById('hostelModal'));
+                    modal.show();
+                } else {
+                    throw new Error(data.message || 'Failed to load hostel data');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to load hostel data: ' + error.message
+                });
+            });
+        }
 
-                    // Show success message
+        // Function to save hostel
+        function saveHostel() {
+            const form = document.getElementById('hostelForm');
+            if (!form) return;
+
+            const formData = new FormData(form);
+            const hostelId = formData.get('hostel_id');
+            const campusId = formData.get('campus_id');
+            
+            // Set the correct action based on whether we're adding or editing
+            formData.set('action', hostelId ? 'edit_hostel' : 'add_hostel');
+
+            // If editing, ensure we have the ID
+            if (hostelId) {
+                formData.set('id', hostelId);
+            }
+
+            // Validate required fields
+            const requiredFields = ['name', 'building_code', 'campus_id', 'gender', 'year'];
+            const missingFields = requiredFields.filter(field => !formData.get(field));
+            
+            if (missingFields.length > 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validation Error',
+                    text: 'Please fill in all required fields: ' + missingFields.join(', ')
+                });
+                return;
+            }
+
+            // Show loading state
+            Swal.fire({
+                title: 'Saving...',
+                text: 'Please wait while we save the hostel',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            fetch('manage_hostels.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        throw new Error(data.message || `HTTP error! status: ${response.status}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('hostelModal'));
+                    modal.hide();
+                    form.reset();
+                    loadHostels();
                     Swal.fire({
                         icon: 'success',
                         title: 'Success',
-                        text: data.message || 'Hostel saved successfully'
+                        text: hostelId ? 'Hostel updated successfully' : 'Hostel added successfully',
+                        timer: 2000,
+                        showConfirmButton: false
                     });
-
-                    // Refresh hostel list
-                    loadHostels();
                 } else {
                     throw new Error(data.message || 'Failed to save hostel');
                 }
             })
             .catch(error => {
-                console.error('Error saving hostel:', error);
+                console.error('Error:', error);
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
                     text: 'Failed to save hostel: ' + error.message
                 });
-            });
-        }
-
-        // Function to delete hostel
-        function deleteHostel(id) {
-            console.log('Deleting hostel:', id);
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "This will also delete all rooms in this hostel!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, delete it!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    const formData = new FormData();
-                    formData.append('action', 'delete_hostel');
-                    formData.append('id', id);
-
-                    fetch('manage_hostels.php', {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(response => {
-                        console.log('Response status:', response.status);
-                        if (!response.ok) {
-                            return response.json().then(data => {
-                                throw new Error(data.message || `HTTP error! status: ${response.status}`);
-                            });
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        console.log('Delete response:', data);
-                        if (data.success) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Deleted!',
-                                text: data.message || 'Hostel has been deleted.'
-                            });
-                            loadHostels();
-                        } else {
-                            throw new Error(data.message || 'Failed to delete hostel');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error deleting hostel:', error);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Failed to delete hostel: ' + error.message
-                        });
-                    });
-                }
             });
         }
 
@@ -1681,6 +1775,7 @@ if($role === 'warefare'){
 
         // Function to delete campus
         function deleteCampus(id) {
+            destroyAllTooltips();
             Swal.fire({
                 title: 'Are you sure?',
                 text: "This will also delete all associated hostels and rooms!",
@@ -1765,6 +1860,16 @@ if($role === 'warefare'){
                 return;
             }
 
+            // Show loading state
+            Swal.fire({
+                title: 'Saving...',
+                text: 'Please wait while we save the campus',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
             fetch('manage_hostels.php', {
                 method: 'POST',
                 body: formData
@@ -1792,11 +1897,13 @@ if($role === 'warefare'){
                     Swal.fire({
                         icon: 'success',
                         title: 'Success',
-                        text: data.message || 'Campus saved successfully'
+                        text: data.message || 'Campus saved successfully',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        // Refresh the page to show updated campus list
+                        location.reload();
                     });
-
-                    // Refresh the page to show updated campus list
-                    location.reload();
                 } else {
                     throw new Error(data.message || 'Failed to save campus');
                 }
@@ -1978,6 +2085,7 @@ if($role === 'warefare'){
 
         // Function to view hostel details
         function viewHostelDetails(hostel) {
+            destroyAllTooltips();
             const detailsContent = document.getElementById('detailsContent');
             
             // Create student indicators section
@@ -2045,6 +2153,15 @@ if($role === 'warefare'){
                                                 '<i class="bi bi-x-circle text-danger"></i> Not Accessible' : 
                                                 '<i class="bi bi-question-circle text-secondary"></i> Not Specified'}
                                         </small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center p-2 bg-light rounded">
+                                    <i class="bi bi-calendar-event text-primary me-2"></i>
+                                    <div>
+                                        <small class="text-muted d-block">Intake</small>
+                                        <small class="d-block">${hostel.intake || '<i class=\"bi bi-dash text-secondary\"></i> Not specified'}</small>
                                     </div>
                                 </div>
                             </div>
@@ -2202,13 +2319,77 @@ if($role === 'warefare'){
             modal.show();
         }
 
-        // Initialize tooltips
-        document.addEventListener('DOMContentLoaded', function() {
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl);
+        // Function to destroy all tooltips
+        function destroyAllTooltips() {
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.forEach(tooltipTriggerEl => {
+                const tooltip = bootstrap.Tooltip.getInstance(tooltipTriggerEl);
+                if (tooltip) {
+                    tooltip.dispose();
+                }
             });
-        });
+        }
+
+        // Function to initialize tooltips with proper options
+        function initializeTooltips() {
+            destroyAllTooltips(); // First destroy any existing tooltips
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.forEach(tooltipTriggerEl => {
+                new bootstrap.Tooltip(tooltipTriggerEl, {
+                    trigger: 'hover',
+                    html: true,
+                    delay: { show: 100, hide: 100 }
+                });
+            });
+        }
+
+        // Function to delete hostel
+        function deleteHostel(id) {
+            destroyAllTooltips();
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This will also delete all rooms in this hostel!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const formData = new FormData();
+                    formData.append('action', 'delete_hostel');
+                    formData.append('id', id);
+
+                    fetch('manage_hostels.php', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            loadHostels();
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: 'Hostel deleted successfully',
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                        } else {
+                            throw new Error(data.message || 'Failed to delete hostel');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to delete hostel: ' + error.message
+                        });
+                    });
+                }
+            });
+        }
     </script>
 </body>
 </html> 

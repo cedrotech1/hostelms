@@ -89,6 +89,7 @@ try {
                 'campus_name' => $row['campus_name'],
                 'college' => $row['college'],
                 'school' => $row['school'],
+                'intake' => $row['intake'],
                 'disability' => $row['disability'],
                 'status'=>$row['status'],
                 'created_by' => $row['created_by'],
