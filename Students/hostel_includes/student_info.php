@@ -133,8 +133,6 @@ $isLoading = isset($isLoading) ? $isLoading : false;
                             <label class="text-muted">Campus:</label>
                             <p class="mb-0"><?php echo htmlspecialchars($_SESSION['student_campus']); ?></p>
                         </div>
-                    </div>
-                    <div class="col-md-6">
                         <div class="student-info-item">
                             <label class="text-muted">College:</label>
                             <p class="mb-0"><?php echo htmlspecialchars($_SESSION['student_college']); ?></p>
@@ -143,6 +141,11 @@ $isLoading = isset($isLoading) ? $isLoading : false;
                             <label class="text-muted">Program:</label>
                             <p class="mb-0"><?php echo htmlspecialchars($_SESSION['student_program']); ?></p>
                         </div>
+
+                    
+                    </div>
+                    <div class="col-md-6">
+                    
                         <div class="student-info-item">
                             <label class="text-muted">Year of Study:</label>
                             <p class="mb-0"><?php echo htmlspecialchars($_SESSION['student_year']); ?></p>
@@ -150,6 +153,37 @@ $isLoading = isset($isLoading) ? $isLoading : false;
                         <div class="student-info-item">
                             <label class="text-muted">Gender:</label>
                             <p class="mb-0"><?php echo htmlspecialchars($_SESSION['student_gender']); ?></p>
+                        </div>
+                        <div class="student-info-item">
+                            <label class="text-muted">School:</label>
+                            <p class="mb-0"><?php echo htmlspecialchars($_SESSION['student_school']); ?></p>
+                        </div>
+
+                    
+
+                        <div class="student-info-item">
+                            <label class="text-muted">intake:</label>
+                            <p class="mb-0"><?php 
+                                if (isset($_SESSION['student_intake'])) {
+                                    echo htmlspecialchars($_SESSION['student_intake']);
+                                } else {
+                                    echo '<span style="color: red;">Session variable not set</span>';
+                                }
+                            ?></p>
+                        </div>
+                        <div class="student-info-item">
+                            <label class="text-muted">disability status</label>
+                            <p class="mb-0"><?php 
+                                if (isset($_SESSION['student_disability'])) {
+                                  if(htmlspecialchars($_SESSION['student_disability'])){
+                                    echo "yes";
+                                    }else{
+                                        echo "no"; 
+                                    };
+                                } else {
+                                    echo '<span style="color: red;">Session variable not set</span>';
+                                }
+                            ?></p>
                         </div>
                     </div>
                 </div>

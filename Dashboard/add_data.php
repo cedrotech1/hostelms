@@ -68,7 +68,7 @@ include("./includes/menu.php");
 <main id="main" class="main">
 
   <div class="pagetitle">
-      <h1>Data</h1>
+      <h1>Student Data</h1>
       <nav>
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="index.php">Home</a></li>
@@ -86,13 +86,13 @@ include("./includes/menu.php");
           <div class="card-body">
               <br>
              
-              <?php if ($existingData == 1) : ?><br/>
-                <h5 class="card-title">UPLOAD HOSTEL INFORMATION FORM</h5>
+    
+                <h5 class="card-title">UPLOAD STUDENT INFORMATION FORM</h5>
                 <br>
                 <div class="col-md-12">
                 <div class="form-floating">
                   <input class="form-control" type="file" id="dataFile" accept=".xls,.xlsx,.csv" />
-                  <label for="floatingName">DATA</label>
+                  <label for="floatingName">STUDENT DATA</label>
                 </div>
               </div>
               <br>
@@ -101,7 +101,7 @@ include("./includes/menu.php");
                   >Save Data</button>
                 <button type="reset" class="btn btn-secondary">Reset</button>
               </div>
-              <?php endif; ?>
+              
 
           
               <!-- <?php if ($existingData) : ?><br/>
@@ -157,36 +157,60 @@ include("./includes/menu.php");
                   </thead>
                   <tbody>
                     <tr>
+                      <td>Registration Number*</td>
+                      <td>Must be unique for each student</td>
+                    </tr>
+                    <tr>
                       <td>Campus*</td>
                       <td>Must match existing campus name exactly</td>
                     </tr>
                     <tr>
-                      <td>Building Code*</td>
-                      <td>Unique identifier for the building</td>
+                      <td>College*</td>
+                      <td>Name of the college</td>
                     </tr>
                     <tr>
-                      <td>Hostel Name*</td>
-                      <td>Name of the hostel (must be unique within campus)</td>
+                      <td>Sirname*</td>
+                      <td>Student's first name</td>
                     </tr>
                     <tr>
-                      <td>Room Code*</td>
-                      <td>Unique identifier for the room</td>
+                      <td>Lastname*</td>
+                      <td>Student's last name</td>
                     </tr>
                     <tr>
-                      <td>Number of Beds*</td>
-                      <td>Total number of beds in the room</td>
+                      <td>School*</td>
+                      <td>Name of the school</td>
+                    </tr>
+                    <tr>
+                      <td>Program*</td>
+                      <td>Name of the program</td>
+                    </tr>
+                    <tr>
+                      <td>Intake*</td>
+                      <td>Year of intake (e.g., 2023, 2024)</td>
+                    </tr>
+                    <tr>
+                      <td>Disability*</td>
+                      <td>Disability status (0 for No disability, 1 for Has disability)</td>
+                    </tr>
+                    <tr>
+                      <td>Year of Study*</td>
+                      <td>Current year of study (1-6)</td>
+                    </tr>
+                    <tr>
+                      <td>Email*</td>
+                      <td>Valid email address</td>
                     </tr>
                     <tr>
                       <td>Gender*</td>
-                      <td>M for Male, F for Female</td>
+                      <td>Male or Female</td>
                     </tr>
                     <tr>
-                      <td>Year*</td>
-                      <td>Year of study (1-6)</td>
+                      <td>NID*</td>
+                      <td>National ID number</td>
                     </tr>
                     <tr>
-                      <td>Other Names</td>
-                      <td>Additional names or descriptions (optional)</td>
+                      <td>Phone*</td>
+                      <td>Phone number (10 digits)</td>
                     </tr>
                   </tbody>
                 </table>
@@ -200,7 +224,12 @@ include("./includes/menu.php");
                 <ul class="mb-0">
                   <li>Ensure all required fields are filled</li>
                   <li>Check that campus names match exactly</li>
-                  <li>Registration numbers must be unique means no two students can have the same registration number</li>
+                  <li>Registration numbers must be unique - no two students can have the same registration number</li>
+                  <li>Email addresses must be unique and in valid format</li>
+                  <li>Phone numbers should be 10 digits starting with 0</li>
+                  <li>Gender should be "Male" or "Female" (case insensitive)</li>
+                  <li>Year of study must be between 1 and 6</li>
+                  <li>Disability must be "0" (No disability) or "1" (Has disability)</li>
                 </ul>
               </div>
             </div>
@@ -296,7 +325,12 @@ include("./includes/menu.php");
 
   // Function to upload data to the server
   function uploadToServer(dataRows) {
-      fetch('welfare_upload_hostel_excel.php', {
+      console.log('=== UPLOAD DEBUG START ===');
+      console.log('Total rows to upload:', dataRows.length);
+      console.log('First row (headers):', dataRows[0]);
+      console.log('Second row (first data):', dataRows[1]);
+      
+      fetch('welfare_upload_student_excel.php', {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json'
@@ -304,19 +338,25 @@ include("./includes/menu.php");
           body: JSON.stringify({ data: dataRows })
       })
       .then(response => {
+          console.log('Response status:', response.status);
+          console.log('Response ok:', response.ok);
           if (!response.ok) {
               throw new Error('Network response was not ok');
           }
           return response.json();
       })
       .then(response => {
-          if (response.status === 'error') {
-              throw new Error(response.message);
+          console.log('Server response:', response);
+          console.log('Response status:', response.status);
+          console.log('Response message:', response.message);
+          if (response.data && response.data.errors) {
+              console.log('Validation errors:', response.data.errors);
           }
+          // Always show the modal, regardless of status
           showResultsModal(response);
       })
       .catch(error => {
-          console.error('Error:', error);
+          console.error('Fetch error:', error);
           showResultsModal({
               status: 'error',
               message: error.message || 'An error occurred while processing the file. Please try again.',
@@ -327,6 +367,7 @@ include("./includes/menu.php");
           });
       })
       .finally(() => {
+          console.log('=== UPLOAD DEBUG END ===');
           // Re-enable the button after processing
           var uploadButton = document.getElementById('uploadButton');
           uploadButton.disabled = false;
@@ -336,6 +377,17 @@ include("./includes/menu.php");
 
   // Function to display results in a modal
   function showResultsModal(response) {
+      // Ensure response.data exists with default values
+      if (!response.data) {
+          response.data = { errors: [], success: [] };
+      }
+      if (!response.data.errors) {
+          response.data.errors = [];
+      }
+      if (!response.data.success) {
+          response.data.success = [];
+      }
+
       // Create modal HTML
       var modalHtml = `
           <div class="modal fade" id="resultsModal" tabindex="-1">
@@ -350,7 +402,7 @@ include("./includes/menu.php");
                                                response.status === 'partial' ? 'warning' : 'danger'}">
                               ${response.message}
                           </div>
-                          ${response.data.errors.length > 0 ? `
+                          ${response.data.errors && response.data.errors.length > 0 ? `
                               <div class="mt-3">
                                   <h6>Errors:</h6>
                                   <div class="table-responsive">
@@ -376,7 +428,7 @@ include("./includes/menu.php");
                                   </div>
                               </div>
                           ` : ''}
-                          ${response.data.success.length > 0 ? `
+                          ${response.data.success && response.data.success.length > 0 ? `
                               <div class="mt-3">
                                   <h6>Successful Uploads:</h6>
                                   <div class="table-responsive">
@@ -418,13 +470,16 @@ include("./includes/menu.php");
       document.body.insertAdjacentHTML('beforeend', modalHtml);
 
       // Show modal
-      var modal = new bootstrap.Modal(document.getElementById('resultsModal'));
-      modal.show();
+      var modalElement = document.getElementById('resultsModal');
+      if (modalElement) {
+          var modal = new bootstrap.Modal(modalElement);
+          modal.show();
 
-      // Remove modal from DOM after it's hidden
-      document.getElementById('resultsModal').addEventListener('hidden.bs.modal', function () {
-          this.remove();
-      });
+          // Remove modal from DOM after it's hidden
+          modalElement.addEventListener('hidden.bs.modal', function () {
+              this.remove();
+          });
+      }
   }
 
   function downloadTemplate() {
@@ -437,6 +492,8 @@ include("./includes/menu.php");
           'lastname',
           'school',
           'program',
+          'intake',
+          'disability',
           'yearofstudy',
           'email',
           'gender',
@@ -446,8 +503,8 @@ include("./includes/menu.php");
 
       // Example data
       const exampleData = [
-          ['201018991', 'huye', 'College of Science', 'John', 'Doe', 'School of Engineering', 'Computer Science', '1', 'john.doe@example.com', 'Male', '1234567890123456', '781234567'],
-          ['201018992', 'huye', 'College of Science', 'Jane', 'Smith', 'School of Engineering', 'Information Technology', '2', 'jane.smith@example.com', 'Female', '1234567890123457', '781234568']
+          ['20231001', 'huye', 'College of Science', 'John', 'Doe', 'School of Engineering', 'Computer Science', '2023', '0', '1', 'john.doe@example.com', 'Male', '1234567890123456', '0781234567'],
+          ['20231002', 'huye', 'College of Science', 'Jane', 'Smith', 'School of Engineering', 'Information Technology', '2023', '1', '2', 'jane.smith@example.com', 'Female', '1234567890123457', '0781234568']
       ];
 
       // Convert to CSV format

@@ -2137,17 +2137,20 @@ if($role === 'warefare'){
                                 </div>
                             </div>
                             ${hostel.college ? `
-                            <div class="col-md-6">
-                                <div class="d-flex align-items-center p-3 bg-light rounded shadow-sm">
+                           <div class="col-md-6">
+                                <div class="d-flex align-items-start p-3 bg-light rounded shadow-sm">
                                     <div class="flex-shrink-0">
                                         <i class="bi bi-building text-primary fs-4"></i>
                                     </div>
-                                    <div class="ms-3">
+                                    <div class="ms-3 w-100">
                                         <h6 class="mb-1">College</h6>
-                                        <p class="mb-0">${hostel.college.split(',').map(c => `<span class="badge bg-primary me-1">${c}</span>`).join('')}</p>
+                                        <div class="d-flex flex-wrap gap-1">
+                                            ${hostel.college.split(',').map(c => `<span class="badge bg-primary">${c}</span>`).join('')}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            </div>  
+
                             ` : ''}
                             ${hostel.school ? `
                             <div class="col-md-6">

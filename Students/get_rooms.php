@@ -54,7 +54,7 @@ try {
     $offset = ($page - 1) * $per_page;
 
     // Get total number of rooms
-    $total_query = "SELECT COUNT(*) as total FROM rooms WHERE hostel_id = ? AND remain > 0";
+    $total_query = "SELECT COUNT(*) as total FROM rooms WHERE hostel_id = ? AND remain > 0 AND status = 'published'";
     $total_stmt = $connection->prepare($total_query);
     $total_stmt->bind_param("i", $hostel_id);
     $total_stmt->execute();
@@ -65,7 +65,7 @@ try {
     $rooms_query = "SELECT r.*, 
                     (SELECT COUNT(*) FROM applications a WHERE a.room_id = r.id) as current_applications
                     FROM rooms r 
-                    WHERE r.hostel_id = ? AND r.remain > 0
+                    WHERE r.hostel_id = ? AND r.remain > 0 AND r.status = 'published'
                     ORDER BY r.room_code
                     LIMIT ? OFFSET ?";
                     

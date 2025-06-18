@@ -142,7 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['room_id']) && isset($
         }
 
         // Prepare message
-        $message = "Dear {$student_info['names']}, your hostel application for room {$room_details['room_code']} in {$room_details['hostel_name']} has been submitted successfully. Please upload your bank receipt within 48 hours, otherwise your application will be automatically rejected.";
+        $message = "Dear {$student_info['names']}, your hostel application for room {$room_details['room_code']} in {$room_details['hostel_name']} has been submitted successfully. Please upload your bank receipt within 48 hours, otherwise your application will be automatically rejected by system.";
 
         // Send SMS
         $sms_data = [

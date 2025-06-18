@@ -2,7 +2,7 @@
 require_once 'hostel_card.php';
 
 function hasAvailableRooms($connection, $hostel_id) {
-    $query = "SELECT COUNT(*) as count FROM rooms WHERE hostel_id = ? AND remain > 0";
+    $query = "SELECT COUNT(*) as count FROM rooms WHERE hostel_id = ? AND remain > 0 AND status = 'published'";
     $stmt = $connection->prepare($query);
     $stmt->bind_param("i", $hostel_id);
     $stmt->execute();
@@ -15,14 +15,14 @@ function getRooms($connection, $hostel_id, $page = 1, $per_page = 10) {
     $offset = ($page - 1) * $per_page;
     
     // Get total count for pagination
-    $count_query = "SELECT COUNT(*) as total FROM rooms WHERE hostel_id = ? AND remain > 0";
+    $count_query = "SELECT COUNT(*) as total FROM rooms WHERE hostel_id = ? AND remain > 0 AND status = 'published'";
     $count_stmt = $connection->prepare($count_query);
     $count_stmt->bind_param("i", $hostel_id);
     $count_stmt->execute();
     $total = $count_stmt->get_result()->fetch_assoc()['total'];
     
     // Get rooms for current page
-    $query = "SELECT * FROM rooms WHERE hostel_id = ? AND remain > 0 ORDER BY room_code LIMIT ? OFFSET ?";
+    $query = "SELECT * FROM rooms WHERE hostel_id = ? AND remain > 0 AND status = 'published' ORDER BY room_code LIMIT ? OFFSET ?";
     $stmt = $connection->prepare($query);
     $stmt->bind_param("iii", $hostel_id, $per_page, $offset);
     $stmt->execute();
@@ -39,7 +39,7 @@ function getRoomsJson($connection, $hostel_id, $page = 1, $per_page = 10) {
     $offset = ($page - 1) * $per_page;
     
     // Get total count for pagination
-    $count_query = "SELECT COUNT(*) as total FROM rooms WHERE hostel_id = ? AND remain > 0";
+    $count_query = "SELECT COUNT(*) as total FROM rooms WHERE hostel_id = ? AND remain > 0 AND status = 'published'";
     $count_stmt = $connection->prepare($count_query);
     $count_stmt->bind_param("i", $hostel_id);
     $count_stmt->execute();
@@ -49,7 +49,7 @@ function getRoomsJson($connection, $hostel_id, $page = 1, $per_page = 10) {
     $query = "SELECT r.*, 
               (SELECT COUNT(*) FROM applications a WHERE a.room_id = r.id AND a.status != 'rejected') as current_applications
               FROM rooms r 
-              WHERE r.hostel_id = ? AND r.remain > 0 
+              WHERE r.hostel_id = ? AND r.remain > 0 AND r.status = 'published'
               ORDER BY r.room_code 
               LIMIT ? OFFSET ?";
     $stmt = $connection->prepare($query);

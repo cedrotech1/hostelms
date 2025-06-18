@@ -105,7 +105,7 @@ if(isset($_POST['ajax_login'])) {
         if (mysqli_num_rows($result) > 0) {
             $user = mysqli_fetch_assoc($result);
             if (password_verify($password, $user['password'])) {
-                // Store user info in session
+                // Store user info in session - handle missing fields gracefully
                 $_SESSION['student_id'] = $user['id'];
                 $_SESSION['student_regnumber'] = $user['regnumber'];
                 $_SESSION['student_name'] = $user['names'];
@@ -117,6 +117,10 @@ if(isset($_POST['ajax_login'])) {
                 $_SESSION['student_year'] = $user['yearofstudy'];
                 $_SESSION['student_gender'] = $user['gender'];
                 $_SESSION['student_status'] = $user['status'];
+                
+                // Handle optional fields that might not exist in database
+                $_SESSION['student_intake'] = isset($user['intake']) ? $user['intake'] : '1';
+                $_SESSION['student_disability'] = isset($user['disability']) ? $user['disability'] : 'None';
 
                 echo json_encode([
                     'status' => 'success',

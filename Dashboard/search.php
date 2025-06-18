@@ -145,7 +145,7 @@ include 'connection.php';
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" id="hostel-members-tab" data-bs-toggle="tab" href="#hostel-members" role="tab">
-                                Hostel Members
+                                Hostel Occupants
                             </a>
                         </li>
                     </ul>

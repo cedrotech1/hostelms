@@ -17,7 +17,7 @@ function getHostelStats($connection, $hostel_id) {
                 SUM(number_of_beds) as total_beds,
                 SUM(remain) as available_beds
               FROM rooms 
-              WHERE hostel_id = ?";
+              WHERE hostel_id = ? and status='published'";
     $stmt = $connection->prepare($query);
     $stmt->bind_param("i", $hostel_id);
     $stmt->execute();
@@ -49,170 +49,372 @@ function getHostelAttributes($connection, $hostel_id) {
     return $attributes;
 }
 
+// Function to check if student is eligible for hostel
+function isStudentEligibleForHostel($hostel, $student_data) {
+    // Check gender match
+    if (!empty($hostel['gender']) && $hostel['gender'] !== $student_data['gender']) {
+        return false;
+    }
+
+    // Check year match
+    if (!empty($hostel['year'])) {
+        $hostel_years = explode(',', $hostel['year']);
+        if (!in_array($student_data['yearofstudy'], $hostel_years)) {
+            return false;
+        }
+    }
+
+    // Check college match if hostel has college restriction
+    if (!empty($hostel['college']) && !empty($student_data['college'])) {
+        $hostel_colleges = explode(',', $hostel['college']);
+        if (!in_array($student_data['college'], $hostel_colleges)) {
+            return false;
+        }
+    }
+
+    // Check school match if hostel has school restriction
+    if (!empty($hostel['school']) && !empty($student_data['school'])) {
+        $hostel_schools = explode(',', $hostel['school']);
+        if (!in_array($student_data['school'], $hostel_schools)) {
+            return false;
+        }
+    }
+
+    // Check intake match if hostel has intake restriction
+    if (!empty($hostel['intake']) && isset($student_data['intake']) && !empty($student_data['intake'])) {
+        $hostel_intakes = explode(',', $hostel['intake']);
+        if (!in_array($student_data['intake'], $hostel_intakes)) {
+            return false;
+        }
+    }
+
+    // Check disability match if hostel has disability restriction
+    if (!empty($hostel['disability'])) {
+        $hostel_disability = intval($hostel['disability']);
+        $student_disability = isset($student_data['disability']) ? intval($student_data['disability']) : 0;
+        
+        // Students with disability (1) can only access hostels for students with disabilities (1)
+        // Students without disability (0) can access hostels for students without disabilities (0)
+        if ($hostel_disability !== $student_disability) {
+            return false;
+        }
+    } else {
+        // If hostel has no disability restriction, only students without disability can access
+        // Students with disability need specifically designed hostels
+        $student_disability = isset($student_data['disability']) ? intval($student_data['disability']) : 0;
+        if ($student_disability === 1) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+// Helper function to get disability text
+// Disability values: 1 = Students with disabilities, 0 = Students without disabilities
+function getDisabilityText($disability_value) {
+    $value = intval($disability_value);
+    return $value === 1 ? 'Students with disabilities' : 'Students without disabilities';
+}
+
 function displayHostelCard($hostel, $connection) {
     // Get hostel statistics
     $stats = getHostelStats($connection, $hostel['id']);
     
-    // Get hostel attributes
-    $attributes = getHostelAttributes($connection, $hostel['id']);
+    // Get student data from session with safe defaults
+    $student_data = [
+        'gender' => $_SESSION['student_gender'] ?? '',
+        'yearofstudy' => $_SESSION['student_year'] ?? '',
+        'college' => $_SESSION['student_college'] ?? '',
+        'school' => $_SESSION['student_school'] ?? '',
+        'intake' => $_SESSION['student_intake'] ?? '',
+        'disability' => $_SESSION['student_disability'] ?? ''
+    ];
     
-    // Only display hostels with available rooms
-    if (!hasAvailableRooms($connection, $hostel['id'])) {
+    // Check eligibility and collect reasons
+    $reasons = [];
+    
+    // Check hostel status
+    if ($hostel['status'] !== 'published') {
+        $reasons[] = "This hostel is currently not available for applications";
+        echo '<div class="alert alert-info mb-3">';
+        echo '<h6 class="alert-heading">' . htmlspecialchars($hostel['name']) . ' is not available because:</h6>';
+        echo '<ul class="mb-0">';
+        foreach ($reasons as $reason) {
+            echo '<li>' . htmlspecialchars($reason) . '</li>';
+        }
+        echo '</ul>';
+        echo '</div>';
         return;
     }
-    ?>
     
-    <div class="col-md-6 col-lg-4 mb-4" data-hostel-id="<?php echo $hostel['id']; ?>">
-        <div class="card h-100 shadow-sm hostel-card">
+    // Check gender match
+    if (!empty($hostel['gender']) && $hostel['gender'] !== $student_data['gender']) {
+        $reasons[] = "This hostel is for " . ucfirst($hostel['gender']) . " students only";
+    }
+    
+    // Check year match - handle comma-separated values
+    if (!empty($hostel['year'])) {
+        $allowed_years = array_map('trim', explode(',', $hostel['year']));
+        if (!in_array($student_data['yearofstudy'], $allowed_years)) {
+            $years_text = count($allowed_years) > 1 ? 
+                "Years " . implode(", ", $allowed_years) : 
+                "Year " . $allowed_years[0];
+            $reasons[] = "This hostel is for " . $years_text . " students only";
+        }
+    }
+    
+    // Check college match - handle comma-separated values
+    if (!empty($hostel['college'])) {
+        $allowed_colleges = array_map('trim', explode(',', $hostel['college']));
+        if (!in_array($student_data['college'], $allowed_colleges)) {
+            $colleges_text = count($allowed_colleges) > 1 ? 
+                implode(", ", $allowed_colleges) : 
+                $allowed_colleges[0];
+            $reasons[] = "This hostel is for " . $colleges_text . " students only";
+        }
+    }
+    
+    // Check school match - handle comma-separated values
+    if (!empty($hostel['school'])) {
+        $allowed_schools = array_map('trim', explode(',', $hostel['school']));
+        if (!in_array($student_data['school'], $allowed_schools)) {
+            $schools_text = count($allowed_schools) > 1 ? 
+                implode(", ", $allowed_schools) : 
+                $allowed_schools[0];
+            $reasons[] = "This hostel is for " . $schools_text . " students only";
+        }
+    }
+    
+    // Check intake match - handle comma-separated values
+    if (!empty($hostel['intake'])) {
+        $allowed_intakes = array_map('trim', explode(',', $hostel['intake']));
+        if (!in_array($student_data['intake'], $allowed_intakes)) {
+            $intakes_text = count($allowed_intakes) > 1 ? 
+                implode(", ", $allowed_intakes) : 
+                $allowed_intakes[0];
+            $reasons[] = "This hostel is for " . $intakes_text . " intake students only";
+        }
+    }
+    
+    // Check disability match
+    if (!empty($hostel['disability'])) {
+        $hostel_disability = intval($hostel['disability']);
+        $student_disability = isset($student_data['disability']) ? intval($student_data['disability']) : 0;
+        
+        // Students with disability (1) can only access hostels for students with disabilities (1)
+        // Students without disability (0) can access hostels for students without disabilities (0)
+        if ($hostel_disability !== $student_disability) {
+            $reasons[] = "This hostel is for " . getDisabilityText($hostel['disability']) . " only";
+        }
+    } else {
+        // If hostel has no disability restriction, only students without disability can access
+        // Students with disability need specifically designed hostels
+        $student_disability = isset($student_data['disability']) ? intval($student_data['disability']) : 0;
+        if ($student_disability === 1) {
+            $reasons[] = "This hostel is not designed for students with disabilities. You need a hostel specifically designed for students with disabilities.";
+        }
+    }
+    
+    // Check room availability
+    if (!hasAvailableRooms($connection, $hostel['id'])) {
+        $reasons[] = "No rooms available in this hostel";
+    }
+    
+    // If there are any reasons, display them
+    if (!empty($reasons)) {
+        echo '<div class="alert alert-info mb-3">';
+        echo '<h6 class="alert-heading">' . htmlspecialchars($hostel['name']) . ' is not available because:</h6>';
+        echo '<ul class="mb-0">';
+        foreach ($reasons as $reason) {
+            echo '<li>' . htmlspecialchars($reason) . '</li>';
+        }
+        echo '</ul>';
+        echo '</div>';
+        return;
+    }
+    
+    // If we get here, the hostel is eligible and has available rooms
+    ?>
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100 shadow-sm">
             <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0">
-                    <i class="bi bi-building me-2"></i>
-                    <?php echo htmlspecialchars($hostel['name']); ?>
-                </h5>
-                <span class="badge bg-light text-primary">
-                    <i class="bi bi-door-open me-1"></i>
-                    <span class="available-rooms"><?php echo $stats['available_rooms']; ?></span> Rooms Available
-                </span>
+                <span class="fw-bold"><i class="bi bi-building me-2"></i><?php echo htmlspecialchars($hostel['name']); ?></span>
+                <span class="badge bg-light text-primary"><i class="bi bi-door-open me-1"></i> <?php echo $stats['available_rooms']; ?> Rooms Available</span>
             </div>
-            
             <div class="card-body">
-                <!-- Statistics -->
-                <div class="hostel-stats">
-                    <div class="stat-item">
-                        <i class="bi bi-door-open text-primary"></i>
-                        <div class="stat-value">
-                            <span class="available-rooms"><?php echo $stats['available_rooms']; ?></span>/<span class="total-rooms"><?php echo $stats['total_rooms']; ?></span>
+                <!-- Professional Statistics Cards -->
+                <div class="stats-container mb-4">
+                    <div class="row g-3">
+                    <div class="col-4">
+                            <div class="stat-card pending-beds">
+                                <div class="stat-icon">
+                                    <i class="bi bi-building me-2"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <div class="stat-value"><?php echo $stats['available_rooms']; ?></div>
+                                    <div class="stat-label">rooms</div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="stat-label">Rooms</div>
-                    </div>
-                    <div class="stat-item">
-                        <i class="bi bi-people text-success"></i>
-                        <div class="stat-value">
-                            <span class="available-beds"><?php echo $stats['available_beds']; ?></span>/<span class="total-beds"><?php echo $stats['total_beds']; ?></span>
+                        <div class="col-4">
+                            <div class="stat-card total-beds">
+                            <div class="stat-icon">
+                            <i class="bi bi-upload"></i>
+    
+                                </div>
+                                <div class="stat-content">
+                                    <div class="stat-value"><?php echo $stats['total_beds']; ?></div>
+                                    <div class="stat-label">Total Beds</div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="stat-label">Beds</div>
+                        <div class="col-4">
+                            <div class="stat-card available-beds">
+                                <div class="stat-icon">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <div class="stat-value"><?php echo $stats['available_beds']; ?></div>
+                                    <div class="stat-label">Available</div>
+                                </div>
+                            </div>
+                        </div>
+                       
                     </div>
                 </div>
-                
-                <!-- Allowed Students Section -->
-                <div class="allowed-students-section mb-3">
-                    <h6 class="text-primary mb-2">
-                        <i class="bi bi-people-fill me-2"></i>
-                        Allowed Students
-                    </h6>
-                    <div class="border rounded p-3 bg-light">
+                <div class="mb-3">
+                    <div class="fw-bold mb-1"><i class="bi bi-people me-1"></i> Allowed Students</div>
+                    <div class="row g-2">
                         <?php
-                        $hasRestrictions = false;
-                        if (isset($attributes['gender']) || isset($attributes['yearofstudy']) || 
-                            isset($attributes['school']) || isset($attributes['college'])) {
-                            $hasRestrictions = true;
+                        $hasRestriction = false;
+                        // Gender
+                        if (!empty($hostel['gender'])) {
+                            $hasRestriction = true;
+                            echo '<div class="col-6">
+                                    <div class="card h-100 border-primary shadow-sm" style="border-radius: 12px;">
+                                        <div class="card-header py-1 px-2 bg-primary text-white text-center fw-semibold" style="border-top-left-radius: 12px; border-top-right-radius: 12px; font-size: 1rem;">
+                                            Gender
+                                        </div>
+                                        <div class="card-body py-2 px-2 text-center" style="border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;">
+                                            <i class="me-1 allowed-pill">' 
+                                                . htmlspecialchars($hostel['gender'] === 'F' ? 'Female' : 'Male') . 
+                                            '</i>
+                                        </div>
+                                    </div>
+                                </div>';
                         }
                         
-                        if (!$hasRestrictions): ?>
-                            <div class="text-center text-success">
-                                <i class="bi bi-check-circle-fill me-2"></i>
-                                All students are allowed for this hostel
-                            </div>
-                        <?php else: ?>
-                            <div class="row g-2">
-                                <?php if (isset($attributes['gender'])): ?>
-                                <div class="col-12">
-                                    <div class="d-flex align-items-center">
-                                        <i class="bi bi-gender-ambiguous text-primary me-2"></i>
-                                        <span class="small"><?php echo htmlspecialchars($attributes['gender']); ?></span>
-                                    </div>
-                                </div>
-                                <?php endif; ?>
-                                
-                                <?php if (isset($attributes['yearofstudy'])): ?>
-                                <div class="col-12">
-                                    <div class="d-flex align-items-center">
-                                        <i class="bi bi-mortarboard text-primary me-2"></i>
-                                        <span class="small">Year <?php echo htmlspecialchars($attributes['yearofstudy']); ?></span>
-                                    </div>
-                                </div>
-                                <?php endif; ?>
-                                
-                                <?php if (isset($attributes['school'])): ?>
-                                <div class="col-12">
-                                    <div class="d-flex align-items-center">
-                                        <i class="bi bi-building text-primary me-2"></i>
-                                        <span class="small"><?php echo htmlspecialchars($attributes['school']); ?></span>
-                                    </div>
-                                </div>
-                                <?php endif; ?>
-                                
-                                <?php if (isset($attributes['college'])): ?>
-                                <div class="col-12">
-                                    <div class="d-flex align-items-center">
-                                        <i class="bi bi-mortarboard-fill text-primary me-2"></i>
-                                        <span class="small"><?php echo htmlspecialchars($attributes['college']); ?></span>
-                                    </div>
-                                </div>
-                                <?php endif; ?>
-                            </div>
-                        <?php endif; ?>
+                        // Year
+                        if (!empty($hostel['year'])) {
+                            $hasRestriction = true;
+                            $years = array_map('trim', explode(',', $hostel['year']));
+                            echo '<div class="col-6"><div class="card h-100 border-success shadow-sm" style="border-radius: 12px;">'
+                                .'<div class="card-header py-1 px-2 bg-success text-white text-center fw-semibold" style="border-top-left-radius: 12px; border-top-right-radius: 12px; font-size: 1rem;">Year of Study</div>'
+                                .'<div class="card-body py-2 px-2 text-center" style="background:; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;">'
+                                .'';
+                            if (count($years) > 1) {
+                                echo '<ul class="list-unstyled allowed-list">';
+                                foreach ($years as $year) {
+                                    $safeYear = htmlspecialchars($year);
+                                    echo '<li class="allowed-pill" title="'.$safeYear.'">Year ' . $safeYear . '</li>';
+                                }
+                                echo '</ul>';
+                            } else {
+                                echo '<span style="font-size:0.97em;">' . htmlspecialchars($years[0]) . '</span>';
+                            }
+                            echo '</div></div></div>';
+                        }
+                        // School
+                        if (!empty($hostel['school'])) {
+                            $hasRestriction = true;
+                            $schools = array_map('trim', explode(',', $hostel['school']));
+                            echo '<div class="col-6"><div class="card h-100 border-info shadow-sm" style="border-radius: 12px;">'
+                                .'<div class="card-header py-1 px-2 bg-info text-white text-center fw-semibold" style="border-top-left-radius: 12px; border-top-right-radius: 12px; font-size: 1rem;">School</div>'
+                                .'<div class="card-body py-2 px-2 text-center" style="background:; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;">'
+                                .'';
+                            if (count($schools) > 1) {
+                                echo '<ul class="list-unstyled allowed-list">';
+                                foreach ($schools as $school) {
+                                    $safeSchool = htmlspecialchars($school);
+                                    echo '<li class="allowed-pill" title="'.$safeSchool.'">' . $safeSchool . '</li>';
+                                }
+                                echo '</ul>';
+                            } else {
+                                echo '<span style="font-size:0.97em;">' . htmlspecialchars($schools[0]) . '</span>';
+                            }
+                            echo '</div></div></div>';
+                        }
+                        // College
+                        if (!empty($hostel['college'])) {
+                            $hasRestriction = true;
+                            $colleges = array_map('trim', explode(',', $hostel['college']));
+                            echo '<div class="col-6"><div class="card h-100 border-warning shadow-sm" style="border-radius: 12px;">'
+                                .'<div class="card-header py-1 px-2 bg-warning text-dark text-center fw-semibold" style="border-top-left-radius: 12px; border-top-right-radius: 12px; font-size: 1rem;">College</div>'
+                                .'<div class="card-body py-2 px-2 text-center" style="background:; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;">'
+                                .'';
+                            if (count($colleges) > 1) {
+                                echo '<ul class="list-unstyled allowed-list">';
+                                foreach ($colleges as $college) {
+                                    $safeCollege = htmlspecialchars($college);
+                                    echo '<li class="allowed-pill" title="'.$safeCollege.'">' . $safeCollege . '</li>';
+                                }
+                                echo '</ul>';
+                            } else {
+                                echo '<span style="font-size:0.97em;">' . htmlspecialchars($colleges[0]) . '</span>';
+                            }
+                            echo '</div></div></div>';
+                        }
+                        // Intake
+                        if (!empty($hostel['intake'])) {
+                            $hasRestriction = true;
+                            $intakes = array_map('trim', explode(',', $hostel['intake']));
+                            echo '<div class="col-6"><div class="card h-100 border-secondary shadow-sm" style="border-radius: 12px;">'
+                                .'<div class="card-header py-1 px-2 bg-secondary text-white text-center fw-semibold" style="border-top-left-radius: 12px; border-top-right-radius: 12px; font-size: 1rem;">Intake</div>'
+                                .'<div class="card-body py-2 px-2 text-center" style="background:; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;">'
+                                .'';
+                            if (count($intakes) > 1) {
+                                echo '<ul class="list-unstyled allowed-list">';
+                                foreach ($intakes as $intake) {
+                                    $safeIntake = htmlspecialchars($intake);
+                                    echo '<li class="allowed-pill" title="'.$safeIntake.'">' . $safeIntake . '</li>';
+                                }
+                                echo '</ul>';
+                            } else {
+                                echo '<span style="font-size:0.97em;">' . htmlspecialchars($intakes[0]) . '</span>';
+                            }
+                            echo '</div></div></div>';
+                        }
+                        // Disability
+                        if (!empty($hostel['disability'])) {
+                            $hasRestriction = true;
+                            echo '<div class="col-6"><div class="card h-100 border-dark shadow-sm" style="border-radius: 12px;">'
+                                .'<div class="card-header py-1 px-2 bg-dark text-white text-center fw-semibold" style="border-top-left-radius: 12px; border-top-right-radius: 12px; font-size: 1rem;">Disability</div>'
+                                .'<div class="card-body py-2 px-2 text-center" style="background:; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;">'
+                                .'<i class="bi bi-wheelchair me-1"></i>' . getDisabilityText($hostel['disability'])
+                                .'</div></div></div>';
+                        }
+                        if (!$hasRestriction) {
+                            echo '<div class="col-12"><div class="card h-100 border-success shadow-sm" style="border-radius: 12px;">'
+                                .'<div class="card-header py-1 px-2 bg-success text-white text-center fw-semibold" style="border-top-left-radius: 12px; border-top-right-radius: 12px; font-size: 1rem;">All Students</div>'
+                                .'<div class="card-body py-2 px-2 text-center text-success" style="background:; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;">'
+                                .'<i class="bi bi-check-circle me-1"></i>All students are allowed for this hostel'
+                                .'</div></div></div>';
+                        }
+                        ?>
                     </div>
                 </div>
-            </div>
-            
-            <div class="card-footer bg-light">
                 <button type="button" 
-                        class="btn btn-primary w-100" 
+                        class="btn btn-primary w-100 view-rooms-btn"
                         data-bs-toggle="modal" 
                         data-bs-target="#roomsModal"
                         data-hostel-id="<?php echo $hostel['id']; ?>"
                         data-hostel-name="<?php echo htmlspecialchars($hostel['name']); ?>">
-                    <i class="bi bi-door-open me-2"></i>
-                    View Available Rooms
+                    <i class="bi bi-door-open me-2"></i> View Available Rooms
                 </button>
             </div>
         </div>
     </div>
-
-    <script>
-    let isRefreshing = false;
-    const hostelId = <?php echo $hostel['id']; ?>;
-
-    function updateHostelStats() {
-        if (isRefreshing) return;
-        isRefreshing = true;
-
-        fetch(`get_hostel_stats.php?hostel_id=${hostelId}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const hostelCard = document.querySelector(`[data-hostel-id="${hostelId}"]`);
-                    if (hostelCard) {
-                        const stats = data.stats;
-                        const currentContent = hostelCard.innerHTML;
-                        
-                        // Update stats without visual disruption
-                        hostelCard.querySelector('.available-rooms').textContent = stats.available_rooms;
-                        hostelCard.querySelector('.total-rooms').textContent = stats.total_rooms;
-                        hostelCard.querySelector('.available-beds').textContent = stats.available_beds;
-                        hostelCard.querySelector('.total-beds').textContent = stats.total_beds;
-                    }
-                }
-            })
-            .catch(error => console.error('Error:', error))
-            .finally(() => {
-                isRefreshing = false;
-            });
-    }
-
-    // Start refresh interval - using 1 second interval
-    const refreshInterval = setInterval(() => {
-        if (!isRefreshing) {
-            updateHostelStats();
-        }
-    }, 5000); // Refresh every 1 second
-
-    // Clean up interval when page is unloaded
-    window.addEventListener('beforeunload', () => {
-        clearInterval(refreshInterval);
-    });
-    </script>
     <?php
 }
 ?>
@@ -232,6 +434,93 @@ function displayHostelCard($hostel, $connection) {
 .hostel-card .card-header {
     background-color: #f8f9fa;
     border-bottom: 1px solid #dee2e6;
+}
+
+/* Professional Statistics Cards Styling */
+.stats-container {
+    margin-bottom: 1.5rem;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #007bff, #0056b3);
+}
+
+.stat-card.total-beds::before {
+    background: linear-gradient(90deg, #6c757d, #495057);
+}
+
+.stat-card.available-beds::before {
+    background: linear-gradient(90deg, #28a745, #1e7e34);
+}
+
+.stat-card.pending-beds::before {
+    background: linear-gradient(90deg, #ffc107, #e0a800);
+}
+
+.stat-icon {
+    margin-bottom: 0.5rem;
+}
+
+.stat-icon i {
+    font-size: 1.8rem;
+    color: #6c757d;
+}
+
+.stat-card.total-beds .stat-icon i {
+    color: #6c757d;
+}
+
+.stat-card.available-beds .stat-icon i {
+    color: #28a745;
+}
+
+.stat-card.pending-beds .stat-icon i {
+    color: #ffc107;
+}
+
+.stat-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #212529;
+    line-height: 1.2;
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .hostel-stats {
@@ -284,6 +573,29 @@ function displayHostelCard($hostel, $connection) {
 .btn-view-rooms {
     width: 100%;
     margin-top: 1rem;
+}
+
+.allowed-list {
+  padding-left: 0;
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+.allowed-pill {
+  font-size: 0.97em;
+  background:rgb(233, 229, 229);
+  border-radius: 3px;
+  padding: 4px 18px;
+  /* margin: 4px 0; */
+  display: inline-block;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  width: 100%;
+  /* overflow: hidden; */
+  text-overflow: ellipsis;
+  /* white-space: nowrap; */
 }
 </style>
 
