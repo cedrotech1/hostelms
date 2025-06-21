@@ -354,7 +354,7 @@ function getHostelEligibilityMatchReasons($hostel, $student) {
                                                     </div>
                                                 </div>
                                             <?php } else {
-                                                $ineligibleHostels[] = $hostel;
+                                                $ineligibleHostels[] = $hostel; 
                                             }
                                             }
                                             if (!$anyEligible) { ?>
