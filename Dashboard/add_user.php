@@ -1,5 +1,5 @@
 <?php
-session_start();  
+// session_start();  
 include('connection.php');
 // include('./includes/auth.php');
 // checkUserRole(['information_modifier']);
@@ -279,7 +279,7 @@ include("../email_functions.php");
                     $query = "SELECT u.*, c.name as campus_name, c.id as campus_id 
                              FROM users u 
                              LEFT JOIN campuses c ON u.campus = c.id 
-                             WHERE u.role != 'admin'";
+                             WHERE u.id != $id";
                     $result = mysqli_query($connection, $query);
 
                     while ($row = mysqli_fetch_assoc($result)) {

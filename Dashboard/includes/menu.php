@@ -10,34 +10,11 @@
                 </a>
             </li>
             <!-- upload hostels -->
-            <li class="nav-item">
-                <a class="nav-link collapsed" data-bs-target="#icons-nav" data-bs-toggle="collapse" href="#">
-                    <i class="bi bi-database"></i><span>Manage Data</span><i class="bi bi-chevron-down ms-auto"></i>
-                </a>
-                <ul id="icons-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
-                    <li>
-                        <a class="nav-link collapsed" href="welfare_add_data.php">
-                            <i class="bi bi-upload"></i><span>Upload student information</span>
-                        </a>
-                    </li>
-                       
-                    <!-- <li>
-                        <a class="nav-link collapsed" href="allstudents.php">
-                            <i class="bi bi-card-heading"></i><span>All students</span>
-                        </a>
-                    </li> -->
-                    <li>
+            <li>
                         <a class="nav-link collapsed" href="updateinfo.php">
                             <i class="bi bi-pencil-square"></i><span>Update Info</span>
                         </a>
                     </li>
-
-
-
-
-
-                </ul>
-            </li>
             <li class="nav-item">
                 <a class="nav-link collapsed" href="search_warefare.php">
                     <i class="bi bi-file-earmark-bar-graph"></i><span>manage reports</span>

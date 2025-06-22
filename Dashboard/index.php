@@ -1,5 +1,5 @@
 <?php
-session_start();
+// session_start();
 include 'connection.php';
 
 // Check if user is logged in
@@ -1136,6 +1136,7 @@ ORDER BY c.name, h.name;
                                                 <p class="mb-1"><strong>Applications:</strong> ${hostel.total_applications}</p>
                                                 <p class="mb-1"><strong>Pending:</strong> ${hostel.pending_applications}</p>
                                                 <p class="mb-1"><strong>Paid:</strong> ${hostel.paid_applications}</p>
+                                                 <p class="mb-1"><strong>Approved:</strong> ${hostel.approved_applications}</p>
                                             </div>
                                         </div>
                                        <div class="progress mt-3" style="height: 25px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.2); border-radius: 8px;">

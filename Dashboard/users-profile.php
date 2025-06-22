@@ -1,8 +1,5 @@
 <?php
 include('connection.php');
-include ('./includes/auth.php');
-checkUserRole(['admin','cards_manager','information_modifier']);
-
 
 $id=$_SESSION['id'];
 $ok1 = mysqli_query($connection, "select * from users where id=$id");

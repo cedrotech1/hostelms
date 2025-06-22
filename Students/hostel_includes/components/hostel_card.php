@@ -265,7 +265,7 @@ function displayHostelCard($hostel, $connection) {
                                 </div>
                                 <div class="stat-content">
                                     <div class="stat-value"><?php echo $stats['total_beds']; ?></div>
-                                    <div class="stat-label">Total Beds</div>
+                                    <div class="stat-label">Beds</div>
                                 </div>
                             </div>
                         </div>
@@ -321,7 +321,7 @@ function displayHostelCard($hostel, $connection) {
                                 }
                                 echo '</ul>';
                             } else {
-                                echo '<span style="font-size:0.97em;">' . htmlspecialchars($years[0]) . '</span>';
+                                echo '<li class="allowed-pill">Year ' . htmlspecialchars($years[0]) . '</li>';
                             }
                             echo '</div></div></div>';
                         }

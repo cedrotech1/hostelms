@@ -122,9 +122,12 @@ include("./includes/menu.php");
             <!-- Download Template Section -->
             <div class="mb-4">
               <h6 class="fw-bold">Download Template</h6>
-              <p class="text-muted">Use our  template to ensure your data is correctly structured or make sure header of each column is correct as in that template </p>
-              <button onclick="downloadTemplate()" class="btn btn-primary">
-                <i class="bi bi-download me-1"></i> Download Template
+              <p class="text-muted">Use our template to ensure your data is correctly structured or make sure header of each column is correct as in that template </p>
+              <button onclick="downloadTemplate('xlsx')" class="btn btn-primary mb-1">
+                <i class="bi bi-download me-1"></i> Download Excel Template
+              </button>
+              <button onclick="downloadTemplate('csv')" class="btn btn-secondary mb-1">
+                <i class="bi bi-download me-1"></i> Download CSV Template
               </button>
             </div>
 
@@ -482,47 +485,126 @@ include("./includes/menu.php");
       }
   }
 
-  function downloadTemplate() {
-      // Define the CSV content
-      const headers = [
-          'regnumber',
-          'campus',
-          'college',
-          'sirname',
-          'lastname',
-          'school',
-          'program',
-          'intake',
-          'disability',
-          'yearofstudy',
-          'email',
-          'gender',
-          'nid',
-          'phone'
-      ];
+  function downloadTemplate(format = 'xlsx') {
+    // Define headers
+    const headers = [
+        'regnumber',
+        'campus',
+        'college',
+        'sirname',
+        'lastname',
+        'school',
+        'program',
+        'intake',
+        'disability',
+        'yearofstudy',
+        'email',
+        'gender',
+        'nid',
+        'phone'
+    ];
 
-      // Example data
-      const exampleData = [
-          ['20231001', 'huye', 'College of Science', 'John', 'Doe', 'School of Engineering', 'Computer Science', '2023', '0', '1', 'john.doe@example.com', 'Male', '1234567890123456', '0781234567'],
-          ['20231002', 'huye', 'College of Science', 'Jane', 'Smith', 'School of Engineering', 'Information Technology', '2023', '1', '2', 'jane.smith@example.com', 'Female', '1234567890123457', '0781234568']
-      ];
+    // Example data sources
+    const campuses = ['huye', 'gikondo', 'remera'];
+    const colleges = ['CASS', 'CBE', 'CAVM', 'CST', 'CMHS', 'CE'];
+    const programs = [
+      'Computer Science', 'Economics', 'Agribusiness', 'Nursing',
+      'Civil Engineering', 'Education', 'Veterinary Science',
+      'Accounting', 'Medicine', 'Journalism'
+    ];
+    const genders = ['Male', 'Female'];
+    const intakes = ['May-2022', 'Dec-2022', 'May-2023', 'Dec-2023'];
+    const collegeSchoolMap = {
+      CASS: ['School of Journalism', 'School of Law', 'School of Social Sciences'],
+      CBE: ['School of Economics', 'School of Business', 'School of Finance'],
+      CAVM: ['School of Agriculture', 'School of Animal Sciences', 'School of Veterinary Medicine'],
+      CST: ['School of Engineering', 'School of ICT', 'School of Architecture'],
+      CMHS: ['School of Medicine', 'School of Nursing', 'School of Dentistry'],
+      CE: ['School of Education', 'School of Inclusive Education', 'School of Distance Learning']
+    };
+    const firstNames = ['John', 'Jane', 'Alice', 'Bob', 'Emily', 'David', 'Grace', 'James', 'Lucy', 'Michael'];
+    const lastNames = ['Doe', 'Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Miller', 'Davis', 'Wilson', 'Anderson'];
 
-      // Convert to CSV format
-      let csvContent = headers.join(',') + '\n';
-      exampleData.forEach(row => {
-          csvContent += row.join(',') + '\n';
-      });
+    function generateID(index) {
+      return '202310' + (index + 1).toString().padStart(2, '0');
+    }
+    function generateNID(index) {
+      return '1234567890' + (100000 + index).toString().padStart(6, '0');
+    }
+    function generatePhone(index) {
+      return '0781' + (300000 + index).toString().padStart(6, '0').slice(0, 6);
+    }
+    function getRandomWithBias(trueProbability = 0.08) {
+      return Math.random() < trueProbability ? 1 : 0;
+    }
 
-      // Create and trigger download
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-      link.setAttribute('href', url);
-      link.setAttribute('download', 'student_data_template.csv');
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+    // Generate 50 example rows
+    const exampleRows = [];
+    for (let i = 0; i < 50; i++) {
+      const regnumber = generateID(i);
+      const campus = campuses[i % campuses.length];
+      const college = colleges[i % colleges.length];
+      const schoolList = collegeSchoolMap[college];
+      const school = schoolList[i % schoolList.length];
+      const program = programs[i % programs.length];
+      const intake = intakes[i % intakes.length];
+      const yearofstudy = ((i % 6) + 1).toString();
+      const sirname = firstNames[i % firstNames.length];
+      const lastname = lastNames[i % lastNames.length];
+      const email = `${sirname.toLowerCase()}.${lastname.toLowerCase()}${i + 1}@example.com`;
+      const gender = genders[i % genders.length];
+      const nid = generateNID(i);
+      const phone = generatePhone(i);
+      const disability = getRandomWithBias(0.08);
+      exampleRows.push([
+        regnumber, campus, college, sirname, lastname,
+        school, program, intake, disability, yearofstudy,
+        email, gender, nid, phone
+      ]);
+    }
+
+    const wsData = [headers, ...exampleRows];
+
+    if (format === 'xlsx') {
+        // Create worksheet and workbook
+        const ws = XLSX.utils.aoa_to_sheet(wsData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Template");
+
+        // Write workbook and trigger download
+        const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        const blob = new Blob([wbout], { type: "application/octet-stream" });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.href = url;
+        link.download = 'student_data_template.xlsx';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    } else {
+        // Fallback to CSV
+        function escapeCSV(value) {
+            if (typeof value !== 'string') value = String(value);
+            if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+                return `"${value.replace(/"/g, '""')}"`;
+            }
+            return value;
+        }
+        let csvContent = headers.map(escapeCSV).join(',') + '\n';
+        exampleRows.forEach(row => {
+            csvContent += row.map(escapeCSV).join(',') + '\n';
+        });
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.href = url;
+        link.download = 'student_data_template.csv';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
   }
 </script>
 
