@@ -57,7 +57,28 @@ if ((isset($_POST['search']) && $_SERVER["REQUEST_METHOD"] == "POST" && !empty($
         }
         // Fetch hostels with at least one available bed (for assign form)
         $hostels = [];
-        $hostelSql = "SELECT h.id, h.name, h.gender, h.year, h.college, h.school, h.intake, h.disability, h.status, SUM(r.remain) AS available_beds FROM hostels h JOIN rooms r ON r.hostel_id = h.id WHERE r.status = 'reserved' AND r.remain > 0 GROUP BY h.id, h.name, h.gender, h.year, h.college, h.school, h.intake, h.disability, h.status HAVING available_beds > 0";
+        $hostelSql = "SELECT 
+    h.id, 
+    h.name, 
+    h.gender, 
+    h.year, 
+    h.college, 
+    h.school, 
+    h.intake, 
+    h.disability, 
+    h.status, 
+    SUM(r.remain) AS available_beds
+FROM 
+    hostels h
+JOIN 
+    rooms r ON r.hostel_id = h.id
+WHERE 
+    r.remain > 0 
+GROUP BY 
+    h.id, h.name, h.gender, h.year, h.college, h.school, h.intake, h.disability, h.status
+HAVING 
+    SUM(r.remain) > 0;
+";
         $hostelResult = $connection->query($hostelSql);
         while ($hostelRow = $hostelResult->fetch_assoc()) {
             $hostels[] = $hostelRow;
@@ -88,13 +109,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
     }
 }
 
-// Handle hostel application submission
+// Handle hostel application submission (assign new room)
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['assign_hostel'])) {
     $regnumber = $_POST['regnumber1'];
     $room_id = $_POST['room_id'];
     $status = 'pending';
     $slep = '';
     $now = date('Y-m-d H:i:s');
+    // Check if student already has an active application
     $checkSql = "SELECT id FROM applications WHERE regnumber = ? AND status NOT IN ('cancelled', 'rejected')";
     $checkStmt = $connection->prepare($checkSql);
     $checkStmt->bind_param("s", $regnumber);
@@ -104,16 +126,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['assign_hostel'])) {
         $message = "This student already has an active application.";
         $messageType = "danger";
     } else {
-        $roomCheckSql = "SELECT remain FROM rooms WHERE id = ? AND status = 'reserved'";
+        // Check if room is available
+        $roomCheckSql = "SELECT remain FROM rooms WHERE id = ?";
         $roomCheckStmt = $connection->prepare($roomCheckSql);
         $roomCheckStmt->bind_param("i", $room_id);
         $roomCheckStmt->execute();
         $roomResult = $roomCheckStmt->get_result();
         if ($roomRow = $roomResult->fetch_assoc()) {
             if ($roomRow['remain'] > 0) {
-                $appSql = "INSERT INTO applications (regnumber, room_id, status, slep, created_at, updated_at,createdby) VALUES (?, ?, ?, ?, ?, ?,?)";
+                $appSql = "INSERT INTO applications (regnumber, room_id, status, slep, created_at, updated_at, createdby) VALUES (?, ?, ?, ?, ?, ?, ?)";
                 $appStmt = $connection->prepare($appSql);
-                $appStmt->bind_param("sisssss", $regnumber, $room_id, $status, $slep, $now, $now,$userID);
+                $appStmt->bind_param("sisssss", $regnumber, $room_id, $status, $slep, $now, $now, $userID);
                 if ($appStmt->execute()) {
                     $updateRoomSql = "UPDATE rooms SET remain = remain - 1 WHERE id = ? AND remain > 0";
                     $updateRoomStmt = $connection->prepare($updateRoomSql);
@@ -136,6 +159,47 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['assign_hostel'])) {
     }
 }
 
+// Handle hostel application submission
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['reassign_room'])) {
+    $regnumber = $_POST['regnumber1'];
+    $new_room_id = $_POST['room_id'];
+    $current_room_id = $_POST['current_room_id'];
+    $now = date('Y-m-d H:i:s');
+    // Find the active application
+    $appSql = "SELECT id FROM applications WHERE regnumber = ? AND status NOT IN ('cancelled', 'rejected') LIMIT 1";
+    $appStmt = $connection->prepare($appSql);
+    $appStmt->bind_param("s", $regnumber);
+    $appStmt->execute();
+    $appResult = $appStmt->get_result();
+    if ($appRow = $appResult->fetch_assoc()) {
+        $application_id = $appRow['id'];
+        // Update application to new room
+        $updateAppSql = "UPDATE applications SET room_id = ?, updated_at = ? WHERE id = ?";
+        $updateAppStmt = $connection->prepare($updateAppSql);
+        $updateAppStmt->bind_param("isi", $new_room_id, $now, $application_id);
+        if ($updateAppStmt->execute()) {
+            // Increase remain in old room
+            $incRoomSql = "UPDATE rooms SET remain = remain + 1 WHERE id = ?";
+            $incRoomStmt = $connection->prepare($incRoomSql);
+            $incRoomStmt->bind_param("i", $current_room_id);
+            $incRoomStmt->execute();
+            // Decrease remain in new room
+            $decRoomSql = "UPDATE rooms SET remain = remain - 1 WHERE id = ? AND remain > 0";
+            $decRoomStmt = $connection->prepare($decRoomSql);
+            $decRoomStmt->bind_param("i", $new_room_id);
+            $decRoomStmt->execute();
+            header("Location: updateinfo.php?regnumber=" . urlencode($regnumber) . "&msg=reassigned");
+            exit();
+        } else {
+            $message = "Error re-assigning room: " . $connection->error;
+            $messageType = "danger";
+        }
+    } else {
+        $message = "No active application found to re-assign.";
+        $messageType = "danger";
+    }
+}
+
 // In the HTML, add this after the PHP opening tag:
 if (isset($_GET['msg'])) {
     if ($_GET['msg'] === 'updated') {
@@ -143,6 +207,9 @@ if (isset($_GET['msg'])) {
         $messageType = "success";
     } elseif ($_GET['msg'] === 'assigned') {
         $message = "Student assigned to hostel successfully.";
+        $messageType = "success";
+    } elseif ($_GET['msg'] === 'reassigned') {
+        $message = "Student room re-assigned successfully.";
         $messageType = "success";
     }
 }
@@ -320,11 +387,74 @@ function getHostelEligibilityMatchReasons($hostel, $student) {
                                     <li class="list-group-item"><strong>Status:</strong> <?php echo htmlspecialchars(ucfirst($studentRoomInfo['status'])); ?></li>
                                     <li class="list-group-item"><strong>Assigned At:</strong> <?php echo htmlspecialchars($studentRoomInfo['created_at']); ?></li>
                                 </ul>
+                                <button type="button" class="btn btn-warning mt-3" data-bs-toggle="modal" data-bs-target="#reassignRoomModal">Re-assign Room</button>
                             </div>
                         </div>
+
+                        <!-- Re-assign Room Modal -->
+                        <div class="modal fade" id="reassignRoomModal" tabindex="-1" aria-labelledby="reassignRoomModalLabel" aria-hidden="true">
+                          <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="reassignRoomModalLabel">Re-assign Room</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <form method="POST" action="" id="reassignRoomForm">
+                                    <input type="hidden" name="regnumber1" value="<?php echo htmlspecialchars($regnumber); ?>">
+                                    <input type="hidden" name="current_room_id" value="<?php echo htmlspecialchars($studentRoomInfo['room_id']); ?>">
+                                    <div class="mb-3">
+                                        <label class="form-label">Select Hostel</label>
+                                        <div class="d-flex flex-wrap gap-3" id="hostelCardsModal">
+                                            <?php
+                                            $anyEligible = false;
+                                            $ineligibleHostels = [];
+                                            foreach ($hostels as $hostel) {
+                                                if (isStudentEligibleForHostelStrict($hostel, $student_data)) {
+                                                    $anyEligible = true;
+                                                    $matches = getHostelEligibilityMatchReasons($hostel, $student_data);
+                                            ?>
+                                                <div class="card hostel-card-modal shadow-sm" style="min-width: 260px; max-width: 300px; cursor:pointer; transition: box-shadow 0.2s;background-color:whitesmoke;border:2px solid gray" data-hostel-id="<?php echo $hostel['id']; ?>">
+                                                    <div class="card-body text-center">
+                                                        <h5 class="card-title mb-2 text-primary fw-bold"><?php echo htmlspecialchars($hostel['name']); ?></h5>
+                                                        <div class="mb-2">
+                                                            <span class="badge bg-info"><i class="bi bi-person-bounding-box me-1"></i>Beds: <?php echo $hostel['available_beds']; ?></span>
+                                                        </div>
+                                                        <div class="mb-2 text-muted small" id="hostel-campus-modal-<?php echo $hostel['id']; ?>">
+                                                            <i class="bi bi-geo-alt me-1"></i>Loading campus...
+                                                        </div>
+                                                        <div class="mb-2 text-muted small" id="hostel-meta-modal-<?php echo $hostel['id']; ?>"></div>
+                                                    </div>
+                                                </div>
+                                            <?php } else {
+                                                $ineligibleHostels[] = $hostel; 
+                                            }
+                                            }
+                                            if (!$anyEligible) { ?>
+                                                <div class="alert alert-warning w-100 mt-3">No hostels available for this student based on their profile.</div>
+                                            <?php }
+                                            ?>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3" id="roomsSectionModal" style="display:none;">
+                                        <label class="form-label">Select Room</label>
+                                        <div class="d-flex flex-wrap gap-3" id="roomCardsModal">
+                                            <!-- Room cards will be loaded here -->
+                                        </div>
+                                    </div>
+                                    <button type="submit" name="reassign_room" class="btn btn-success mt-3" id="assignBtnModal" style="display:none;">Re-assign to Hostel</button>
+                                </form>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                     <?php else: ?>
-                        <!-- Assign Room Card -->
                         <div class="col-lg-12 mb-4">
+                            <div class="alert alert-info">Student is not assigned to any room.</div>
+                            <button type="button" class="btn btn-primary" id="showAssignFormBtn">Assign New Hostel</button>
+                        </div>
+                        <!-- Assign Room Card -->
+                        <div class="col-lg-12 mb-4" id="assignRoomCard" style="display:none;">
                             <div class="card p-3 border-primary">
                                 <h5 class="card-title text-primary">Assign Room</h5>
                                 <form method="POST" action="" id="assignRoomForm">
@@ -340,7 +470,7 @@ function getHostelEligibilityMatchReasons($hostel, $student) {
                                                     $anyEligible = true;
                                                     $matches = getHostelEligibilityMatchReasons($hostel, $student_data);
                                             ?>
-                                                <div class="card hostel-card shadow-sm border-0" style="min-width: 260px; max-width: 300px; cursor:pointer; transition: box-shadow 0.2s;" data-hostel-id="<?php echo $hostel['id']; ?>">
+                                                <div class="card hostel-card shadow-sm" style="min-width: 260px; max-width: 300px; cursor:pointer; transition: box-shadow 0.2s;background-color:whitesmoke;border:2px solid gray" data-hostel-id="<?php echo $hostel['id']; ?>">
                                                     <div class="card-body text-center">
                                                         <h5 class="card-title mb-2 text-primary fw-bold"><?php echo htmlspecialchars($hostel['name']); ?></h5>
                                                         <div class="mb-2">
@@ -350,7 +480,6 @@ function getHostelEligibilityMatchReasons($hostel, $student) {
                                                             <i class="bi bi-geo-alt me-1"></i>Loading campus...
                                                         </div>
                                                         <div class="mb-2 text-muted small" id="hostel-meta-<?php echo $hostel['id']; ?>"></div>
-                                                        
                                                     </div>
                                                 </div>
                                             <?php } else {
@@ -360,9 +489,7 @@ function getHostelEligibilityMatchReasons($hostel, $student) {
                                             if (!$anyEligible) { ?>
                                                 <div class="alert alert-warning w-100 mt-3">No hostels available for this student based on their profile.</div>
                                             <?php }
-                                            if (count($ineligibleHostels) > 0) { ?>
-                                             
-                                            <?php } ?>
+                                            ?>
                                         </div>
                                     </div>
                                     <div class="mb-3" id="roomsSection" style="display:none;">
@@ -445,7 +572,7 @@ function getHostelEligibilityMatchReasons($hostel, $student) {
                 });
             // Add hover effect
             card.addEventListener('mouseenter', function() {
-                card.style.boxShadow = '0 0 0.5rem #0d6efd, 0 0.5rem 1rem rgba(0,0,0,0.05)';
+                card.style.boxShadow = '0 0 0.5remrgb(61, 253, 13), 0 0.5rem 1rem rgba(0,0,0,0.05)';
             });
             card.addEventListener('mouseleave', function() {
                 card.style.boxShadow = '';
@@ -472,14 +599,20 @@ function getHostelEligibilityMatchReasons($hostel, $student) {
                             return;
                         }
                         let html = '';
-                        data.forEach(function(room) {
-                            html += `<div class=\"card room-card\" style=\"min-width: 180px; cursor:pointer;\">\n` +
-                                    `  <div class=\"card-body text-center\">\n` +
-                                    `    <input type=\"radio\" name=\"room_id\" value=\"${room.id}\" class=\"form-check-input\" style=\"margin-bottom:10px;\">\n` +
-                                    `    <h6 class=\"card-title mb-2\">${room.room_code}</h6>\n` +
-                                    `  </div>\n` +
-                                    `</div>`;
-                        });
+                        if (data.length > 0) {
+                            html += `<div class=\"table-responsive\"><table class=\"table table-sm table-bordered align-middle mb-0\">`;
+                            html += `<thead class=\"table-light\"><tr><th></th><th>Room Code</th><th>Status</th><th>Beds</th><th>Available</th></tr></thead><tbody>`;
+                            data.forEach(function(room) {
+                                html += `<tr>` +
+                                        `<td><input type=\"radio\" name=\"room_id\" value=\"${room.id}\" class=\"form-check-input\"></td>` +
+                                        `<td class=\"fw-bold small\">${room.room_code}</td>` +
+                                        `<td><span class=\"badge ${room.status === 'reserved' ? 'bg-success' : 'bg-secondary'}\">${room.status.charAt(0).toUpperCase() + room.status.slice(1)}</span></td>` +
+                                        `<td>${room.number_of_beds !== undefined ? room.number_of_beds : '-'}</td>` +
+                                        `<td>${room.remain !== undefined ? room.remain : '-'}</td>` +
+                                        `</tr>`;
+                            });
+                            html += `</tbody></table></div>`;
+                        }
                         roomCards.innerHTML = html;
                         document.getElementById('assignBtn').style.display = 'block';
                         // Room card click handler
@@ -497,13 +630,97 @@ function getHostelEligibilityMatchReasons($hostel, $student) {
             });
         });
         // Prevent form submit if no room selected
-        document.getElementById('assignRoomForm').addEventListener('submit', function(e) {
-            var checked = document.querySelector('input[name="room_id"]:checked');
-            if (!checked) {
-                e.preventDefault();
-                alert('Please select a room.');
-            }
+        var assignForm = document.getElementById('assignRoomForm');
+        if (assignForm) {
+            assignForm.addEventListener('submit', function(e) {
+                var checked = document.querySelector('input[name="room_id"]:checked');
+                if (!checked) {
+                    e.preventDefault();
+                    alert('Please select a room.');
+                }
+            });
+        }
+        // Modal logic for re-assign
+        document.querySelectorAll('.hostel-card-modal').forEach(function(card) {
+            var hostelId = card.getAttribute('data-hostel-id');
+            fetch('get_hostel_details.php?id=' + hostelId)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('hostel-campus-modal-' + hostelId).innerHTML =
+                            `<i class='bi bi-geo-alt me-1'></i>${data.hostel.campus_name}`;
+                        let meta = '';
+                        if (data.hostel.gender) meta += `<span class='me-2'><i class='bi bi-gender-${data.hostel.gender === 'male' ? 'male' : 'female'}'></i> ${data.hostel.gender.charAt(0).toUpperCase() + data.hostel.gender.slice(1)}</span>`;
+                        if (data.hostel.year) meta += `<span class='me-2'><i class='bi bi-calendar'></i> Year: ${data.hostel.year}</span>`;
+                        if (data.hostel.building_code) meta += `<span class='me-2'><i class='bi bi-building'></i> ${data.hostel.building_code}</span>`;
+                        document.getElementById('hostel-meta-modal-' + hostelId).innerHTML = meta;
+                    } else {
+                        document.getElementById('hostel-campus-modal-' + hostelId).innerHTML = '<span class="text-danger">Campus info unavailable</span>';
+                    }
+                });
+            card.addEventListener('mouseenter', function() {
+                card.style.boxShadow = '0 0 0.5rem #0d6efd, 0 0.5rem 1rem rgba(0,0,0,0.05)';
+            });
+            card.addEventListener('mouseleave', function() {
+                card.style.boxShadow = '';
+            });
+            card.addEventListener('click', function() {
+                document.querySelectorAll('.hostel-card-modal').forEach(function(c) { c.classList.remove('border-primary', 'border-3'); });
+                this.classList.add('border-primary', 'border-3');
+                var roomSection = document.getElementById('roomsSectionModal');
+                var roomCards = document.getElementById('roomCardsModal');
+                roomSection.style.display = 'block';
+                roomCards.innerHTML = '<div>Loading rooms...</div>';
+                fetch('get_available_rooms.php?hostel_id=' + hostelId)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.length === 0) {
+                            roomCards.innerHTML = '<div class="alert alert-warning">No available rooms in this hostel.</div>';
+                            document.getElementById('assignBtnModal').style.display = 'none';
+                            return;
+                        }
+                        let html = '';
+                        html += `<div class=\"table-responsive\"><table class=\"table table-sm table-bordered align-middle mb-0\">`;
+                        html += `<thead class=\"table-light\"><tr><th></th><th>Room Code</th><th>Status</th><th>Beds</th><th>Available</th></tr></thead><tbody>`;
+                        data.forEach(function(room) {
+                            html += `<tr>` +
+                                    `<td><input type=\"radio\" name=\"room_id\" value=\"${room.id}\" class=\"form-check-input\"></td>` +
+                                    `<td class=\"fw-bold small\">${room.room_code}</td>` +
+                                    `<td><span class=\"badge ${room.status === 'reserved' ? 'bg-success' : 'bg-secondary'}\">${room.status.charAt(0).toUpperCase() + room.status.slice(1)}</span></td>` +
+                                    `<td>${room.number_of_beds !== undefined ? room.number_of_beds : '-'}</td>` +
+                                    `<td>${room.remain !== undefined ? room.remain : '-'}</td>` +
+                                    `</tr>`;
+                        });
+                        html += `</tbody></table></div>`;
+                        roomCards.innerHTML = html;
+                        document.getElementById('assignBtnModal').style.display = 'block';
+                    });
+            });
         });
+        // Attach event listener only when modal is shown
+        var reassignModal = document.getElementById('reassignRoomModal');
+        if (reassignModal) {
+            reassignModal.addEventListener('shown.bs.modal', function () {
+                const reassignForm = document.getElementById('reassignRoomForm');
+                if (reassignForm) {
+                    reassignForm.onsubmit = function(e) {
+                        var checked = document.querySelector('#roomCardsModal input[name="room_id"]:checked');
+                        if (!checked) {
+                            e.preventDefault();
+                            alert('Please select a room.');
+                        }
+                    };
+                }
+            });
+        }
+        var showAssignFormBtn = document.getElementById('showAssignFormBtn');
+        var assignRoomCard = document.getElementById('assignRoomCard');
+        if (showAssignFormBtn && assignRoomCard) {
+            showAssignFormBtn.addEventListener('click', function() {
+                assignRoomCard.style.display = 'block';
+                showAssignFormBtn.style.display = 'none';
+            });
+        }
     });
     </script>
 </body>

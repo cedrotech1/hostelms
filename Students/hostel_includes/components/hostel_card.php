@@ -223,14 +223,14 @@ function displayHostelCard($hostel, $connection) {
     
     // If there are any reasons, display them
     if (!empty($reasons)) {
-        echo '<div class="alert alert-info mb-3">';
-        echo '<h6 class="alert-heading">' . htmlspecialchars($hostel['name']) . ' is not available because:</h6>';
-        echo '<ul class="mb-0">';
+        // echo '<div class="alert alert-info mb-3">';
+        // echo '<h6 class="alert-heading">' . htmlspecialchars($hostel['name']) . ' is not available because:</h6>';
+        // echo '<ul class="mb-0">';
         foreach ($reasons as $reason) {
-            echo '<li>' . htmlspecialchars($reason) . '</li>';
+            // echo '<li>' . htmlspecialchars($reason) . '</li>';
         }
-        echo '</ul>';
-        echo '</div>';
+        // echo '</ul>';
+        // echo '</div>';
         return;
     }
     
