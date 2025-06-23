@@ -600,7 +600,7 @@ function getHostelEligibilityMatchReasons($hostel, $student) {
                         }
                         let html = '';
                         if (data.length > 0) {
-                            html += `<div class=\"table-responsive\"><table class=\"table table-sm table-bordered align-middle mb-0\">`;
+                            html += `<div class=\"table-responsive\"><table class=\"table table-sm  align-middle mb-0\">`;
                             html += `<thead class=\"table-light\"><tr><th></th><th>Room Code</th><th>Status</th><th>Beds</th><th>Available</th></tr></thead><tbody>`;
                             data.forEach(function(room) {
                                 html += `<tr>` +
@@ -680,7 +680,7 @@ function getHostelEligibilityMatchReasons($hostel, $student) {
                             return;
                         }
                         let html = '';
-                        html += `<div class=\"table-responsive\"><table class=\"table table-sm table-bordered align-middle mb-0\">`;
+                        html += `<div class=\"table-responsive\"><table class=\"table table-sm  align-middle mb-0\">`;
                         html += `<thead class=\"table-light\"><tr><th></th><th>Room Code</th><th>Status</th><th>Beds</th><th>Available</th></tr></thead><tbody>`;
                         data.forEach(function(room) {
                             html += `<tr>` +

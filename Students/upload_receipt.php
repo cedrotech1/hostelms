@@ -12,6 +12,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['application_id']) && 
     $application_id = (int)$_POST['application_id'];
     $student_regnumber = $_SESSION['student_regnumber'];
     
+    // Get receipt number and date of payment from form
+    $receipt_number = trim($_POST['receipt_number'] ?? '');
+    $date_of_payment = trim($_POST['date_of_payment'] ?? '');
+    
+    // Validate required fields
+    if (empty($receipt_number)) {
+        $_SESSION['error_message'] = "Receipt number is required.";
+        header("Location: index.php");
+        exit();
+    }
+    
+    if (empty($date_of_payment)) {
+        $_SESSION['error_message'] = "Date of payment is required.";
+        header("Location: index.php");
+        exit();
+    }
+    
     // Verify that this application belongs to the student
     $verify_query = "SELECT * FROM applications WHERE id = ? AND regnumber = ?";
     $verify_stmt = $connection->prepare($verify_query);
@@ -54,15 +71,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['application_id']) && 
     $filepath = $upload_dir . $filename;
     
     if (move_uploaded_file($file['tmp_name'], $filepath)) {
-        // Update application with receipt information
+        // Update application with receipt information including new fields
         $current_time = date('Y-m-d H:i:s');
         $update_query = "UPDATE applications SET 
                         slep = ?,
+                        ReceptNumber = ?,
+                        Date_of_payment = ?,
                         status = 'paid',
                         updated_at = '$current_time'
                         WHERE id = ?";
         $update_stmt = $connection->prepare($update_query);
-        $update_stmt->bind_param("si", $filename, $application_id);
+        $update_stmt->bind_param("sssi", $filename, $receipt_number, $date_of_payment, $application_id);
         
         if ($update_stmt->execute()) {
             $_SESSION['success_message'] = "Receipt uploaded successfully. Your application is now pending payment verification.";

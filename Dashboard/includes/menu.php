@@ -118,11 +118,7 @@
                 </a>
                 <ul id="icons-nav10" class="nav-content collapse" data-bs-parent="#sidebar-nav">
 
-                    <li>
-                        <a class="nav-link collapsed" href="users-profile.php">
-                            <i class="bi bi-person-circle"></i><span>Profile</span>
-                        </a>
-                    </li>
+               
                
                     <li>
                         <a class="nav-link collapsed" href="system.php">
@@ -130,11 +126,7 @@
                         </a>
                     </li>
 
-                    <li>
-                        <a class="nav-link collapsed" href="download.php">
-                            <i class="bi bi-download"></i><span>backup data file</span>
-                        </a>
-                    </li>
+                 
                 </ul>
             </li>
             <!-- normal one menu -->

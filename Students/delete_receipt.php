@@ -34,6 +34,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['application_id'])) {
     // Update application to remove receipt
     $update_query = "UPDATE applications SET 
                     slep = NULL,
+                    ReceptNumber = NULL,
+                    Date_of_payment = NULL,
                     status = 'pending'
                     WHERE id = ?";
     $update_stmt = $connection->prepare($update_query);

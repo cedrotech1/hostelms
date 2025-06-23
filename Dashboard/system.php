@@ -1,8 +1,8 @@
 <?php
-session_start();
+// session_start();
 include('connection.php');
-// include ('./includes/auth.php');
-// checkUserRole(['information_modifier']);
+include ('./includes/auth.php');
+checkUserRole(['information_modifier']);
 
 
 
@@ -74,8 +74,8 @@ if (isset($_POST['update'])) {
 <body>
 
   <?php
-  // include("./includes/header.php");
-  // include("./includes/menu.php");
+  include("./includes/header.php");
+  include("./includes/menu.php");
   ?>
 
 

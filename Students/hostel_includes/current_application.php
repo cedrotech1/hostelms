@@ -177,6 +177,26 @@ if (!isset($current_application)) {
                                                 </form>
                                             </div>
                                         </div>
+                                        <?php if (!empty($current_application['ReceptNumber']) || !empty($current_application['Date_of_payment'])): ?>
+                                        <div class="row mt-3">
+                                            <?php if (!empty($current_application['ReceptNumber'])): ?>
+                                            <div class="col-md-6">
+                                                <label class="form-label text-muted">
+                                                    <i class="bi bi-receipt me-2"></i>Receipt Number
+                                                </label>
+                                                <p class="mb-0"><?php echo htmlspecialchars($current_application['ReceptNumber']); ?></p>
+                                            </div>
+                                            <?php endif; ?>
+                                            <?php if (!empty($current_application['Date_of_payment'])): ?>
+                                            <div class="col-md-6">
+                                                <label class="form-label text-muted">
+                                                    <i class="bi bi-calendar me-2"></i>Date of Payment
+                                                </label>
+                                                <p class="mb-0"><?php echo htmlspecialchars($current_application['Date_of_payment']); ?></p>
+                                            </div>
+                                            <?php endif; ?>
+                                        </div>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             </div>
@@ -184,9 +204,25 @@ if (!isset($current_application)) {
 
                         <form action="upload_receipt.php" method="POST" enctype="multipart/form-data" class="mt-3">
                             <input type="hidden" name="application_id" value="<?php echo $current_application['id']; ?>">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="receipt_number" class="form-label">
+                                        <i class="bi bi-receipt me-2"></i>Receipt Number
+                                    </label>
+                                    <input type="text" class="form-control" id="receipt_number" name="receipt_number" 
+                                           placeholder="Enter receipt number" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="date_of_payment" class="form-label">
+                                        <i class="bi bi-calendar me-2"></i>Date of Payment
+                                    </label>
+                                    <input type="date" class="form-control" id="date_of_payment" name="date_of_payment" 
+                                           required>
+                                </div>
+                            </div>
                             <div class="mb-3">
                                 <label for="receipt" class="form-label">
-                                    <i class="bi bi-upload me-2"></i>Upload New Receipt
+                                    <i class="bi bi-upload me-2"></i>Upload Receipt File
                                 </label>
                                 <input type="file" class="form-control" id="receipt" name="receipt" 
                                        accept="image/*,.pdf" required>

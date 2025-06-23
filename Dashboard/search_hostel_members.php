@@ -17,8 +17,14 @@ try {
     $query = "SELECT 
                 h.name AS hostel_name,
                 r.room_code,
-                i.names AS applicant_name,
-                i.regnumber
+                i.regnumber,
+                i.names,
+                i.campus,
+                i.college,
+                i.school,
+                i.yearofstudy,
+                i.phone,
+                i.gender
             FROM hostels h
             JOIN rooms r ON r.hostel_id = h.id
             LEFT JOIN applications a ON a.room_id = r.id
@@ -33,7 +39,7 @@ try {
         $rows = [];
         while ($row = $result->fetch_assoc()) {
             // Only show rows with an applicant
-            if ($row['applicant_name'] && $row['regnumber']) {
+            if ($row['names'] && $row['regnumber']) {
                 $rows[] = $row;
             }
         }
@@ -49,7 +55,9 @@ try {
         }
 
         $html = '<div class="table-responsive"><table class="table table-striped">';
-        $html .= '<thead><tr><th>Hostel</th><th>Room</th><th>Applicant Name</th><th>Reg Number</th></tr></thead><tbody>';
+        $html .= '<thead><tr>';
+        $html .= '<th>Reg Number</th><th>Name</th><th>Hostel</th><th>Room</th><th>Campus</th><th>College</th><th>School</th><th>Year of Study</th><th>Phone</th><th>Gender</th>';
+        $html .= '</tr></thead><tbody>';
 
         $data = [];
         foreach ($grouped as $key => $members) {
@@ -57,17 +65,29 @@ try {
             foreach ($members as $idx => $row) {
                 $html .= '<tr>';
                 if ($idx === 0) {
+                    $html .= '<td rowspan="' . $rowspan . '">' . htmlspecialchars($row['regnumber']) . '</td>';
+                    $html .= '<td rowspan="' . $rowspan . '">' . htmlspecialchars($row['names']) . '</td>';
                     $html .= '<td rowspan="' . $rowspan . '">' . htmlspecialchars($row['hostel_name']) . '</td>';
                     $html .= '<td rowspan="' . $rowspan . '">' . htmlspecialchars($row['room_code']) . '</td>';
+                    $html .= '<td rowspan="' . $rowspan . '">' . htmlspecialchars($row['campus']) . '</td>';
+                    $html .= '<td rowspan="' . $rowspan . '">' . htmlspecialchars($row['college']) . '</td>';
+                    $html .= '<td rowspan="' . $rowspan . '">' . htmlspecialchars($row['school']) . '</td>';
+                    $html .= '<td rowspan="' . $rowspan . '">' . htmlspecialchars($row['yearofstudy']) . '</td>';
+                    $html .= '<td rowspan="' . $rowspan . '">' . htmlspecialchars($row['phone']) . '</td>';
+                    $html .= '<td rowspan="' . $rowspan . '">' . htmlspecialchars($row['gender']) . '</td>';
                 }
-                $html .= '<td>' . htmlspecialchars($row['applicant_name']) . '</td>';
-                $html .= '<td>' . htmlspecialchars($row['regnumber']) . '</td>';
                 $html .= '</tr>';
                 $data[] = [
+                    'regnumber' => $row['regnumber'],
+                    'names' => $row['names'],
                     'hostel_name' => $row['hostel_name'],
                     'room_code' => $row['room_code'],
-                    'applicant_name' => $row['applicant_name'],
-                    'regnumber' => $row['regnumber']
+                    'campus' => $row['campus'],
+                    'college' => $row['college'],
+                    'school' => $row['school'],
+                    'yearofstudy' => $row['yearofstudy'],
+                    'phone' => $row['phone'],
+                    'gender' => $row['gender']
                 ];
             }
         }

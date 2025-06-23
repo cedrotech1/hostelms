@@ -512,7 +512,7 @@ include("./includes/menu.php");
       'Civil Engineering', 'Education', 'Veterinary Science',
       'Accounting', 'Medicine', 'Journalism'
     ];
-    const genders = ['Male', 'Female'];
+    const genders = ['M', 'F'];
     const intakes = ['May-2022', 'Dec-2022', 'May-2023', 'Dec-2023'];
     const collegeSchoolMap = {
       CASS: ['School of Journalism', 'School of Law', 'School of Social Sciences'],
@@ -551,7 +551,7 @@ include("./includes/menu.php");
       const yearofstudy = ((i % 6) + 1).toString();
       const sirname = firstNames[i % firstNames.length];
       const lastname = lastNames[i % lastNames.length];
-      const email = `${sirname.toLowerCase()}.${lastname.toLowerCase()}${i + 1}@example.com`;
+      const email = `${sirname.toLowerCase()}.${lastname.toLowerCase()}${i + 1}@gmail.com`;
       const gender = genders[i % genders.length];
       const nid = generateNID(i);
       const phone = generatePhone(i);

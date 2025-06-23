@@ -144,7 +144,7 @@ include 'connection.php';
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" id="hostel-members-tab" data-bs-toggle="tab" href="#hostel-members" role="tab">
-                                Hostel Members
+                                Hostel Occupants
                             </a>
                         </li>
                     </ul>
@@ -172,7 +172,7 @@ include 'connection.php';
                                             <div class="form-group">
                                                 <label for="studentCampus">Campus</label>
                                                 <select class="form-control" id="studentCampus" name="studentCampus">
-                                                   
+                                              
                                                     <?php
                                                     $ok1 = mysqli_query($connection, "select * from campuses where id=$campus");
                                                     while ($row = mysqli_fetch_array($ok1)) {
@@ -364,7 +364,7 @@ include 'connection.php';
                                             <div class="form-group">
                                                 <label for="membersCampus">Campus</label>
                                                 <select class="form-control" id="studentCampus" name="studentCampus">
-                                                   
+                                                <!-- <option value="">All Hostels</option> -->
                                                     <?php
                                                     $ok1 = mysqli_query($connection, "select * from campuses where id=$campus");
                                                     while ($row = mysqli_fetch_array($ok1)) {
@@ -381,7 +381,7 @@ include 'connection.php';
                                             <div class="form-group">
                                                 <label for="membersHostel">Hostel</label>
                                                 <select class="form-control" id="membersHostel" name="hostel">
-                                                    <!-- <option value="">All Hostels</option> -->
+                                                    <option value="">All Hostels</option>
                                                     <?php
                                                     $query = "SELECT DISTINCT name FROM hostels WHERE campus_id = '$campus' ORDER BY name";
                                                     $result = $connection->query($query);
@@ -533,8 +533,8 @@ include 'connection.php';
                     filename = 'room_search_results.xlsx';
                     break;
                 case 'hostelMembers':
-                    keys = ['hostel_name', 'room_code', 'applicant_name', 'regnumber'];
-                    headers = ['Hostel', 'Room', 'Applicant Name', 'Reg Number'];
+                    keys = ['hostel_name', 'room_code', 'id', 'regnumber', 'campus', 'college', 'applicant_name', 'school', 'program', 'intake', 'disability', 'yearofstudy', 'email', 'gender', 'nid', 'phone', 'token', 'student_status', 'code'];
+                    headers = ['Hostel', 'Room', 'ID', 'Reg Number', 'Campus', 'College', 'Name', 'School', 'Program', 'Intake', 'Disability', 'Year', 'Email', 'Gender', 'NID', 'Phone', 'Token', 'Status', 'Code'];
                     filename = 'hostel_members_results.xlsx';
                     break;
             }
@@ -594,4 +594,4 @@ include 'connection.php';
 </script>
 
 </body>
-</html> 
+</html>     
