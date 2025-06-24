@@ -1,6 +1,7 @@
 <?php
 include('connection.php');
 
+
 // Set timezone
 date_default_timezone_set('Africa/Kigali'); // Set to Rwanda timezone
 
@@ -122,13 +123,14 @@ $query = "SELECT
             i.school,
             i.program,
             r.room_code,
-            h.name as hostel_name
+            h.name as hostel_name,
+            h.campus_id as campus_id
           FROM applications a
           JOIN info i ON i.regnumber = a.regnumber
           JOIN rooms r ON r.id = a.room_id
           JOIN hostels h ON h.id = r.hostel_id
           JOIN campuses c ON c.id = h.campus_id
-          WHERE 1=1 $search_condition $status_condition $campus_condition
+          WHERE 1=1 $search_condition $status_condition $campus_condition and h.campus_id='$mycampus'
           ORDER BY $sort_column $sort_order
           LIMIT $offset, $per_page";
 
