@@ -34,10 +34,21 @@ $query = "SELECT
 $result = mysqli_query($connection, $query);
 $application = mysqli_fetch_assoc($result);
 
+// Fetch time limit from system table (in minutes)
+$timeLimitMinutes = 48 * 60; // fallback default
+$systemResult = mysqli_query($connection, "SELECT time FROM system LIMIT 1");
+if ($systemResult && $systemRow = mysqli_fetch_assoc($systemResult)) {
+    $timeLimitMinutes = (int)$systemRow['time'];
+}
+
 // Calculate remaining time for pending applications
-$remaining_hours = 48; // 2 days in hours
 if ($application && $application['status'] == 'pending') {
-    $remaining_hours = max(0, 48 - $application['hours_pending']);
+    $createdAt = strtotime($application['created_at']);
+    $now = time();
+    $elapsedMinutes = floor(($now - $createdAt) / 60);
+    $remainingMinutes = max(0, $timeLimitMinutes - $elapsedMinutes);
+} else {
+    $remainingMinutes = 0;
 }
 ?>
 
@@ -351,8 +362,16 @@ if ($application && $application['status'] == 'pending') {
                                                 <i class="bi bi-exclamation-triangle-fill me-2"></i>
                                                 <strong>Application Auto-Rejected</strong>
                                                 <p class="mb-0 mt-2">Your application has been automatically rejected by the
-                                                    system due to delay in uploading receipt, exceeding the 48 hours (two days)
-                                                    limit. You can apply again.</p>
+                                                    system due to delay in uploading receipt, exceeding the <?php
+                                                        $days = floor($timeLimitMinutes / 1440);
+                                                        $hours = floor(($timeLimitMinutes % 1440) / 60);
+                                                        $minutes = $timeLimitMinutes % 60;
+                                                        $parts = [];
+                                                        if ($days > 0) $parts[] = "$days day" . ($days > 1 ? 's' : '');
+                                                        if ($hours > 0) $parts[] = "$hours hour" . ($hours > 1 ? 's' : '');
+                                                        if ($minutes > 0) $parts[] = "$minutes minute" . ($minutes > 1 ? 's' : '');
+                                                        echo implode(', ', $parts);
+                                                    ?> limit. You can apply again.</p>
                                             </div>
                                         <?php else: ?>
                                             <p class="mb-4">You haven't submitted any application yet.</p>
@@ -489,7 +508,7 @@ if ($application && $application['status'] == 'pending') {
                                                                     <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
                                                                     <div>
                                                                         <h5 class="mb-2">Important Notice</h5>
-                                                                        <p class="mb-1">Your application will be automatically deleted if you don't upload a valid payment receipt within 48 hours.</p>
+                                                                        <p class="mb-1">Your application will be automatically deleted if you don't upload a valid payment receipt within <span id="dynamic-limit"></span>.</p>
                                                                         <p class="mb-0">Uploading fake or invalid receipts will result in immediate application deletion.</p>
                                                                     </div>
                                                                 </div>
@@ -516,24 +535,46 @@ if ($application && $application['status'] == 'pending') {
                                                 document.querySelector('.second-hand').style.transform = `rotate(${secondDeg}deg)`;
                                             }
 
-                                            // Update clock every second
                                             setInterval(updateClock, 1000);
-                                            updateClock(); // Initial call
+                                            updateClock();
 
-                                            // Update progress bar
-                                            function updateProgress() {
+                                            // Update progress bar and countdown
+                                            function updateProgressAndCountdown() {
                                                 const createdAt = new Date('<?php echo $application['created_at']; ?>');
-                                                const endTime = new Date(createdAt.getTime() + (48 * 60 * 60 * 1000));
+                                                const timeLimitMs = <?php echo $timeLimitMinutes; ?> * 60 * 1000;
+                                                const endTime = new Date(createdAt.getTime() + timeLimitMs);
                                                 const now = new Date();
                                                 const total = endTime - createdAt;
                                                 const elapsed = now - createdAt;
                                                 const progress = Math.max(0, Math.min(100, (elapsed / total) * 100));
-                                                
                                                 document.getElementById('time-progress').style.width = `${100 - progress}%`;
-                                            }
 
-                                            setInterval(updateProgress, 1000);
-                                            updateProgress(); // Initial call
+                                                // Countdown
+                                                let timeLeft = endTime - now;
+                                                if (timeLeft <= 0) {
+                                                    document.getElementById('countdown-timer').innerHTML = "00:00:00";
+                                                    document.getElementById('readable-timer').innerHTML = "Time's up!";
+                                                    document.getElementById('dynamic-limit').innerHTML = "0 minutes";
+                                                    return;
+                                                }
+                                                let totalSeconds = Math.floor(timeLeft / 1000);
+                                                let days = Math.floor(totalSeconds / 86400);
+                                                let hours = Math.floor((totalSeconds % 86400) / 3600);
+                                                let minutes = Math.floor((totalSeconds % 3600) / 60);
+                                                let seconds = totalSeconds % 60;
+                                                // Digital format
+                                                document.getElementById('countdown-timer').innerHTML =
+                                                    `${days > 0 ? days.toString().padStart(2, '0') + ':' : ''}${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                                                // Readable format
+                                                let timeString = '';
+                                                if (days > 0) timeString += days + ' day' + (days !== 1 ? 's' : '');
+                                                if (hours > 0) timeString += (timeString ? ', ' : '') + hours + ' hour' + (hours !== 1 ? 's' : '');
+                                                if (minutes > 0) timeString += (timeString ? ', ' : '') + minutes + ' minute' + (minutes !== 1 ? 's' : '');
+                                                document.getElementById('readable-timer').innerHTML = `You have ${timeString} remaining`;
+                                                document.getElementById('dynamic-limit').innerHTML = timeString;
+                                            }
+                                            setInterval(updateProgressAndCountdown, 1000);
+                                            updateProgressAndCountdown();
                                         </script>
                                     <?php endif; ?>
 
@@ -586,42 +627,37 @@ if ($application && $application['status'] == 'pending') {
             function updateCountdown() {
                 // Get the creation time from PHP
                 const createdAt = new Date('<?php echo $application['created_at']; ?>');
-                const endTime = new Date(createdAt.getTime() + (48 * 60 * 60 * 1000)); // 48 hours from creation
+                const timeLimitMs = <?php echo $timeLimitMinutes; ?> * 60 * 1000;
+                const endTime = new Date(createdAt.getTime() + timeLimitMs);
+                const now = new Date();
+                const timeLeft = endTime - now;
 
-                function update() {
-                    const currentTime = new Date();
-                    const timeLeft = endTime - currentTime;
-
-                    if (timeLeft <= 0) {
-                        document.getElementById('countdown-timer').innerHTML = "00:00:00";
-                        document.getElementById('readable-timer').innerHTML = "Time's up!";
-                        return;
-                    }
-
-                    const hours = Math.floor(timeLeft / (1000 * 60 * 60));
-                    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-                    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-
-                    // Digital format
-                    document.getElementById('countdown-timer').innerHTML =
-                        `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-
-                    // Readable format (without seconds)
-                    let timeString = '';
-                    if (hours > 0) {
-                        timeString += hours + ' hour' + (hours !== 1 ? 's' : '');
-                    }
-                    if (minutes > 0) {
-                        if (timeString) timeString += ' and ';
-                        timeString += minutes + ' minute' + (minutes !== 1 ? 's' : '');
-                    }
-
-                    document.getElementById('readable-timer').innerHTML =
-                        `You have ${timeString} remaining`;
+                if (timeLeft <= 0) {
+                    document.getElementById('countdown-timer').innerHTML = "00:00:00";
+                    document.getElementById('readable-timer').innerHTML = "Time's up!";
+                    return;
                 }
 
-                update();
-                setInterval(update, 1000);
+                const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+                const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+                // Digital format
+                document.getElementById('countdown-timer').innerHTML =
+                    `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                // Readable format (without seconds)
+                let timeString = '';
+                if (hours > 0) {
+                    timeString += hours + ' hour' + (hours !== 1 ? 's' : '');
+                }
+                if (minutes > 0) {
+                    if (timeString) timeString += ' and ';
+                    timeString += minutes + ' minute' + (minutes !== 1 ? 's' : '');
+                }
+
+                document.getElementById('readable-timer').innerHTML =
+                    `You have ${timeString} remaining`;
             }
 
             updateCountdown();

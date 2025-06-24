@@ -2,18 +2,6 @@
 // Set error reporting
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-$timeLimit=1;
-// Set up logging
-$log_file = __DIR__ . '/cron_log.txt';
-function writeLog($message) {
-    global $log_file;
-    $timestamp = date('Y-m-d H:i:s');
-    $log_message = "[$timestamp] $message\n";
-    file_put_contents($log_file, $log_message, FILE_APPEND);
-}
-
-writeLog("Script started");
-writeLog("Time limit set to: " . $timeLimit . " minutes");
 
 // Check if connection file exists
 $connection_file = __DIR__ . '/../connection.php';
@@ -23,7 +11,15 @@ if (!file_exists($connection_file)) {
 }
 
 include($connection_file);
-writeLog("Connection file loaded successfully");
+
+// Set up logging
+$log_file = __DIR__ . '/cron_log.txt';
+function writeLog($message) {
+    global $log_file;
+    $timestamp = date('Y-m-d H:i:s');
+    $log_message = "[$timestamp] $message\n";
+    file_put_contents($log_file, $log_message, FILE_APPEND);
+}
 
 // Check database connection
 if (!$connection) {
@@ -31,7 +27,17 @@ if (!$connection) {
     die("Database connection failed");
 }
 
-writeLog("Database connection successful");
+// Fetch time limit from system table
+$result = $connection->query("SELECT time FROM system LIMIT 1");
+if ($result && $row = $result->fetch_assoc()) {
+    $timeLimit = (int)$row['time'];
+} else {
+    writeLog("ERROR: Failed to fetch time limit from system table");
+    die("Failed to fetch time limit from system table");
+}
+
+writeLog("Script started");
+writeLog("Time limit set to: " . $timeLimit . " minutes");
 
 // Function to send SMS using Pindo API
 function sendSMS($phone, $message) {
@@ -102,11 +108,11 @@ try {
                 
                 // Update student info to set current_application as rejected
                 $update_info = "UPDATE info SET current_application = 'auto-rejected' WHERE regnumber = '{$application['regnumber']}'";
-                // writeLog("Executing query: " . $update_info);
+                writeLog("Executing query: " . $update_info);
                 if (!mysqli_query($connection, $update_info)) {
                     throw new Exception("Failed to update student info: " . mysqli_error($connection));
                 }
-                // writeLog("Updated student info for {$application['regnumber']}");
+                writeLog("Updated student info for {$application['regnumber']}");
                 
                 // Increment room remain
                 $update_room = "UPDATE rooms SET remain = remain + 1 WHERE id = {$application['room_id']}";
@@ -114,28 +120,28 @@ try {
                 if (!mysqli_query($connection, $update_room)) {
                     throw new Exception("Failed to update room remain: " . mysqli_error($connection));
                 }
-                // writeLog("Updated room remain for room ID: {$application['room_id']}");
+                writeLog("Updated room remain for room ID: {$application['room_id']}");
                 
                 // Delete the application
                 $delete_app = "DELETE FROM applications WHERE id = {$application['id']}";
-                // writeLog("Executing query: " . $delete_app);
+                writeLog("Executing query: " . $delete_app);
                 if (!mysqli_query($connection, $delete_app)) {
                     throw new Exception("Failed to delete application: " . mysqli_error($connection));
                 }
-                // writeLog("Deleted application ID: {$application['id']}");
+                writeLog("Deleted application ID: {$application['id']}");
                 
                 // Commit transaction
                 mysqli_commit($connection);
-                // writeLog("Successfully processed application ID: {$application['id']}");
+                writeLog("Successfully processed application ID: {$application['id']}");
                 
             } catch (Exception $e) {
                 // Rollback transaction on error
                 mysqli_rollback($connection);
-                // writeLog("Error processing application {$application['id']}: " . $e->getMessage());
+                writeLog("Error processing application {$application['id']}: " . $e->getMessage());
             }
         }
     } else {
-        // writeLog("No applications found that are older than $timeLimit minutes");
+        writeLog("No applications found that are older than $timeLimit minutes");
     }
 } catch (Exception $e) {
     writeLog("Fatal error: " . $e->getMessage());

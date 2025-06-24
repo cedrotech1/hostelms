@@ -276,182 +276,90 @@ ORDER BY c.name, h.name;
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .stat-card {
-            transition: transform 0.2s;
-            border: none;
+            background: #fff;
             border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .stat-icon {
-            font-size: 2.5rem;
-            margin-bottom: 15px;
-            opacity: 0.8;
-        }
-
-        .stat-value {
-            font-size: 2rem;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .stat-label {
-            font-size: 1rem;
-            opacity: 0.8;
-        }
-
-        .chart-container {
-            position: relative;
-            height: 300px;
-            margin-bottom: 20px;
-        }
-
-        .nav-tabs .nav-link {
-            color: #495057;
-        }
-
-        .nav-tabs .nav-link.active {
-            font-weight: bold;
-            color: #0d6efd;
-        }
-
-        .occupancy-rate {
-            font-weight: bold;
-        }
-
-        .occupancy-rate.high {
-            color: #dc3545;
-        }
-
-        .occupancy-rate.medium {
-            color: #ffc107;
-        }
-
-        .occupancy-rate.low {
-            color: #28a745;
-        }
-
-        .table th {
-            background-color: #f8f9fa;
-        }
-
-        .trend-indicator {
-            font-size: 0.8rem;
-            margin-left: 5px;
-        }
-
-        .trend-up {
-            color: #dc3545;
-        }
-
-        .trend-down {
-            color: #28a745;
-        }
-
-        .search-box {
-            position: relative;
-            margin-bottom: 20px;
-        }
-
-        .search-box input {
-            padding-right: 40px;
-        }
-
-        .search-box i {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #6c757d;
-        }
-
-        .insight-card {
-            border-left: 4px solid #0d6efd;
-            margin-bottom: 15px;
-        }
-
-        .insight-card.warning {
-            border-left-color: #ffc107;
-        }
-
-        .insight-card.danger {
-            border-left-color: #dc3545;
-        }
-
-        .insight-card.success {
-            border-left-color: #28a745;
-        }
-
-        /* Skeleton Loading Styles */
-        .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-            border-radius: 4px;
-        }
-
-        @keyframes loading {
-            0% {
-                background-position: 200% 0;
-            }
-            100% {
-                background-position: -200% 0;
-            }
-        }
-
-        .skeleton-card {
+            padding: 12px 10px 10px 10px;
+            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            transition: all 0.2s;
             height: 100%;
-            padding: 20px;
-            border-radius: 10px;
-            background: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            min-width: 0;
         }
-
-        .skeleton-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            margin-bottom: 15px;
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
         }
-
-        .skeleton-text {
-            height: 20px;
-            margin-bottom: 10px;
+        .stat-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 2px;
         }
-
-        .skeleton-text.small {
-            width: 60%;
+        .stat-icon {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            margin-bottom: 0;
+            flex-shrink: 0;
         }
-
-        .skeleton-chart {
-            height: 300px;
-            margin-bottom: 20px;
+        .stat-value {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0;
+            line-height: 1.1;
         }
-
-        .skeleton-table {
-            height: 400px;
+        .stat-label {
+            color: #64748b;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 2px;
+            margin-top: 2px;
         }
-
-        .skeleton-row {
-            height: 40px;
-            margin-bottom: 10px;
+        .stat-progress {
+            height: 4px;
+            background: #f1f5f9;
+            border-radius: 2px;
+            margin-top: 6px;
+            overflow: hidden;
         }
-
-        #loadingSkeleton {
-            display: none;
+        .stat-progress-bar {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.3s;
         }
-
-        .loading #loadingSkeleton {
-            display: block;
+        .stat-footer {
+            margin-top: 6px;
+            font-size: 0.75rem;
+            color: #64748b;
         }
-
-        .loading #mainContent {
-            display: none;
+        .stat-footer strong {
+            color: #2c3e50;
         }
+        /* Card-specific colors */
+        .stat-campuses .stat-icon { background: rgba(59, 130, 246, 0.08); color: #3b82f6; }
+        .stat-hostels .stat-icon { background: rgba(16, 185, 129, 0.08); color: #10b981; }
+        .stat-applications .stat-icon { background: rgba(245, 158, 11, 0.08); color: #f59e0b; }
+        .stat-beds .stat-icon { background: rgba(239, 68, 68, 0.08); color: #ef4444; }
+        .stat-applications .stat-progress-bar { background: #f59e0b; }
+        .stat-beds .stat-progress-bar { background: #ef4444; }
+        /* Remove ALL extra space above dashboard heading */
+        .section.dashboard, .section.dashboard > .row, .container-fluid.py-4, .container-fluid, .row, main.main {
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+        }
+        .d-flex.justify-content-between.align-items-center.mb-4 {
+            margin-top: 0 !important;
+        }
+        h2 {
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+        }
+        #loadingSkeleton { display: none !important; height: 0 !important; overflow: hidden !important; }
     </style>
 </head>
 
@@ -521,65 +429,60 @@ ORDER BY c.name, h.name;
                             </button>
                         </div>
 
-                        <!-- Overall Statistics Cards -->
-                        <div class="row mb-4 g-4">
+                        <!-- Overall Statistics Cards (Compact) -->
+                        <div class="row mb-3 g-2">
                             <!-- Total Campuses -->
-                            <div class="col-md-3">
-                                <div class="card shadow-sm border-0 h-100 bg-primary text-white rounded-4">
-                                    <div class="card-body text-center py-4">
-                                        <div class="mb-3">
-                                            <i class="fas fa-building fa-2x"></i>
-                                        </div>
-                                        <h4 class="mb-1 fw-bold">
-                                            <?php echo number_format($stats['overall']['total_campuses']); ?></h4>
-                                        <p class="mb-0 text-uppercase small">Total Campuses</p>
+                            <div class="col-6 col-md-3">
+                                <div class="stat-card stat-campuses">
+                                    <div class="stat-row">
+                                        <span class="stat-icon"><i class="bi bi-building"></i></span>
+                                        <span class="stat-value"><?php echo number_format($stats['overall']['total_campuses']); ?></span>
                                     </div>
+                                    <div class="stat-label">Total Campuses</div>
                                 </div>
                             </div>
 
                             <!-- Total Hostels -->
-                            <div class="col-md-3">
-                                <div class="card shadow-sm border-0 h-100 bg-success text-white rounded-4">
-                                    <div class="card-body text-center py-4">
-                                        <div class="mb-3">
-                                            <i class="fas fa-home fa-2x"></i>
-                                        </div>
-                                        <h4 class="mb-1 fw-bold">
-                                            <?php echo number_format($stats['overall']['total_hostels']); ?></h4>
-                                        <p class="mb-0 text-uppercase small">Total Hostels</p>
+                            <div class="col-6 col-md-3">
+                                <div class="stat-card stat-hostels">
+                                    <div class="stat-row">
+                                        <span class="stat-icon"><i class="bi bi-house-door"></i></span>
+                                        <span class="stat-value"><?php echo number_format($stats['overall']['total_hostels']); ?></span>
                                     </div>
+                                    <div class="stat-label">Total Hostels</div>
                                 </div>
                             </div>
 
                             <!-- Total Applications -->
-                            <div class="col-md-3">
-                                <div class="card shadow-sm border-0 h-100 bg-info text-white rounded-4">
-                                    <div class="card-body text-center py-4">
-                                        <div class="mb-3">
-                                            <i class="fas fa-file-alt fa-2x"></i>
-                                        </div>
-                                        <h4 class="mb-1 fw-bold">
-                                            <?php echo number_format($stats['overall']['total_applications']); ?>
-                                        </h4>
-                                        <p class="mb-0 text-uppercase small">Total Applications</p>
-                                        <small class="d-block mt-1">Pending:
-                                            <?php echo number_format($stats['overall']['pending_applications']); ?></small>
+                            <div class="col-6 col-md-3">
+                                <div class="stat-card stat-applications">
+                                    <div class="stat-row">
+                                        <span class="stat-icon"><i class="bi bi-file-earmark-text"></i></span>
+                                        <span class="stat-value"><?php echo number_format($stats['overall']['total_applications']); ?></span>
+                                    </div>
+                                    <div class="stat-label">Total Applications</div>
+                                    <div class="stat-progress">
+                                        <div class="stat-progress-bar" style="width: <?php echo $stats['overall']['total_applications'] > 0 ? round(($stats['overall']['pending_applications'] / $stats['overall']['total_applications']) * 100) : 0; ?>%;"></div>
+                                    </div>
+                                    <div class="stat-footer">
+                                        <strong><?php echo number_format($stats['overall']['pending_applications']); ?></strong> pending
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Available Beds -->
-                            <div class="col-md-3">
-                                <div class="card shadow-sm border-0 h-100 bg-warning text-white rounded-4">
-                                    <div class="card-body text-center py-4">
-                                        <div class="mb-3">
-                                            <i class="fas fa-bed fa-2x"></i>
-                                        </div>
-                                        <h4 class="mb-1 fw-bold">
-                                            <?php echo number_format($stats['overall']['available_beds']); ?></h4>
-                                        <p class="mb-0 text-uppercase small">Available Beds</p>
-                                        <small class="d-block mt-1">Total:
-                                            <?php echo number_format($stats['overall']['total_beds']); ?></small>
+                            <div class="col-6 col-md-3">
+                                <div class="stat-card stat-beds">
+                                    <div class="stat-row">
+                                        <span class="stat-icon"><i class="bi bi-hospital-bed"></i></span>
+                                        <span class="stat-value"><?php echo number_format($stats['overall']['available_beds']); ?></span>
+                                    </div>
+                                    <div class="stat-label">Available Beds</div>
+                                    <div class="stat-progress">
+                                        <div class="stat-progress-bar" style="width: <?php echo $stats['overall']['total_beds'] > 0 ? round(($stats['overall']['available_beds'] / $stats['overall']['total_beds']) * 100) : 0; ?>%;"></div>
+                                    </div>
+                                    <div class="stat-footer">
+                                        <span>of <strong><?php echo number_format($stats['overall']['total_beds']); ?></strong> total</span>
                                     </div>
                                 </div>
                             </div>

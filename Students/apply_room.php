@@ -141,8 +141,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['room_id']) && isset($
             }
         }
 
+        // Fetch time limit from system table (in minutes)
+        $timeLimitMinutes = 48 * 60; // fallback default
+        $systemResult = mysqli_query($connection, "SELECT time FROM system LIMIT 1");
+        if ($systemResult && $systemRow = mysqli_fetch_assoc($systemResult)) {
+            $timeLimitMinutes = (int)$systemRow['time'];
+        }
+        // Format time limit as days, hours, minutes
+        $days = floor($timeLimitMinutes / 1440);
+        $hours = floor(($timeLimitMinutes % 1440) / 60);
+        $minutes = $timeLimitMinutes % 60;
+        $parts = [];
+        if ($days > 0) $parts[] = "$days day" . ($days > 1 ? 's' : '');
+        if ($hours > 0) $parts[] = "$hours hour" . ($hours > 1 ? 's' : '');
+        if ($minutes > 0) $parts[] = "$minutes minute" . ($minutes > 1 ? 's' : '');
+        $timeLimitString = implode(', ', $parts);
+
         // Prepare message
-        $message = "Dear {$student_info['names']}, your hostel application for room {$room_details['room_code']} in {$room_details['hostel_name']} has been submitted successfully. Please upload your bank receipt within 48 hours, otherwise your application will be automatically rejected by system.";
+        $message = "Dear {$student_info['names']}, your hostel application for room {$room_details['room_code']} in {$room_details['hostel_name']} has been submitted successfully. Please upload your bank receipt within $timeLimitString, otherwise your application will be automatically rejected by system.";
 
         // Send SMS
         $sms_data = [
@@ -173,7 +189,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['room_id']) && isset($
             header('Content-Type: application/json');
             echo json_encode([
                 'success' => true, 
-                'message' => 'Your application has been submitted successfully! Please upload your bank receipt within 48 hours.',
+                'message' => 'Your application has been submitted successfully! Please upload your bank receipt within ' . $timeLimitString . '.',
                 'room_id' => $room_id,
                 'timestamp' => time()
             ]);
@@ -184,7 +200,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['room_id']) && isset($
                 "• Room Code: " . $room['room_code'] . "\n" .
                 "• Hostel: " . $room['hostel_name'] . "\n" .
                 "• Number of Beds: " . $room['number_of_beds'] . "\n" .
-                "Important: Please upload your bank receipt within 48 hours to complete your application.";
+                "Important: Please upload your bank receipt within $timeLimitString to complete your application.";
             header("Location: index.php");
         }
         exit();

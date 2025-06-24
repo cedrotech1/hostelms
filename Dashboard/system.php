@@ -4,29 +4,28 @@ include('connection.php');
 include ('./includes/auth.php');
 checkUserRole(['information_modifier']);
 
-
-
-
-
-
+// Fetch current status and time from the database
+$status = '';
+$time = 0;
+$result = $connection->query("SELECT status, time FROM system LIMIT 1");
+if ($result && $row = $result->fetch_assoc()) {
+    $status = $row['status'];
+    $time = (int)$row['time'];
+}
 
 if (isset($_POST['update'])) {
   // Retrieve form data and sanitize inputs   
   $status = $connection->real_escape_string($_POST['status']);
+  $time = (int)$_POST['time'];
 
-
-
-  // Check if the email already exists
-  $Query = "update system set status='$status'";
-
+  $Query = "UPDATE system SET status='$status', time='$time'";
   $resultx = $connection->query($Query);
 
-      if ($resultx) {
-        echo "<script>window.location.href='system.php'</script>";
-      } else {
-          echo "Error: " . $sql . "<br>" . $connection->error;
-
-}
+  if ($resultx) {
+    echo "<script>window.location.href='system.php'</script>";
+  } else {
+    echo "Error: " . $connection->error;
+  }
 }
 // $connection->close();
 ?>
@@ -131,15 +130,30 @@ if (isset($_POST['update'])) {
                           <div class="col-md-12">
                             <div class="form-floating">
                               <select class="form-control" id="floatingSchool" name="status" aria-label="Select status">
-                                 <option value="live">live</option>
-                                 <option value="mentainance">mentainance</option>
-                                   <option value="offline">offline</option>
-                                  <option value="live">closed</option>
-                                  <option value="development">development</option>
+                                 <option value="live" <?php if($status=='live') echo 'selected'; ?>>live</option>
+                                 <option value="mentainance" <?php if($status=='mentainance') echo 'selected'; ?>>mentainance</option>
+                                 <option value="offline" <?php if($status=='offline') echo 'selected'; ?>>offline</option>
+                                 <option value="closed" <?php if($status=='closed') echo 'selected'; ?>>closed</option>
+                                 <option value="development" <?php if($status=='development') echo 'selected'; ?>>development</option>
 
                            
                               </select>
                               <label for="floatingSchool">update system status</label>
+                            </div>
+                          </div>
+                          <br>
+                          <!-- TIME FIELD -->
+                          <div class="col-md-12">
+                            <div class="form-floating">
+                              <input type="number" class="form-control" id="timeInMinutes" name="time" placeholder="Time in minutes" value="<?php echo $time; ?>" min="0">
+                              <label for="timeInMinutes">Set Time (in minutes)</label>
+                            </div>
+                          </div>
+                          <br>
+                          <div class="col-md-12">
+                            <div class="form-floating">
+                              <input type="text" class="form-control" id="timeDisplay" placeholder="Time" value="" disabled>
+                              <label for="timeDisplay">Current Time (days, hours, minutes)</label>
                             </div>
                           </div>
                           <br>
@@ -200,6 +214,24 @@ if (isset($_POST['update'])) {
 
   <!-- Template Main JS File -->
   <script src="assets/js/main.js"></script>
+
+  <!-- Custom JS for time conversion -->
+  <script>
+  function convertMinutesToDHMS(minutes) {
+      const days = Math.floor(minutes / 1440);
+      const hours = Math.floor((minutes % 1440) / 60);
+      const mins = minutes % 60;
+      return `${days} day(s), ${hours} hour(s), ${mins} minute(s)`;
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+      const timeInMinutes = <?php echo $time; ?>;
+      document.getElementById('timeDisplay').value = convertMinutesToDHMS(timeInMinutes);
+      document.getElementById('timeInMinutes').addEventListener('input', function(e) {
+          const val = parseInt(e.target.value, 10) || 0;
+          document.getElementById('timeDisplay').value = convertMinutesToDHMS(val);
+      });
+  });
+  </script>
 
 </body>
 
