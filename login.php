@@ -735,10 +735,10 @@ $phpError = !empty($error) ? json_encode($error) : 'null';
                         <hr>
                         <div class="demo-account mb-3">
                             <h6><i class="fas fa-user"></i> Remera Welfare Account</h6>
-                            <p><strong>Email:</strong> akimana@gmail.com</p>
+                            <p><strong>Email:</strong> remera@gmail.com</p>
                             <p><strong>Password:</strong> 1234</p>
                             <button class="btn btn-sm btn-primary use-demo" 
-                                    data-email="akimana@gmail.com" data-pass="1234">
+                                    data-email="remera@gmail.com" data-pass="1234">
                                 <i class="fas fa-user"></i> Use This Account
                             </button>
                         </div>

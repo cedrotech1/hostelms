@@ -1,11 +1,39 @@
 <?php
+
 include('connection.php');
 include ('./includes/auth.php');
 // checkUserRole(['information_modifier']);
 // checkUserRole(['warefare']);
 
-$userID=$_SESSION['id'];
+
+$userID = $_SESSION['id'];
+
+$query = "SELECT campus FROM users WHERE id = ?";
+$stmt = $connection->prepare($query);
+$stmt->bind_param("i", $userID);
+$stmt->execute();
+$result = $stmt->get_result();
+
+$usercampus = '';
+if ($row = $result->fetch_assoc()) {
+    $usercampus = $row['campus'];
+}
+
+
 // Initialize variables
+
+// Fetch campus name from DB
+$query = "SELECT name FROM campuses WHERE id = ?";
+$stmt = $connection->prepare($query);
+$stmt->bind_param("i", $usercampus);
+$stmt->execute();
+$result = $stmt->get_result();
+
+// Fetch the campus name, fallback to ID if not found
+$campusName = $usercampus;
+if ($row = $result->fetch_assoc()) {
+    $campusName = $row['name'];
+}
 $regnumber = $fullnames = $studentemail = $campus = $college = $school = $program = "";
 $nid = $phone = "";
 $message = $messageType = "";
@@ -16,16 +44,16 @@ $studentRoomInfo = null;
 // Fetch student data by GET or POST
 if ((isset($_POST['search']) && $_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST['regnumber'])) || (isset($_GET['regnumber']) && !empty($_GET['regnumber']))) {
     $regnumber = isset($_POST['regnumber']) ? $_POST['regnumber'] : $_GET['regnumber'];
-    $sql = "SELECT * FROM info WHERE regnumber = ?";
+    $sql = "SELECT * FROM info WHERE regnumber = ? and campus=? ";
     $stmt = $connection->prepare($sql);
-    $stmt->bind_param("s", $regnumber);
+    $stmt->bind_param("ss", $regnumber,$campusName);
     $stmt->execute();
     $result = $stmt->get_result();
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
         $fullnames = $row['names'];
         $studentemail = $row['email'];
-        $campusName = $row['campus'];
+        $studentCampus = $row['campus'];
         $college = $row['college'];
         $school = $row['school'];
         $program = $row['program'];
@@ -73,7 +101,7 @@ FROM
 JOIN 
     rooms r ON r.hostel_id = h.id
 WHERE 
-    r.remain > 0 
+    r.remain > 0 and h.campus_id='$usercampus'
 GROUP BY 
     h.id, h.name, h.gender, h.year, h.college, h.school, h.intake, h.disability, h.status
 HAVING 
@@ -84,7 +112,7 @@ HAVING
             $hostels[] = $hostelRow;
         }
     } else {
-        $message = "No student found with this registration number.";
+        $message = "No student found with this registration number at your assigned campus";
         $messageType = "danger";
         $isViewing = false;
     }
@@ -109,7 +137,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update'])) {
     }
 }
 
-// Handle hostel application submission (assign new room)
+// Handle hostel application submission (assign new room)   
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['assign_hostel'])) {
     $regnumber = $_POST['regnumber1'];
     $room_id = $_POST['room_id'];
@@ -299,6 +327,15 @@ function getHostelEligibilityMatchReasons($hostel, $student) {
     return $matches;
 }
 
+// Collect debug info for JS console
+$debug_js = [];
+$debug_js[] = 'Session campus: ' . (isset($_SESSION['campus']) ? $_SESSION['campus'] : 'NOT SET');
+$debug_js[] = 'usercampus: ' . (isset($usercampus) ? $usercampus : 'NOT SET');
+$debug_js[] = 'campusName: ' . (isset($campusName) ? $campusName : 'NOT SET');
+if (isset($studentCampus)) $debug_js[] = 'studentCampus: ' . $studentCampus;
+if (isset($regnumber)) $debug_js[] = 'regnumber: ' . $regnumber;
+if (isset($sql)) $debug_js[] = 'Last SQL: ' . $sql;
+if (!empty($message)) $debug_js[] = 'Message: ' . $message;
 ?>
 
 
@@ -341,7 +378,7 @@ function getHostelEligibilityMatchReasons($hostel, $student) {
                 <!-- Search Card -->
                 <div class="col-lg-6 mb-4">
                     <div class="card p-3">
-                        <h5 class="card-title">Search Student</h5>
+                        <h5 class="card-title">Search Student from <?php echo htmlspecialchars($campusName); ?></h5>
                         <form method="POST" action="">
                             <div class="input-group">
                                 <span class="input-group-text">REG NUMBER</span>
@@ -366,7 +403,7 @@ function getHostelEligibilityMatchReasons($hostel, $student) {
                                 <li class="list-group-item"><strong>Email:</strong> <?php echo htmlspecialchars($studentemail); ?></li>
                                 <li class="list-group-item"><strong>Phone:</strong> <?php echo htmlspecialchars($phoneNumber); ?></li>
                                 <li class="list-group-item"><strong>National ID (NID):</strong> <?php echo htmlspecialchars($nid); ?></li>
-                                <li class="list-group-item"><strong>Campus:</strong> <?php echo htmlspecialchars($campusName); ?></li>
+                                <li class="list-group-item"><strong>Campus:</strong> <?php echo htmlspecialchars($studentCampus); ?></li>
                                 <li class="list-group-item"><strong>College:</strong> <?php echo htmlspecialchars($college); ?></li>
                                 <li class="list-group-item"><strong>School:</strong> <?php echo htmlspecialchars($school); ?></li>
                                 <li class="list-group-item"><strong>Program:</strong> <?php echo htmlspecialchars($program); ?></li>
@@ -723,6 +760,11 @@ function getHostelEligibilityMatchReasons($hostel, $student) {
         }
     });
     </script>
+    <script>
+<?php foreach ($debug_js as $dbg): ?>
+    console.log(<?php echo json_encode($dbg); ?>);
+<?php endforeach; ?>
+</script>
 </body>
 
 </html>

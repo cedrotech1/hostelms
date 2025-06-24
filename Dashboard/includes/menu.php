@@ -85,11 +85,11 @@
 
                   
 
-                    <li>
+                    <!-- <li>
                         <a class="nav-link collapsed" href="updateinfo.php">
                             <i class="bi bi-pencil-square"></i><span>Update Info</span>
                         </a>
-                    </li>
+                    </li> -->
 
                
 
@@ -101,11 +101,11 @@
                 </ul>
             </li>
             <!-- manage_hostels -->
-            <li class="nav-item">
+            <!-- <li class="nav-item">
                 <a class="nav-link collapsed" href="manage_hostels.php">
                     <i class="bi bi-building"></i><span>manage hostels</span>
                 </a>
-            </li>
+            </li> -->
 
 
             <!-- Manage Student Cards -->
