@@ -233,11 +233,16 @@ try {
         }
 
         // Validate and normalize gender
-        $gender = ($genderRaw === 'm' || $genderRaw === 'male') ? 'male' :
-                  (($genderRaw === 'f' || $genderRaw === 'female') ? 'female' : '');
-        
+        $genderMap = [
+            'm' => 'M', 'male' => 'M', 'man' => 'M', 'boy' => 'M', 'masculine' => 'M',
+            'f' => 'F', 'female' => 'F', 'woman' => 'F', 'girl' => 'F', 'feminine' => 'F'
+        ];
+        $gender = '';
+        if (isset($genderMap[$genderRaw])) {
+            $gender = $genderMap[$genderRaw];
+        }
         if (empty($gender)) {
-            $validationErrors[] = "Row $rowNumber: Invalid gender value '$genderRaw'";
+            $validationErrors[] = "Row $rowNumber: Invalid gender value '$genderRaw'. Allowed: M, F, male, female, man, woman, boy, girl, masculine, feminine (case-insensitive)";
             continue;
         }
 
@@ -325,8 +330,13 @@ try {
             error_log("Row 2 raw data: " . implode(', ', $row));
         }
 
-        // Normalize gender
-        $gender = ($genderRaw === 'm' || $genderRaw === 'male') ? 'male' : 'female';
+        // Normalize gender for insertion (always 'M' or 'F')
+        $gender = '';
+        if (isset($genderMap[$genderRaw])) {
+            $gender = $genderMap[$genderRaw];
+        } else {
+            $gender = 'F'; // fallback, but should never happen due to validation
+        }
         
         // Normalize phone
         if (isset($phone[0]) && $phone[0] !== '0') {

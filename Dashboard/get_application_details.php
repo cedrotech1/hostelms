@@ -18,7 +18,9 @@ if (isset($_GET['id'])) {
                 i.school,
                 i.program,
                 r.room_code,
-                h.name as hostel_name
+                h.name as hostel_name,
+                a.ReceptNumber,
+                a.Date_of_payment
               FROM applications a
               JOIN info i ON i.regnumber = a.regnumber
               JOIN rooms r ON r.id = a.room_id

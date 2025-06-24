@@ -102,11 +102,11 @@ try {
                 
                 // Update student info to set current_application as rejected
                 $update_info = "UPDATE info SET current_application = 'auto-rejected' WHERE regnumber = '{$application['regnumber']}'";
-                writeLog("Executing query: " . $update_info);
+                // writeLog("Executing query: " . $update_info);
                 if (!mysqli_query($connection, $update_info)) {
                     throw new Exception("Failed to update student info: " . mysqli_error($connection));
                 }
-                writeLog("Updated student info for {$application['regnumber']}");
+                // writeLog("Updated student info for {$application['regnumber']}");
                 
                 // Increment room remain
                 $update_room = "UPDATE rooms SET remain = remain + 1 WHERE id = {$application['room_id']}";
@@ -114,28 +114,28 @@ try {
                 if (!mysqli_query($connection, $update_room)) {
                     throw new Exception("Failed to update room remain: " . mysqli_error($connection));
                 }
-                writeLog("Updated room remain for room ID: {$application['room_id']}");
+                // writeLog("Updated room remain for room ID: {$application['room_id']}");
                 
                 // Delete the application
                 $delete_app = "DELETE FROM applications WHERE id = {$application['id']}";
-                writeLog("Executing query: " . $delete_app);
+                // writeLog("Executing query: " . $delete_app);
                 if (!mysqli_query($connection, $delete_app)) {
                     throw new Exception("Failed to delete application: " . mysqli_error($connection));
                 }
-                writeLog("Deleted application ID: {$application['id']}");
+                // writeLog("Deleted application ID: {$application['id']}");
                 
                 // Commit transaction
                 mysqli_commit($connection);
-                writeLog("Successfully processed application ID: {$application['id']}");
+                // writeLog("Successfully processed application ID: {$application['id']}");
                 
             } catch (Exception $e) {
                 // Rollback transaction on error
                 mysqli_rollback($connection);
-                writeLog("Error processing application {$application['id']}: " . $e->getMessage());
+                // writeLog("Error processing application {$application['id']}: " . $e->getMessage());
             }
         }
     } else {
-        writeLog("No applications found that are older than $timeLimit minutes");
+        // writeLog("No applications found that are older than $timeLimit minutes");
     }
 } catch (Exception $e) {
     writeLog("Fatal error: " . $e->getMessage());

@@ -19,11 +19,11 @@ if (!isset($_SESSION['id'])) {
         'data' => ['errors' => ['Authentication required']]
     ]);
     exit;
-}
+}   
 
 // Check user role
-$userId = $_SESSION['id'];
-$roleQuery = "SELECT role FROM users WHERE id = '$userId'";
+$session_id = $_SESSION['id'];
+$roleQuery = "SELECT role FROM users WHERE id = '$session_id'";
 $roleResult = $connection->query($roleQuery);
 
 if (!$roleResult || $roleResult->num_rows === 0) {
@@ -116,7 +116,7 @@ try {
     if ($userRole === 'warefare') {
         $campusQuery = "SELECT c.name FROM campuses c 
                        INNER JOIN users u ON u.campus = c.id 
-                       WHERE u.id = '$userId'";
+                       WHERE u.id = '$session_id'";
         $campusResult = $connection->query($campusQuery);
         
         if (!$campusResult || $campusResult->num_rows === 0) {
@@ -210,15 +210,15 @@ try {
     }
 
     // If we get here, all records are valid. Process them.
-    $processedRows = 0;
+    $processedHostels = 0;
+    $processedRooms = 0;
     $successMessages = [];
-    $sql = "INSERT INTO hostels (name, building_code, othernames, gender, year, campus_id, createdBy, updatedBy) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-    $stmt = $connection->prepare($sql);
+    $roomSuccessMessages = [];
+    $hostelMap = [];
 
+    // Group rows by unique hostel (campus, hostel name)
     foreach ($dataRows as $rowIndex => $row) {
         $rowNumber = $rowIndex + 2;
-        
         // Skip empty rows
         $isEmptyRow = true;
         foreach ($row as $cell) {
@@ -235,34 +235,84 @@ try {
         $otherNames = isset($row[$otherNamesIndex]) ? trim($connection->real_escape_string($row[$otherNamesIndex])) : '';
         $gender = trim($connection->real_escape_string($row[$genderIndex]));
         $year = trim($connection->real_escape_string($row[$yearIndex]));
+        $roomCode = trim($connection->real_escape_string($row[$roomCodeIndex]));
+        $numberOfBeds = trim($connection->real_escape_string($row[$bedsIndex]));
 
+        // Get campus id
         $campusResult = $connection->query("SELECT id FROM campuses WHERE LOWER(TRIM(name)) = '$campusInput'");
         $campusId = $campusResult->fetch_assoc()['id'];
 
-        if (!$stmt->bind_param("sssssiii", 
-            $hostelName,
-            $buildingCode,
-            $otherNames,
-            $gender,
-            $year,
-            $campusId,
+        $hostelKey = $campusId . '|' . $hostelName;
+        if (!isset($hostelMap[$hostelKey])) {
+            $hostelMap[$hostelKey] = [
+                'campus_id' => $campusId,
+                'name' => $hostelName,
+                'building_code' => $buildingCode,
+                'othernames' => $otherNames,
+                'gender' => $gender,
+                'year' => $year,
+                'rooms' => []
+            ];
+        }
+        $hostelMap[$hostelKey]['rooms'][] = [
+            'room_code' => $roomCode,
+            'number_of_beds' => $numberOfBeds,
+            'row_number' => $rowNumber
+        ];
+    }
+
+    // Prepare hostel insert statement
+    $hostelSql = "INSERT INTO hostels (name, building_code, othernames, gender, year, campus_id, createdBy, updatedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    $hostelStmt = $connection->prepare($hostelSql);
+    // Prepare room insert statement
+    $roomSql = "INSERT INTO rooms (room_code, number_of_beds, hostel_id, remain, status, createdBy, updatedBy, createdAt, updatedAt) VALUES (?, ?, ?, ?, 'published', ?, ?, NOW(), NOW())";
+    $roomStmt = $connection->prepare($roomSql);
+
+    foreach ($hostelMap as $hostelKey => $hostelData) {
+        // Insert hostel
+        if (!$hostelStmt->bind_param("sssssiii",
+            $hostelData['name'],
+            $hostelData['building_code'],
+            $hostelData['othernames'],
+            $hostelData['gender'],
+            $hostelData['year'],
+            $hostelData['campus_id'],
             $session_id,
             $session_id
         )) {
             sendJsonResponse('error', 'Failed to bind parameters for hostel insertion');
         }
-
-        if (!$stmt->execute()) {
-            sendJsonResponse('error', 'Failed to execute hostel insertion: ' . $stmt->error);
+        if (!$hostelStmt->execute()) {
+            sendJsonResponse('error', 'Failed to execute hostel insertion: ' . $hostelStmt->error);
         }
+        $hostelId = $connection->insert_id;
+        $processedHostels++;
+        $successMessages[] = "Hostel '{$hostelData['name']}' added to campus ID {$hostelData['campus_id']}";
 
-        $successMessages[] = "Row $rowNumber: Successfully added hostel '$hostelName'";
-        $processedRows++;
+        // Insert rooms for this hostel
+        foreach ($hostelData['rooms'] as $room) {
+            $remain = is_numeric($room['number_of_beds']) ? intval($room['number_of_beds']) : 0;
+            if (!$roomStmt->bind_param("siiiii",
+                $room['room_code'],
+                $room['number_of_beds'],
+                $hostelId,
+                $remain,
+                $session_id,
+                $session_id
+            )) {
+                sendJsonResponse('error', 'Failed to bind parameters for room insertion');
+            }
+            if (!$roomStmt->execute()) {
+                sendJsonResponse('error', 'Failed to execute room insertion: ' . $roomStmt->error . ' (Room: ' . $room['room_code'] . ' in Hostel: ' . $hostelData['name'] . ')');
+            }
+            $processedRooms++;
+            $roomSuccessMessages[] = "Room '{$room['room_code']}' added to hostel '{$hostelData['name']}' (Row {$room['row_number']})";
+        }
     }
 
     // All records processed successfully
-    sendJsonResponse('success', "Successfully processed $processedRows records", [
-        'success' => $successMessages
+    sendJsonResponse('success', "Successfully processed $processedHostels hostels and $processedRooms rooms", [
+        'success' => array_merge($successMessages, $roomSuccessMessages)
     ]);
 
 } catch (Exception $e) {

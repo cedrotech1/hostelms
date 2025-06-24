@@ -1,6 +1,5 @@
 <?php
-session_start();
-include("../connection.php");
+
 
 // Check if student is logged in
 if (!isset($_SESSION['student_id'])) {
@@ -67,7 +66,7 @@ if ($application && $application['status'] == 'pending') {
 
     <style>
         .status-card {
-            border-radius: 15px;
+            /* border-radius: 15px; */
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease;
         }
@@ -120,7 +119,7 @@ if ($application && $application['status'] == 'pending') {
         .student-info {
             background-color: #f8f9fa;
             border-radius: 8px;
-            padding: 15px;
+            /* padding: 15px; */
             margin-bottom: 20px;
         }
 
@@ -299,7 +298,7 @@ if ($application && $application['status'] == 'pending') {
         .progress-container {
             background: #f8f9fa;
             border-radius: 4px;
-            padding: 2px;
+            /* padding: 2px; */
         }
 
         .progress {
@@ -319,87 +318,24 @@ if ($application && $application['status'] == 'pending') {
     <div class="skeleton-loading">
         <?php
         $isLoading = true;
-        include 'hostel_includes/student_info.php';
+        // include 'hostel_includes/student_info.php';
         ?>
-        <main id="main" class="main">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-9">
-                        <div class="card status-card">
-                            <div class="card-body">
-                                <div class="skeleton skeleton-title w-50 mx-auto mb-4"></div>
-
-                                <!-- Student Information Skeleton -->
-                                <div class="student-info mb-4">
-                                    <div class="skeleton skeleton-title w-25 mb-3"></div>
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="skeleton skeleton-text w-75 mb-2"></div>
-                                            <div class="skeleton skeleton-text w-75 mb-2"></div>
-                                            <div class="skeleton skeleton-text w-75 mb-2"></div>
-                                            <div class="skeleton skeleton-text w-75 mb-2"></div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="skeleton skeleton-text w-75 mb-2"></div>
-                                            <div class="skeleton skeleton-text w-75 mb-2"></div>
-                                            <div class="skeleton skeleton-text w-75 mb-2"></div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Application Status Skeleton -->
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="skeleton skeleton-text w-25 mb-2"></div>
-                                        <div class="skeleton skeleton-badge mb-4"></div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="skeleton skeleton-text w-75 mb-2"></div>
-                                        <div class="skeleton skeleton-text w-75 mb-2"></div>
-                                        <div class="skeleton skeleton-text w-75 mb-2"></div>
-                                    </div>
-                                </div>
-
-                                <!-- Pending Status Skeleton -->
-                                <div class="row mt-4">
-                                    <div class="col-md-6">
-                                        <div class="card border-0 shadow-sm">
-                                            <div class="card-body text-center p-4">
-                                                <div class="skeleton skeleton-title w-50 mx-auto mb-3"></div>
-                                                <div class="skeleton skeleton-countdown mx-auto"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="card border-0 shadow-sm">
-                                            <div class="card-body text-center p-4">
-                                                <div class="skeleton skeleton-title w-50 mx-auto mb-3"></div>
-                                                <div class="skeleton skeleton-countdown mx-auto"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
+       
     </div>
 
     <!-- Actual Content -->
     <div class="content-loading">
         <?php
         $isLoading = false;
-        include 'hostel_includes/student_info.php';
+        // include 'hostel_includes/student_info.php';
         ?>
-        <main id="main" class="main">
-            <div class="container">
+        <!-- <main id="main" class="main"> -->
+            <div class="">
                 <div class="row">
-                    <div class="col-lg-9">
+                    <div class="col-lg-12">
                         <div class="card status-card">
                             <div class="card-body">
-                                <h4 class="card-title text-center mb-4">Application Status</h4>
+                                <h4 class="card-title">Application Status</h4>
 
                                 <?php if (!$application || !$application['status']): ?>
                                     <div class="text-center">
@@ -424,34 +360,7 @@ if ($application && $application['status'] == 'pending') {
                                         <a href="index.php" class="btn btn-primary">Apply Now</a>
                                     </div>
                                 <?php else: ?>
-                                    <!-- Student Information -->
-                                    <div class="student-info mb-4">
-                                        <h5 class="mb-3">Student Information</h5>
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <p><strong>Name:</strong>
-                                                    <?php echo htmlspecialchars($application['names']); ?>
-                                                </p>
-                                                <p><strong>Registration:</strong>
-                                                    <?php echo htmlspecialchars($regnumber); ?>
-                                                </p>
-                                                <p><strong>Campus:</strong>
-                                                    <?php echo htmlspecialchars($application['campus']); ?></p>
-                                                <p><strong>College:</strong>
-                                                    <?php echo htmlspecialchars($application['college']); ?></p>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <p><strong>School:</strong>
-                                                    <?php echo htmlspecialchars($application['school']); ?></p>
-                                                <p><strong>Program:</strong>
-                                                    <?php echo htmlspecialchars($application['program']); ?></p>
-                                                <p><strong>Year:</strong>
-                                                    <?php echo htmlspecialchars($application['yearofstudy']); ?></p>
-                                                <p><strong>Email:</strong>
-                                                    <?php echo htmlspecialchars($application['email']); ?></p>
-                                            </div>
-                                        </div>
-                                    </div>
+                                   
 
                                     <!-- Application Status -->
                                     <div class="row">
@@ -540,7 +449,7 @@ if ($application && $application['status'] == 'pending') {
                                         <div class="container my-5">
                                             <div class="row justify-content-center">
                                                 <!-- Main Countdown Card -->
-                                                <div class="col-lg-12">
+                                                <div class="col-lg-12" style="padding: 0px;">
                                                     <div class="card    border-0 rounded-4 overflow-hidden">
                                                         <div class="card-body p-5">
                                                             <!-- Clock Design -->
@@ -651,7 +560,7 @@ if ($application && $application['status'] == 'pending') {
                     </div>
                 </div>
             </div>
-        </main>
+        <!-- </main> -->
     </div>
 
     <!-- Vendor JS Files -->

@@ -379,6 +379,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <tr><th>Hostel:</th><td id="detail-hostel"></td></tr>
                                             <tr><th>Status:</th><td id="detail-status"></td></tr>
                                             <tr><th>Applied Date:</th><td id="detail-date"></td></tr>
+                                            <tr><th>Receipt Number:</th><td id="detail-receipt-number"></td></tr>
+                                            <tr><th>Date of Payment:</th><td id="detail-payment-date"></td></tr>
                                         </table>
                                     </div>
                                 </div>
@@ -665,6 +667,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             `<span class="status-badge status-${app.status}">${app.status}</span>`;
                         document.getElementById('detail-date').textContent = 
                             new Date(app.created_at).toLocaleDateString();
+                            
+                        // Display receipt number and payment date if they exist
+                        const receiptNumberElement = document.getElementById('detail-receipt-number');
+                        const paymentDateElement = document.getElementById('detail-payment-date');
+                        
+                        if (app.ReceptNumber) {
+                            receiptNumberElement.textContent = app.ReceptNumber;
+                            receiptNumberElement.closest('tr').style.display = '';
+                        } else {
+                            receiptNumberElement.closest('tr').style.display = 'none';
+                        }
+                        
+                        if (app.Date_of_payment) {
+                            paymentDateElement.textContent = app.Date_of_payment;
+                            paymentDateElement.closest('tr').style.display = '';
+                        } else {
+                            paymentDateElement.closest('tr').style.display = 'none';
+                        }
                         
                         // Handle receipt display
                         const receiptSection = document.getElementById('receipt-section');
