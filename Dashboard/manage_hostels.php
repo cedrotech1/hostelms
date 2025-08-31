@@ -575,7 +575,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' || isset($_GET['action'])) {
     }
     exit;
 }
-if($role === 'warefare'){       
+// werefare or headquarter
+if($role === 'warefare' || $role === 'head_quarter' ){       
     // Get campuses for warefare role - only their assigned campus
     $campuses_query = mysqli_query($connection, "SELECT * FROM campuses WHERE id = $mycampus ORDER BY name");
 } else {
@@ -602,6 +603,17 @@ if($role === 'warefare'){
     <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
     <link href="assets/css/style.css" rel="stylesheet">
+    <style>
+  .btn-primary {
+  background-color: rgb(17, 37, 58) !important;
+  border-color: rgb(14, 49, 83) !important;
+  transition: all 0.3s ease !important;
+}
+.btn-primary:hover {
+  background-color: rgb(14, 49, 83);
+  border-color: rgb(21, 92, 151);
+}
+</style>
 </head>
 
 <body>
@@ -625,7 +637,9 @@ if($role === 'warefare'){
             <div class="row">
                 <div class="col-lg-12">
                     <!-- Campus Section -->
-                    <a href="add_hostel.php"><button class="btn btn-primary mb-3"> <span class="bi bi-upload"></span> upload excel file</button></a> 
+                     <!-- row with calumns button -->
+                    
+                
                     <div class="card">
                         <div class="card-body">
                         
@@ -714,12 +728,12 @@ if($role === 'warefare'){
                                 <table class="table table-hover table-striped">
                                     <thead class="table-light">
                                         <tr>
-                                            <th>Name</th>
+                                            <th>Hostel Name</th>
+                                            <th>Block</th>
                                             <th>Building Code</th>
                                             <!-- <th>Other Names</th> -->
                                             <th>Gender</th>
                                             <th>Year</th>
-                                            
                                             <th>Status</th>
                                             <th class="text-center">Actions</th>
                                         </tr>
@@ -1473,8 +1487,14 @@ if($role === 'warefare'){
 
                     data.forEach(hostel => {
                         const row = document.createElement('tr');
+                        // Split the hostel name into name and block
+                        const nameParts = hostel.name.split('-');
+                        const hostelName = nameParts[0] || '';
+                        const blockName = nameParts[1] || '';
+                        
                         row.innerHTML = `
-                            <td>${hostel.name}</td>
+                            <td>${hostelName}</td>
+                            <td>${blockName}</td>
                             <td>${hostel.building_code}</td>
                             <td>${hostel.gender === 'M' ? '<i class="bi bi-gender-male text-primary"></i> M' : 
                                 hostel.gender === 'F' ? '<i class="bi bi-gender-female text-danger"></i> F' : '-'}</td>
@@ -1490,9 +1510,9 @@ if($role === 'warefare'){
                                 <button class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete Hostel" onclick="deleteHostel(${hostel.id})">
                                     <i class="fas fa-trash"></i>
                                 </button>
-                                <button class="btn btn-sm btn-info" data-bs-toggle="tooltip" data-bs-placement="top" title="View Rooms" onclick="showRooms(${hostel.id})">
+                                <a href="view_rooms.php?hostel_id=${hostel.id}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" data-bs-placement="top" title="View Rooms">
                                     <i class="fas fa-door-open"></i> View Rooms
-                                </button>
+                                </a>
                                 ${getHostelStatusButton(hostel)}
                             </td>
                         `;
@@ -1939,6 +1959,17 @@ if($role === 'warefare'){
             });
         }
 
+
+
+
+
+
+
+
+
+
+
+        
         // Function to show add campus modal
         function showAddCampusModal() {
             const modal = document.getElementById('addCampusModal');
@@ -2603,5 +2634,15 @@ if($role === 'warefare'){
             }
         }
     </script>
+       <!-- Vendor JS Files -->
+       <script src="assets/vendor/apexcharts/apexcharts.min.js"></script>
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+                <script src="assets/vendor/chart.js/chart.umd.js"></script>
+                <script src="assets/vendor/echarts/echarts.min.js"></script>
+                <script src="assets/vendor/quill/quill.min.js"></script>
+                <script src="assets/vendor/simple-datatables/simple-datatables.js"></script>
+                <script src="assets/vendor/tinymce/tinymce.min.js"></script>
+                <script src="assets/vendor/php-email-form/validate.js"></script>
+                <script src="assets/js/main.js"></script>
 </body>
 </html> 

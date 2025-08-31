@@ -28,6 +28,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['application_id']) && 
         header("Location: index.php");
         exit();
     }
+
+    // Check if receipt number already exists for this student
+    $check_receipt_query = "SELECT id FROM applications WHERE ReceptNumber = ? AND regnumber = ?";
+    $check_receipt_stmt = $connection->prepare($check_receipt_query);
+    $check_receipt_stmt->bind_param("ss", $receipt_number, $student_regnumber);
+    $check_receipt_stmt->execute();
+    $check_receipt_stmt->store_result();
+    if ($check_receipt_stmt->num_rows > 0) {
+        $_SESSION['error_message'] = "This receipt number has already been used by you. Please use a unique receipt number.";
+        header("Location: index.php");
+        exit();
+    }
+    $check_receipt_stmt->close();
     
     // Verify that this application belongs to the student
     $verify_query = "SELECT * FROM applications WHERE id = ? AND regnumber = ?";

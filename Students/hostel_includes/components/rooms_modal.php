@@ -122,7 +122,7 @@ function loadRooms(hostelId, isInitialLoad = false) {
                     roomMap.set(roomId, room);
                 });
                 
-                // Process rooms with optimistic updates
+                // Process all rooms
                 data.rooms.forEach(room => {
                     const isAvailable = room.remain > 0;
                     const roomState = `${room.id}-${room.remain}-${room.current_applications}`;
@@ -212,6 +212,7 @@ function loadRooms(hostelId, isInitialLoad = false) {
                     }
                 });
                 
+                // Remove outdated rooms
                 roomMap.forEach(room => {
                     room.style.transition = 'opacity 0.3s ease';
                     room.style.opacity = '0';
@@ -265,27 +266,7 @@ document.addEventListener('submit', function(e) {
         const remain = parseInt(roomCard.dataset.remain);
         const timestamp = parseInt(roomCard.dataset.timestamp);
         
-        // Validate timestamp
-        if (Date.now() - timestamp > 5000) { // 5 seconds threshold
-            Swal.fire({
-                title: 'Error!',
-                text: 'Room information is too old. Please refresh and try again.',
-                icon: 'error',
-                showCancelButton: true,
-                confirmButtonText: 'Refresh Now',
-                cancelButtonText: 'Cancel',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Refresh the rooms data
-                    const hostelId = form.querySelector('input[name="hostel_id"]').value;
-                    loadRooms(hostelId, true);
-                }
-            });
-            return;
-        }
-        
-        // Double check room availability
+        // Check room availability
         if (remain <= 0) {
             Swal.fire({
                 title: 'Error!',

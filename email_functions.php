@@ -68,13 +68,13 @@ function generateWelcomeEmailBody($name, $password = null) {
     <body>
         <div class='container'>
             <div class='header'>
-                <h1>Welcome to the University of Rwanda</h1>
+                <h1>Welcome to the Hostel Management System</h1>
             </div>
             <div class='content'>
                 <p>Dear $name,</p>
 
-                 <p>Your Student Card MIS system account has been created successfully. To access your student card and other services, please click the link below:</p>
-                <p><a href='$url/studentcard/login.php' target='_blank'>Access Your Student Card MIS</a>or Click here to reset your 
+                 <p>Your Hostel Management System User account has been created successfully. To access your student card and other services, please click the link below:</p>
+                <p><a href='$url/studentcard/login.php' target='_blank'>Access Your Hostel Management System</a>or Click here to reset your 
                 own password <a href='$url/studentcard/reset.php' target='_blank'>Reset your password</a> </p>
 
                 <!-- Include password section if a password is provided -->
@@ -83,7 +83,7 @@ function generateWelcomeEmailBody($name, $password = null) {
                
                 <p>If you have any questions or need assistance, feel free to contact us.</p>
                 <p>Warm regards,</p>
-                <p><strong>The University of Rwanda Team</strong></p>
+                <p><strong>The Hostel Management System Team</strong></p>
             </div>
             <div class='footer'>
                 <p>&copy; University of Rwanda. All rights reserved.</p>
@@ -135,7 +135,7 @@ function generateResetPasswordEmailBody($name, $resetCode, $recipientEmail) {
     global $url;
     // Escape email for security
     $safeEmail = htmlspecialchars($recipientEmail, ENT_QUOTES, 'UTF-8');
-    $link = "$url/studentcard/reset.php?step=2&email=$safeEmail";
+    $link = "$url/hostelms/reset.php?step=2&email=$safeEmail";
     
     return "
     <!DOCTYPE html>

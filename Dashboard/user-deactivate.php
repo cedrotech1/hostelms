@@ -9,21 +9,14 @@ if (isset($_GET['userId'])) {
 
     // Update the user's active status to 0 (inactive)
     $query = "UPDATE users SET active = 0 WHERE id = $userId";
-
-    // Execute the update query
-    if (mysqli_query($connection, $query)) {
-        $save_query = "delete from privilages where uid=$userId and title='active'";
-        mysqli_query($connection, $save_query);
-        // User deactivated successfully, redirect back to the page where the deactivation was triggered
-        header('Location: ' . $_SERVER['HTTP_REFERER']);
-        exit;
-    } else {
-        // Error occurred while deactivating user
-        echo 'Error deactivating user: ' . mysqli_error($connection);
-    }
+    $connection->query($query);
+    header('Location: ' . 'add_user.php');
+    exit;
+   
 } else {
     // userId is not provided, redirect back to the page where the deactivation was triggered
-    header('Location: ' . $_SERVER['HTTP_REFERER']);
+    
+    header('Location: ' . 'users.php');
     exit;
 }
 ?>

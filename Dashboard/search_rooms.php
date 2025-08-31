@@ -99,8 +99,8 @@ try {
 
             $html .= '<tr>';
             $html .= '<td>' . htmlspecialchars($row['room_code']) . '</td>';
-            $html .= '<td>' . htmlspecialchars($row['hostel_name']) . '</td>';
-            $html .= '<td>' . htmlspecialchars($row['campus_name']) . '</td>';
+            $html .= '<td>' .ucfirst(htmlspecialchars($row['hostel_name'])) . '</td>';
+            $html .= '<td>' .ucfirst(htmlspecialchars($row['campus_name'])) . '</td>';
             $html .= '<td>' . $row['number_of_beds'] . '</td>';
             $html .= '<td>' . $row['remain'] . '</td>';
             $html .= '<td>' . number_format($occupancy_rate, 1) . '%</td>';

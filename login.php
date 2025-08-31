@@ -81,7 +81,7 @@ $phpError = !empty($error) ? json_encode($error) : 'null';
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg,rgb(32, 41, 87) 0%,rgb(33, 32, 110) 100%);
             min-height: 100vh;
             position: relative;
             overflow-x: hidden;
@@ -94,7 +94,7 @@ $phpError = !empty($error) ? json_encode($error) : 'null';
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg,rgb(32, 41, 87) 0%,rgb(33, 32, 110) 100%);
             z-index: 9999;
             display: flex;
             flex-direction: column;
@@ -183,23 +183,6 @@ $phpError = !empty($error) ? json_encode($error) : 'null';
             0% { width: 0%; }
             50% { width: 70%; }
             100% { width: 100%; }
-        }
-
-        /* Background iframe */
-        .background-iframe {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -2;
-            opacity: 0.1;
-            filter: blur(2px);
-            transition: opacity 1s ease-in-out;
-        }
-
-        .background-iframe.loaded {
-            opacity: 0.1;
         }
 
         /* Overlay */
@@ -346,12 +329,6 @@ $phpError = !empty($error) ? json_encode($error) : 'null';
             font-size: 16px;
         }
 
-        .ur-logo {
-            width: 120px;
-            height: auto;
-            margin-bottom: 20px;
-        }
-
         /* Form Styles */
         .form-group {
             margin-bottom: 25px;
@@ -390,22 +367,6 @@ $phpError = !empty($error) ? json_encode($error) : 'null';
             color: #999;
         }
 
-        .input-group-text {
-            background: rgba(30, 60, 114, 0.1);
-            border: 2px solid #e1e5e9;
-            border-right: none;
-            color: #1e3c72;
-            font-weight: 600;
-        }
-
-        .input-group .form-control {
-            border-left: none;
-        }
-
-        .input-group .form-control:focus {
-            border-left: none;
-        }
-
         .btn {
             padding: 15px 30px;
             border: none;
@@ -430,17 +391,16 @@ $phpError = !empty($error) ? json_encode($error) : 'null';
             box-shadow: 0 10px 20px rgba(30, 60, 114, 0.3);
         }
 
-        .btn-info {
-            background: linear-gradient(45deg, #17a2b8, #20c997);
+        .btn-success {
+            background: linear-gradient(45deg, #28a745, #20c997);
             color: white;
             width: 100%;
-            margin-bottom: 20px;
         }
 
-        .btn-info:hover {
-            background: linear-gradient(45deg, #20c997, #17a2b8);
+        .btn-success:hover {
+            background: linear-gradient(45deg, #20c997, #28a745);
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(23, 162, 184, 0.3);
+            box-shadow: 0 10px 20px rgba(40, 167, 69, 0.3);
         }
 
         .link-btn {
@@ -463,6 +423,7 @@ $phpError = !empty($error) ? json_encode($error) : 'null';
             padding: 15px 20px;
             border-radius: 10px;
             margin-bottom: 20px;
+            display: none;
             border: none;
         }
 
@@ -478,45 +439,60 @@ $phpError = !empty($error) ? json_encode($error) : 'null';
             border-left: 4px solid #28a745;
         }
 
-        /* Demo Modal Styles */
-        .modal-content {
+        /* Step Sections */
+        .step-section {
+            margin-bottom: 25px;
+            padding: 25px;
+            border: 2px solid #e1e5e9;
             border-radius: 15px;
-            border: none;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.8);
+            display: none;
+            transition: all 0.3s ease;
         }
 
-        .modal-header {
-            background: linear-gradient(45deg, #1e3c72, #2a5298);
-            color: white;
-            border-radius: 15px 15px 0 0;
-            border-bottom: none;
+        .step-section.active {
+            display: block;
+            border-color: #1e3c72;
+            background: white;
         }
 
-        .modal-title {
-            font-weight: 600;
+        .step-section.completed {
+            opacity: 0.6;
+            pointer-events: none;
+            display: block;
         }
 
-        .demo-account {
-            padding: 15px;
-            border-radius: 10px;
-            background: rgba(30, 60, 114, 0.05);
-            border-left: 4px solid #1e3c72;
-        }
-
-        .demo-account h6 {
+        .step-section h5 {
             color: #1e3c72;
+            margin-bottom: 20px;
             font-weight: 600;
-            margin-bottom: 10px;
         }
 
-        .demo-account p {
-            margin-bottom: 5px;
-            color: #666;
+        /* Spinner */
+        .spinner-container {
+            text-align: center;
+            padding: 20px;
+            display: none;
         }
 
-        .btn-sm {
-            padding: 8px 16px;
-            font-size: 14px;
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            color: #1e3c72;
+        }
+
+        /* Radio buttons */
+        .form-check {
+            margin-bottom: 15px;
+        }
+
+        .form-check-input {
+            margin-right: 10px;
+        }
+
+        .form-check-label {
+            font-weight: 500;
+            color: #333;
         }
 
         /* Responsive */
@@ -568,6 +544,33 @@ $phpError = !empty($error) ? json_encode($error) : 'null';
             animation: fadeInUp 0.6s ease-out;
         }
 
+        /* Footer */
+        .footer {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px 0;
+            text-align: center;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease-out;
+        }
+
+        .footer.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .footer p {
+            color: #666;
+            margin: 0;
+            font-size: 14px;
+        }
+
         /* Button Loading States */
         .btn.loading {
             position: relative;
@@ -587,6 +590,11 @@ $phpError = !empty($error) ? json_encode($error) : 'null';
             border-top: 2px solid currentColor;
             border-radius: 50%;
             animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         .btn.loading .btn-text {
@@ -615,7 +623,7 @@ $phpError = !empty($error) ? json_encode($error) : 'null';
     </div>
 
     <!-- Background iframe -->
-    <iframe src="https://ur.ac.rw/" class="background-iframe" frameborder="0" id="background-iframe"></iframe>
+    <iframe src="https://ur.ac.rw/" class="background-iframe" frameborder="0" id="background-iframe" style="display: none;"></iframe>
     <div class="overlay"></div>
 
     <!-- Header -->
@@ -634,8 +642,8 @@ $phpError = !empty($error) ? json_encode($error) : 'null';
                 <a href="https://ur.ac.rw/" class="header-link" target="_blank">
                     <i class="fas fa-globe"></i> Official Website
                 </a>
-                <a href="#" class="header-link">
-                    <i class="fas fa-question-circle"></i> Help
+                <a href="index.php" class="header-link">
+                    <i class="fas fa-question-circle"></i> Student Login page
                 </a>
             </div>
         </div>
@@ -645,7 +653,7 @@ $phpError = !empty($error) ? json_encode($error) : 'null';
     <div class="main-container" id="main-container">
         <div class="login-container">
             <div class="login-header">
-                <img src="./assets/img/ur.png" alt="University of Rwanda" class="ur-logo">
+                <img src="./assets/img/ur.png" alt="University of Rwanda" class="ur-logo" style="height: 100px;">
                 <h2><i class="fas fa-sign-in-alt"></i> Login</h2>
                 <p>Access your hostel management account</p>
             </div>
@@ -658,10 +666,7 @@ $phpError = !empty($error) ? json_encode($error) : 'null';
             <?php endif; ?>
 
             <form method="post" action="login.php" id="loginForm">
-                <button type="button" class="btn btn-info" data-toggle="modal" data-target="#demoModal">
-                    <i class="fas fa-users btn-icon"></i> 
-                    <span class="btn-text">Demo Accounts</span>
-                </button>
+               
 
                 <div class="form-group">
                     <label for="email">
@@ -693,7 +698,7 @@ $phpError = !empty($error) ? json_encode($error) : 'null';
 
                 <button type="submit" class="btn btn-primary" name="login" id="login-btn">
                     <i class="fas fa-sign-in-alt btn-icon"></i> 
-                    <span class="btn-text">Login</span>
+                    <span class="btn-text">Staff Login</span>
                 </button>
             </form>
         </div>

@@ -1,0 +1,178 @@
+
+.hostel-card {
+    transition: all 0.3s ease;
+    border: 1px solid #dee2e6;
+    margin-bottom: 1rem;
+}
+
+.hostel-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.hostel-card .card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Professional Statistics Cards Styling */
+.stats-container {
+    margin-bottom: 1.5rem;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #007bff, #0056b3);
+}
+
+.stat-card.total-beds::before {
+    background: linear-gradient(90deg, #6c757d, #495057);
+}
+
+.stat-card.available-beds::before {
+    background: linear-gradient(90deg, #28a745, #1e7e34);
+}
+
+.stat-card.pending-beds::before {
+    background: linear-gradient(90deg, #ffc107, #e0a800);
+}
+
+.stat-icon {
+    margin-bottom: 0.5rem;
+}
+
+.stat-icon i {
+    font-size: 1.8rem;
+    color: #6c757d;
+}
+
+.stat-card.total-beds .stat-icon i {
+    color: #6c757d;
+}
+
+.stat-card.available-beds .stat-icon i {
+    color: #28a745;
+}
+
+.stat-card.pending-beds .stat-icon i {
+    color: #ffc107;
+}
+
+.stat-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #212529;
+    line-height: 1.2;
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.hostel-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 0.5rem;
+    background-color: #f8f9fa;
+    border-radius: 0.25rem;
+}
+
+.stat-item i {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.stat-item .stat-value {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: #0d6efd;
+}
+
+.stat-item .stat-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.hostel-attributes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.attribute-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.attribute-item i {
+    color: #0d6efd;
+}
+
+.btn-view-rooms {
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.allowed-list {
+  padding-left: 0;
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+.allowed-pill {
+  font-size: 0.97em;
+  background:rgb(233, 229, 229);
+  border-radius: 3px;
+  padding: 4px 18px;
+  /* margin: 4px 0; */
+  display: inline-block;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  width: 100%;
+  /* overflow: hidden; */
+  text-overflow: ellipsis;
+  /* white-space: nowrap; */
+}

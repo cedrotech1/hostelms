@@ -22,9 +22,9 @@ $ok1 = mysqli_query($connection, "select * from users where id=$userid");
 <header id="header" class="header fixed-top d-flex align-items-center">
 
   <div class="d-flex align-items-center justify-content-between">
-    <a href="index.php" class="logo d-flex align-items-center">
+    <a href="index.php" class="logo d-flex align-items-center" style="text-decoration: none;">
       <!-- <img src="assets/img/icon1.png" alt="" style='height:1.5cm'> -->
-      <span class="d-none d-lg-block">HOSTEL MS</span>
+      <span class="d-none d-lg-block" >HOSTEL MS</span>
     </a>
     <i class="bi bi-list toggle-sidebar-btn"></i>
   </div><!-- End Logo -->
@@ -51,37 +51,7 @@ $ok1 = mysqli_query($connection, "select * from users where id=$userid");
 
       </li><!-- End Notification Nav -->
 
-      <li class="nav-item dropdown">
-
-        <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
-          <i class="bi bi-chat-left-text"></i>
-          <span class="badge bg-success badge-number">3</span>
-        </a><!-- End Messages Icon -->
-
-        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow messages">
-          <li class="dropdown-header">
-            You have 3 new messages
-            <a href="messages.php"><span class="badge rounded-pill bg-primary p-2 ms-2">View all</span></a>
-          </li>
-          <li>
-            <hr class="dropdown-divider">
-          </li>
-
-
-          <li>
-            <hr class="dropdown-divider">
-          </li>
-
-
-
-
-          <li class="dropdown-footer">
-            <a href="#">Show all messages</a>
-          </li>
-
-        </ul><!-- End Messages Dropdown Items -->
-
-      </li><!-- End Messages Nav -->
+     
 
       <li class="nav-item dropdown pe-3">
 
@@ -93,7 +63,14 @@ $ok1 = mysqli_query($connection, "select * from users where id=$userid");
         <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
           <li class="dropdown-header">
             <h6><?php echo $names;?></h6>
-            <span><?php echo $role; ?></span>
+            <span>
+  <?php 
+    echo ($role == "warefare") ? "Director of Welfare" : 
+         (($role == "information_modifier") ? "Admin" : 
+         (($role == "head_quarter") ? "Head Quarter" : "Warden"));
+  ?>
+</span>
+
           </li>
           <li>
             <hr class="dropdown-divider">

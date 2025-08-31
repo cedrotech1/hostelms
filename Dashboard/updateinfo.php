@@ -352,6 +352,17 @@ if (!empty($message)) $debug_js[] = 'Message: ' . $message;
     <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
     <link href="assets/css/style.css" rel="stylesheet">
+    <style>
+  .btn-primary {
+  background-color: rgb(17, 37, 58) !important;
+  border-color: rgb(14, 49, 83) !important;
+  transition: all 0.3s ease !important;
+}
+.btn-primary:hover {
+  background-color: rgb(14, 49, 83);
+  border-color: rgb(11, 32, 55);
+}
+</style>
 </head>
 
 <body>
@@ -409,6 +420,8 @@ if (!empty($message)) $debug_js[] = 'Message: ' . $message;
                                 <li class="list-group-item"><strong>Program:</strong> <?php echo htmlspecialchars($program); ?></li>
                                 <li class="list-group-item"><strong>Gender:</strong> <?php echo htmlspecialchars($Gender); ?></li>
                                  <li class="list-group-item"><strong>Year of study:</strong> <?php echo htmlspecialchars($yearofstudy); ?></li>
+                                 <li class="list-group-item"><strong>Intake:</strong> <?php echo htmlspecialchars($intake); ?></li>
+                                 <li class="list-group-item"><strong>Disability:</strong> <?php if($disability == 0){echo 'No';}else{echo 'Yes';} ?></li>
                            
                             </ul>
                         </div>

@@ -111,6 +111,22 @@ if (isset($_POST["reset"])) {
   <link href="./Dashboard/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
   <link href="./Dashboard/assets/css/style.css" rel="stylesheet">
   <style>
+      body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg,rgb(12, 21, 65) 0%,rgb(23, 8, 37) 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        .btn-primary {
+            background-color: rgb(17, 37, 58);
+            border-color: rgb(14, 49, 83);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: rgb(14, 49, 83);
+            border-color: rgb(11, 32, 55);
+        }
     .logo1 { width: 70%; height: auto; margin-bottom: 10px; }
   </style>
 </head>

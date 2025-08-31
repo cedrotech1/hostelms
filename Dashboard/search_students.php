@@ -90,7 +90,7 @@ try {
                 $html .= '<tr>';
                 $html .= '<td>' . htmlspecialchars($row['regnumber']) . '</td>';
                 $html .= '<td>' . htmlspecialchars($row['names']) . '</td>';
-                $html .= '<td>' . htmlspecialchars($row['campus']) . '</td>';
+                $html .= '<td>' .ucfirst(htmlspecialchars($row['campus'])) . '</td>';
                 $html .= '<td>' . htmlspecialchars($row['college']) . '</td>';
                 $html .= '<td>' . htmlspecialchars($row['school']) . '</td>';
                 $html .= '<td>' . htmlspecialchars($row['program']) . '</td>';

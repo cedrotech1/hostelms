@@ -55,7 +55,17 @@ $existingData = checkExistingData($connection); // Check if data exists
   <!-- XLSX and PapaParse libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-
+<style>
+  .btn-primary {
+  background-color: rgb(17, 37, 58) !important;
+  border-color: rgb(14, 49, 83) !important;
+  transition: all 0.3s ease !important;
+}
+.btn-primary:hover {
+  background-color: rgb(14, 49, 83);
+  border-color: rgb(11, 32, 55);
+}
+</style>
 </head>
 
 <body>

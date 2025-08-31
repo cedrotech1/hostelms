@@ -216,13 +216,7 @@ if (!isset($current_application)) {
                                                    class="btn btn-sm btn-info me-2" target="_blank">
                                                     <i class="bi bi-eye me-1"></i> View Full
                                                 </a>
-                                                <form action="delete_receipt.php" method="POST" class="d-inline me-2">
-                                                    <input type="hidden" name="application_id" value="<?php echo $current_application['id']; ?>">
-                                                    <button type="submit" class="btn btn-sm btn-danger" 
-                                                            onclick="return confirm('Are you sure you want to delete this receipt?')">
-                                                        <i class="bi bi-trash me-1"></i> Delete
-                                                    </button>
-                                                </form>
+                                            
                                                 <button id="edit-receipt-btn" class="btn btn-warning btn-sm"><i class="bi bi-pencil me-1"></i> Edit</button>
                                             </div>
                                         </div>

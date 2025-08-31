@@ -11,6 +11,9 @@
   <link href="./Dashboard/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
   <link href="./Dashboard/assets/css/style.css" rel="stylesheet">
   <style>
+    body{
+      background-color:rgb(10, 35, 59);
+    }
     .logo1 {
       width: 70%;
       height: auto;
@@ -56,7 +59,7 @@
                       ?>
                       <p>
                         <br>
-                        hello student, this system is under mentainance ! stay tune ! 👌
+                        Hello Student, this system is under mentainance ! stay tuned ! 👌
                       </p>
                       <?php
                     }
@@ -65,7 +68,7 @@
                       ?>
                       <p>
                         <br>
-                        hello student, this system is under development ! be ready any time...👍
+                        Hello Student, this system is under development ! be ready any time...👍
                       </p>
                       <?php
                     }
@@ -73,7 +76,7 @@
                       ?>
                       <p>
                         <br>
-                        Hello student, this system is currently offline as the working hours for today have ended. It will be available again tomorrow. 👍
+                        Hello Student, this system is currently offline ! Stay tuned ! 👍
                       </p>
                       <?php
                     }
@@ -83,7 +86,7 @@
                       ?>
                       <p>
                         <br>
-                        hello student, this system is closed thank you for use it !...😍
+                        Hello student, this system is closed until further notice. 
                       </p>
                       <?php
                     }  if ($status == "live") {

@@ -30,17 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $truncate2 = "TRUNCATE TABLE applications";
             mysqli_query($connection, $truncate2);
 
-            // Truncate table 'rooms'
-            $truncate3 = "TRUNCATE TABLE rooms";
-            mysqli_query($connection, $truncate3);
-
-            // Truncate table 'hostels'
-            $truncate4 = "TRUNCATE TABLE hostels";
-            mysqli_query($connection, $truncate4);
-
-            // hostel attributes
-            $truncate5 = "TRUNCATE TABLE hostel_attributes";
-            mysqli_query($connection, $truncate5);  
+          
 
             // Truncate table 'campuses'
             // $truncate5 = "TRUNCATE TABLE campuses";
@@ -90,6 +80,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
   <!-- Template Main CSS File -->
   <link href="assets/css/style.css" rel="stylesheet">
+  
   <style>
     ul li{
       list-style: none;

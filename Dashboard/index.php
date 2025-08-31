@@ -7,6 +7,11 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
     header("Location: ../login.php");
     exit();
 }
+// if user role is wadden redirect to manage hostel occupants
+if ($_SESSION['role'] === 'wadden') {
+    header("Location: ../Dashboard/manage_hostel_occupants.php");
+    exit();
+}
 
 // Get user's role and ID
 $userRole = $_SESSION['role'];
@@ -356,8 +361,10 @@ ORDER BY c.name, h.name;
             margin-top: 0 !important;
         }
         h2 {
-            margin-top: 0 !important;
-            padding-top: 0 !important;
+            background-color: rgb(23, 45, 80);
+            padding: 10px;
+            color: white !important;
+            border-radius: 10px;
         }
         #loadingSkeleton { display: none !important; height: 0 !important; overflow: hidden !important; }
     </style>
@@ -433,13 +440,36 @@ ORDER BY c.name, h.name;
                         <div class="row mb-3 g-2">
                             <!-- Total Campuses -->
                             <div class="col-6 col-md-3">
-                                <div class="stat-card stat-campuses">
+                                <?php
+                                if ($userRole === 'warefare') {
+                                  ?>
+                                  <!-- dusplay his campus name -->
+                                   <div class="stat-card stat-campuses">
+                                    <div class="stat-row">
+                                        <span class="stat-icon"><i class="bi bi-building"></i></span>
+                                        <span class="stat-value"><?php echo $_SESSION['campus_name']; ?></span>
+                                    </div>
+                                    
+                                </div>
+
+                                  <?php
+                                }else{
+                                    ?>
+                                    <div class="stat-card stat-campuses">
                                     <div class="stat-row">
                                         <span class="stat-icon"><i class="bi bi-building"></i></span>
                                         <span class="stat-value"><?php echo number_format($stats['overall']['total_campuses']); ?></span>
                                     </div>
                                     <div class="stat-label">Total Campuses</div>
                                 </div>
+                                    <?php
+                                }
+
+                                ?>
+
+                           
+
+
                             </div>
 
                             <!-- Total Hostels -->
@@ -450,6 +480,22 @@ ORDER BY c.name, h.name;
                                         <span class="stat-value"><?php echo number_format($stats['overall']['total_hostels']); ?></span>
                                     </div>
                                     <div class="stat-label">Total Hostels</div>
+                                </div>
+                            </div>
+
+                            <div class="col-6 col-md-3">
+                                <div class="stat-card stat-beds">
+                                    <div class="stat-row">
+                                        <span class="stat-icon"><i class="bi bi-hospital-bed"></i></span>
+                                        <span class="stat-value"><?php echo number_format($stats['overall']['available_beds']); ?></span>
+                                    </div>
+                                    <div class="stat-label">Available Beds</div>
+                                    <div class="stat-progress">
+                                        <div class="stat-progress-bar" style="width: <?php echo $stats['overall']['total_beds'] > 0 ? round(($stats['overall']['available_beds'] / $stats['overall']['total_beds']) * 100) : 0; ?>%;"></div>
+                                    </div>
+                                    <div class="stat-footer">
+                                        <span>of <strong><?php echo number_format($stats['overall']['total_beds']); ?></strong> total</span>
+                                    </div>
                                 </div>
                             </div>
 
@@ -471,21 +517,7 @@ ORDER BY c.name, h.name;
                             </div>
 
                             <!-- Available Beds -->
-                            <div class="col-6 col-md-3">
-                                <div class="stat-card stat-beds">
-                                    <div class="stat-row">
-                                        <span class="stat-icon"><i class="bi bi-hospital-bed"></i></span>
-                                        <span class="stat-value"><?php echo number_format($stats['overall']['available_beds']); ?></span>
-                                    </div>
-                                    <div class="stat-label">Available Beds</div>
-                                    <div class="stat-progress">
-                                        <div class="stat-progress-bar" style="width: <?php echo $stats['overall']['total_beds'] > 0 ? round(($stats['overall']['available_beds'] / $stats['overall']['total_beds']) * 100) : 0; ?>%;"></div>
-                                    </div>
-                                    <div class="stat-footer">
-                                        <span>of <strong><?php echo number_format($stats['overall']['total_beds']); ?></strong> total</span>
-                                    </div>
-                                </div>
-                            </div>
+                          
                         </div>
 
 
@@ -507,11 +539,7 @@ ORDER BY c.name, h.name;
                                     Hostel Details
                                 </a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="search-tab" data-bs-toggle="tab" href="#search" role="tab">
-                                    Dynamic Search
-                                </a>
-                            </li>
+                           
                             <li class="nav-item">
                                 <a class="nav-link" id="insights-tab" data-bs-toggle="tab" href="#insights" role="tab">
                                     Insights
@@ -525,55 +553,22 @@ ORDER BY c.name, h.name;
                             <div class="tab-pane fade show active" id="overview" role="tabpanel">
                                 <div class="row">
                                     <!-- Application Trends Chart -->
-                                    <div class="col-md-6 mb-4">
+                                  
+
+                                    <?php
+                                    include 'hostel_occupancy_charts.php';
+
+                                    ?>
+                                    <?php
+                                    include 'campus_distribution_charts.php';
+
+                                    ?>
+                                      <div class="col-md-6 mb-4">
                                         <div class="card">
                                             <div class="card-body">
                                                 <h5 class="card-title">Application Trends</h5>
                                                 <div class="chart-container">
                                                     <canvas id="applicationTrendsChart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Campus Distribution -->
-                                    <div class="col-md-6 mb-4">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <h5 class="card-title">Campus Distribution</h5>
-                                                <div class="chart-container">
-                                                    <canvas id="campusDistributionChart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- New: Campus Beds Comparison Bar Chart -->
-                                    <div class="col-md-12 mb-4">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <h5 class="card-title">Campus Beds Comparison</h5>
-                                                <div class="chart-container">
-                                                    <canvas id="campusBedsBarChart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- New: Dynamic Hostel Beds Bar Chart -->
-                                    <div class="col-md-12 mb-4">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                                    <h5 class="card-title mb-0">Hostel Beds by Campus</h5>
-                                                    <select id="campusSelect" class="form-select w-auto">
-                                                        <?php foreach ($stats['campuses'] as $campus): ?>
-                                                            <option value="<?php echo htmlspecialchars($campus['campus_name']); ?>"><?php echo htmlspecialchars($campus['campus_name']); ?></option>
-                                                        <?php endforeach; ?>
-                                                    </select>
-                                                </div>
-                                                <div class="chart-container">
-                                                    <canvas id="hostelBedsBarChart"></canvas>
                                                 </div>
                                             </div>
                                         </div>
@@ -599,29 +594,37 @@ ORDER BY c.name, h.name;
                                     <div class="card-body">
                                         <h5 class="card-title mb-4">Campus Statistics</h5>
                                         <div class="table-responsive">
-                                            <table class="table table-hover">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Campus Name</th>
-                                                        <th>Hostels</th>
-                                                        <th>Rooms</th>
-                                                        <th>Total Beds</th>
-                                                        <th>Occupied</th>
-                                                        <th>Available</th>
-                                                        <th>Occupancy Rate</th>
-                                                        <th>Applications</th>
-                                                        <th>Pending</th>
-                                                        <th>Paid</th>
-                                                        <th>Approved</th>
-                                                    </tr>
-                                                </thead>
+                                            <table class="table table-hover table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th rowspan="2">Campus Name</th>
+                                                    <th rowspan="2">Hostels</th>
+                                                    <th rowspan="2">Rooms</th>
+                                                    <th colspan="4">Beds</th>
+                                                    <th colspan="4">Applications</th>
+                                                </tr>
+                                                <tr>
+                                                    <!-- Beds sub-columns -->
+                                                    <th>Total Beds</th>
+                                                    <th>Occupied</th>
+                                                    <th>Available</th>
+                                                    <th>Occupancy Rate</th>
+
+                                                    <!-- Applications sub-columns -->
+                                                    <th>Total</th>
+                                                    <th>Pending</th>
+                                                    <th>Paid</th>
+                                                    <th>Approved</th>
+                                                </tr>
+                                            </thead>
+
                                                 <tbody>
                                                     <?php foreach ($stats['campuses'] as $campus): ?>
                                                         <tr>
                                                             <td>
-                                                                <a href="campus_details.php?campus_id=<?php echo $campus['campus_id']; ?>">
-                                                                    <?php echo htmlspecialchars($campus['campus_name']); ?>
-                                                                </a>
+
+                                                                <?php echo ucwords(htmlspecialchars($campus['campus_name'])); ?>
+                                                                
                                                             </td>
                                                             <td><?php echo number_format($campus['total_hostels']); ?></td>
                                                             <td><?php echo number_format($campus['total_rooms']); ?></td>
@@ -655,26 +658,33 @@ ORDER BY c.name, h.name;
                                     <div class="card-body">
                                         <h5 class="card-title mb-4">Hostel Statistics</h5>
                                         <div class="table-responsive">
-                                            <table class="table table-hover">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Campus</th>
-                                                        <th>Hostel Name</th>
-                                                        <th>Rooms</th>
-                                                        <th>Total Beds</th>
-                                                        <th>Occupied</th>
-                                                        <th>Available</th>
-                                                        <th>Occupancy Rate</th>
-                                                        <th>Applications</th>
-                                                        <th>Pending</th>
-                                                        <th>Paid</th>
-                                                        <th>Approved</th>
-                                                    </tr>
-                                                </thead>
+                                            <table class="table table-hover table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th rowspan="2">Campus Name</th>
+                                                    <th rowspan="2">Hostels</th>
+                                                    <th rowspan="2">Rooms</th>
+                                                    <th colspan="4">Beds</th>
+                                                    <th colspan="4">Applications</th>
+                                                </tr>
+                                                <tr>
+                                                    <!-- Beds sub-columns -->
+                                                    <th>Total Beds</th>
+                                                    <th>Occupied</th>
+                                                    <th>Available</th>
+                                                    <th>Occupancy Rate</th>
+
+                                                    <!-- Applications sub-columns -->
+                                                    <th>Total</th>
+                                                    <th>Pending</th>
+                                                    <th>Paid</th>
+                                                    <th>Approved</th>
+                                                </tr>
+                                            </thead>
                                                 <tbody>
                                                     <?php foreach ($stats['hostels'] as $hostel): ?>
                                                         <tr>
-                                                            <td><?php echo htmlspecialchars($hostel['campus_name']); ?></td>
+                                                            <td><?php echo ucwords(htmlspecialchars($hostel['campus_name'])); ?></td>
                                                             <td><?php echo htmlspecialchars($hostel['hostel_name']); ?></td>
                                                             <td><?php echo number_format($hostel['total_rooms']); ?></td>
                                                             <td><?php echo number_format($hostel['total_beds']); ?></td>
@@ -722,16 +732,7 @@ ORDER BY c.name, h.name;
                             <div class="tab-pane fade" id="insights" role="tabpanel">
                                 <div class="row">
                                     <!-- Application Trends Analysis -->
-                                    <div class="col-md-6 mb-4">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <h5 class="card-title">Application Trends Analysis</h5>
-                                                <div class="chart-container">
-                                                    <canvas id="applicationTrendsAnalysisChart"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                
 
                                     <!-- Campus Performance -->
                                     <div class="col-md-6 mb-4">
@@ -752,6 +753,16 @@ ORDER BY c.name, h.name;
                                                 <h5 class="card-title">Application Status Distribution</h5>
                                                 <div class="chart-container">
                                                     <canvas id="applicationStatusDistributionChart"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-4">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <h5 class="card-title">Application Trends Analysis</h5>
+                                                <div class="chart-container">
+                                                    <canvas id="applicationTrendsAnalysisChart"></canvas>
                                                 </div>
                                             </div>
                                         </div>
@@ -802,7 +813,8 @@ ORDER BY c.name, h.name;
                         new Chart(document.getElementById('campusDistributionChart'), {
                             type: 'bar',
                             data: {
-                                labels: <?php echo json_encode(array_column($stats['campuses'], 'campus_name')); ?>,
+                                // capitalize campus name
+                                labels: <?php echo json_encode(array_map('ucwords', array_column($stats['campuses'], 'campus_name'))); ?>,
                                 datasets: [{
                                     label: 'Total Beds',
                                     data: <?php echo json_encode(array_column($stats['campuses'], 'total_beds')); ?>,
@@ -876,7 +888,7 @@ ORDER BY c.name, h.name;
                                         ($campus['paid_applications'] / $campus['total_applications']) * 100 : 0;
 
                                     $datasets[] = [
-                                        'label' => $campus['campus_name'],
+                                        'label' => ucwords($campus['campus_name']),
                                         'data' => [
                                             $campus['occupancy_rate'],
                                             $success_rate
@@ -928,7 +940,7 @@ ORDER BY c.name, h.name;
                         new Chart(document.getElementById('campusBedsBarChart'), {
                             type: 'bar',
                             data: {
-                                labels: <?php echo json_encode(array_column($stats['campuses'], 'campus_name')); ?>,
+                                labels: <?php echo json_encode(array_map('ucwords', array_column($stats['campuses'], 'campus_name'))); ?>,
                                 datasets: [
                                     {
                                         label: 'Occupied Beds',
@@ -1017,9 +1029,11 @@ ORDER BY c.name, h.name;
                             const searchTerm = this.value.toLowerCase();
                             const filteredHostels = hostels.filter(hostel =>
                                 hostel.hostel_name.toLowerCase().includes(searchTerm) ||
-                                hostel.campus_name.toLowerCase().includes(searchTerm)
+                                hostel.campus_name.toLowerCase().includes(searchTerm) ||
+                                hostel.campus_name.ucwords().includes(searchTerm) 
+                         
                             );
-
+ // captilize campus
                             if (filteredHostels.length > 0) {
                                 let html = '<div class="row">';
                                 filteredHostels.forEach(hostel => {
@@ -1028,7 +1042,8 @@ ORDER BY c.name, h.name;
                                 <div class="card">
                                     <div class="card-body">
                                         <h5 class="card-title">${hostel.hostel_name}</h5>
-                                        <h6 class="card-subtitle mb-3 text-muted">${hostel.campus_name}</h6>
+                                       
+                                        <h6 class="card-subtitle mb-3 text-muted"> University of Rwanda - ${hostel.campus_name} Campus</h6>
                                         <div class="row">
                                             <div class="col-6">
                                                 <p class="mb-1"><strong>Rooms:</strong> ${hostel.total_rooms}</p>

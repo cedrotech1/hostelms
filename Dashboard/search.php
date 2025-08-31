@@ -28,7 +28,17 @@ include 'connection.php';
 
     <!-- Template Main CSS File -->
     <link href="assets/css/style.css" rel="stylesheet">
-
+    <style>
+  .btn-primary {
+  background-color: rgb(17, 37, 58) !important;
+  border-color: rgb(14, 49, 83) !important;
+  transition: all 0.3s ease !important;
+}
+.btn-primary:hover {
+  background-color: rgb(14, 49, 83);
+  border-color: rgb(11, 32, 55);
+}
+</style>
     <!-- Additional CSS -->
     <style>
         .search-container {
@@ -175,10 +185,10 @@ include 'connection.php';
                                                 <select class="form-control" id="studentCampus" name="studentCampus">
                                                     <option value="">All Campuses</option>
                                                     <?php
-                                                    $query = "SELECT DISTINCT campus FROM info ORDER BY campus";
+                                                    $query = "SELECT * FROM campuses";
                                                     $result = $connection->query($query);
                                                     while ($row = $result->fetch_assoc()) {
-                                                        echo "<option value='" . htmlspecialchars($row['campus']) . "'>" . htmlspecialchars($row['campus']) . "</option>";
+                                                        echo "<option value='" . htmlspecialchars($row['name']) . "'>" . ucwords(htmlspecialchars($row['name'])) . "</option>";
                                                     }
                                                     ?>
                                                 </select>
@@ -221,7 +231,7 @@ include 'connection.php';
                                     </div>
                                     <div class="row mt-3">
                                         <div class="col-12">
-                                            <button type="submit" class="btn btn-primary">Search</button>
+                                            <button type="submit" class="btn btn-primary">View Results</button>
                                             <button type="button" class="btn btn-success export-btn" id="exportStudentResults">
                                                 <i class="bi bi-file-excel"></i> Export to Excel
                                             </button>
@@ -250,12 +260,12 @@ include 'connection.php';
                                             <div class="form-group">
                                                 <label for="hostelCampus">Campus</label>
                                                 <select class="form-control" id="hostelCampus" name="hostelCampus">
-                                                    <option value="">All Campuses</option>
+                                                <option value="">All Campuses</option>
                                                     <?php
-                                                    $query = "SELECT DISTINCT campus FROM info ORDER BY campus";
+                                                    $query = "SELECT * FROM campuses";
                                                     $result = $connection->query($query);
                                                     while ($row = $result->fetch_assoc()) {
-                                                        echo "<option value='" . htmlspecialchars($row['campus']) . "'>" . htmlspecialchars($row['campus']) . "</option>";
+                                                        echo "<option value='" . htmlspecialchars($row['name']) . "'>" . ucwords(htmlspecialchars($row['name'])) . "</option>";
                                                     }
                                                     ?>
                                                 </select>
@@ -274,7 +284,7 @@ include 'connection.php';
                                     </div>
                                     <div class="row mt-3">
                                         <div class="col-12">
-                                            <button type="submit" class="btn btn-primary">Search</button>
+                                            <button type="submit" class="btn btn-primary">View Results</button>
                                             <button type="button" class="btn btn-success export-btn" id="exportHostelResults">
                                                 <i class="bi bi-file-excel"></i> Export to Excel
                                             </button>
@@ -338,7 +348,7 @@ include 'connection.php';
                                     </div>
                                     <div class="row mt-3">
                                         <div class="col-12">
-                                            <button type="submit" class="btn btn-primary">Search</button>
+                                            <button type="submit" class="btn btn-primary">View Results</button>
                                             <button type="button" class="btn btn-success export-btn" id="exportRoomResults">
                                                 <i class="bi bi-file-excel"></i> Export to Excel
                                             </button>
@@ -361,14 +371,14 @@ include 'connection.php';
                                             <div class="form-group">
                                                 <label for="membersCampus">Campus</label>
                                                 <select class="form-control" id="membersCampus" name="campus">
-                                                    <option value="">All Campuses</option>
+                                                <option value="">All Campuses</option>
                                                     <?php
-                                                    $query = "SELECT DISTINCT campus FROM info ORDER BY campus";
+                                                    $query = "SELECT * FROM campuses";
                                                     $result = $connection->query($query);
                                                     while ($row = $result->fetch_assoc()) {
-                                                        echo "<option value='" . htmlspecialchars($row['campus']) . "'>" . htmlspecialchars($row['campus']) . "</option>";
+                                                        echo "<option value='" . htmlspecialchars($row['name']) . "'>" . ucwords(htmlspecialchars($row['name'])) . "</option>";
                                                     }
-                                                    ?>
+                                                    ?>  
                                                 </select>
                                             </div>
                                         </div>
@@ -390,7 +400,7 @@ include 'connection.php';
                                     </div>
                                     <div class="row mt-3">
                                         <div class="col-12">
-                                            <button type="submit" class="btn btn-primary">Search</button>
+                                            <button type="submit" class="btn btn-primary">View Results</button>
                                             <button type="button" class="btn btn-success export-btn" id="exportHostelMembersResults">
                                                 <i class="bi bi-file-excel"></i> Export to Excel
                                             </button>

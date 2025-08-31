@@ -80,7 +80,7 @@ try {
 
             $html .= '<tr>';
             $html .= '<td>' . htmlspecialchars($row['name']) . '</td>';
-            $html .= '<td>' . htmlspecialchars($row['campus_name']) . '</td>';
+            $html .= '<td>' .ucfirst(htmlspecialchars($row['campus_name'])) . '</td>';
             $html .= '<td>' . $row['total_rooms'] . '</td>';
             $html .= '<td>' . $row['total_beds'] . '</td>';
             $html .= '<td>' . $row['available_beds'] . '</td>';

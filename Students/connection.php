@@ -17,7 +17,7 @@ loadEnv($filePath);
 // Access environment variables
 $dbHost = getenv('DB_HOST');
 $dbPort = getenv('DB_PORT');
-$dbName = getenv('DB_HOSTEL');
+$dbName = 'hostel';
 $dbUser = getenv('DB_USER');
 $dbPassword = getenv('DB_PASSWORD');
 

@@ -42,6 +42,17 @@ $ok1 = mysqli_query($connection, "select * from users where id=$id");
   <link href="assets/vendor/remixicon/remixicon.css" rel="stylesheet">
   <link href="assets/vendor/simple-datatables/style.css" rel="stylesheet">
 
+  <style>
+  .btn-primary {
+  background-color: rgb(17, 37, 58) !important;
+  border-color: rgb(14, 49, 83) !important;
+  transition: all 0.3s ease !important;
+}
+.btn-primary:hover {
+  background-color: rgb(14, 49, 83);
+  border-color: rgb(11, 32, 55);
+}
+</style>
   <!-- Template Main CSS File -->
   <link href="assets/css/style.css" rel="stylesheet">
 
@@ -76,7 +87,13 @@ $ok1 = mysqli_query($connection, "select * from users where id=$id");
 
               <img src="./<?php echo $image;?>" alt="Profile" class="rounded-circle">
               <h2><?php echo $names;?></h2>
-              <h3><?php echo $role;?></h3>
+              <h3>                   <span>
+  <?php 
+    echo ($role == "warefare") ? "Director of Welfare" : 
+         (($role == "information_modifier") ? "Admin" : 
+         (($role == "head_quarter") ? "Head Quarter" : "Warden"));
+  ?>
+</span></h3>
               <div class="social-links mt-2">
                 <a href="#" class="twitter"><i class="bi bi-twitter"></i></a>
                 <a href="#" class="facebook"><i class="bi bi-facebook"></i></a>
@@ -131,7 +148,16 @@ $ok1 = mysqli_query($connection, "select * from users where id=$id");
 
                   <div class="row">
                     <div class="col-lg-3 col-md-4 label">title</div>
-                    <div class="col-lg-9 col-md-8"><?php echo $role;?></div>
+                    <div class="col-lg-9 col-md-8">
+                    <span>
+                    <?php 
+                      echo ($role == "warefare") ? "Director of Welfare" : 
+                          (($role == "information_modifier") ? "Admin" : 
+                          (($role == "head_quarter") ? "Head Quarter" : "Warden"));
+                    ?>
+                  </span>
+
+                    </div>
                   </div>
 
                  

@@ -256,6 +256,69 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background-color: #0b5ed7;
             color: white;
         }
+        
+        /* Filter buttons styles */
+        .filter-btn {
+            min-width: 100px;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-btn.active {
+            color: #fff !important;
+        }
+        
+        .filter-btn[data-status=""]:not(.active) {
+            border-color: #6c757d;
+            color: #6c757d;
+        }
+        
+        .filter-btn[data-status=""]:hover,
+        .filter-btn[data-status=""].active {
+            background-color: #6c757d;
+            border-color: #6c757d;
+        }
+        
+        .filter-btn[data-status="pending"]:not(.active) {
+            border-color: #ffc107;
+            color: #ffc107;
+        }
+        
+        .filter-btn[data-status="pending"]:hover,
+        .filter-btn[data-status="pending"].active {
+            background-color: #ffc107;
+            border-color: #ffc107;
+            color: #000;
+        }
+        
+        .filter-btn[data-status="approved"]:not(.active) {
+            border-color: #198754;
+            color: #198754;
+        }
+        
+        .filter-btn[data-status="approved"]:hover,
+        .filter-btn[data-status="approved"].active {
+            background-color: #198754;
+            border-color: #198754;
+        }
+        
+        .filter-btn[data-status="paid"]:not(.active) {
+            border-color: #0dcaf0;
+            color: #0dcaf0;
+        }
+        
+        .filter-btn[data-status="paid"]:hover,
+        .filter-btn[data-status="paid"].active {
+            background-color: #0dcaf0;
+            border-color: #0dcaf0;
+        }
+        
+        .btn-group {
+            border-radius: 0.375rem;
+            overflow: hidden;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
     </style>
 </head>
 
@@ -281,18 +344,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="col-lg-12">
                     <div class="card">
                         <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center mb-3 p-2">
-                                <h5 class="card-title">Application List</h5>
+                            <br>
+                            <div class="d-flex flex-column gap-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="card-title mb-0">Application List</h5>
+                                    <div class="d-flex gap-2">
+                                        <input type="text" id="searchInput" class="form-control" placeholder="Search applicants" style="width:100%;">
+                                        <select id="statusFilter" class="form-select">
+                                            <option value="">All Status</option>
+                                            <option value="pending">Pending</option>
+                                            <option value="approved">Approved</option>
+                                            <option value="paid">Paid</option>
+                                        </select>
+                                    </div>
+                                </div>
                                 <div class="d-flex gap-2">
-                                    <input type="text" id="searchInput" class="form-control" placeholder="Search applications...">
-                                    <select id="statusFilter" class="form-select">
-                                        <option value="">All Status</option>
-                                        <option value="pending">Pending</option>
-                                        <option value="approved">Approved</option>
-                                        <option value="paid">Paid</option>
-                                    </select>
+                                    <div class="btn-group" role="group" aria-label="Status filters">
+                                        <button type="button" class="btn btn-outline-secondary filter-btn active" data-status="">All</button>
+                                        <button type="button" class="btn btn-outline-warning filter-btn" data-status="pending">Pending Payment</button> 
+                                      
+                                        <button type="button" class="btn btn-outline-info filter-btn" data-status="paid">Paid Applications</button>
+                                        <button type="button" class="btn btn-outline-success filter-btn" data-status="approved">Approved Applications</button>
+                                      
+                                    </div>
                                 </div>
                             </div>
+                            <br>
 
                             <div id="applicationsList">
                                 <!-- Applications will be loaded here -->
@@ -598,12 +675,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             debouncedSearchApplications();
         }
 
-        // Filter by status
-        function filterByStatus() {
-            currentStatus = document.getElementById('statusFilter').value;
+        // Filter by status using the new button-based UI
+        function filterByStatus(status) {
+            // Update active button state
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.status === status) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Update current status and reload applications
+            currentStatus = status;
             currentPage = 1;
             loadApplications();
         }
+        
+        // Add event listeners for filter buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add click handlers for filter buttons
+            document.querySelectorAll('.filter-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    filterByStatus(this.dataset.status);
+                });
+            });
+            
+            // Initialize the first load with the active filter
+            const activeFilter = document.querySelector('.filter-btn.active');
+            if (activeFilter) {
+                currentStatus = activeFilter.dataset.status || '';
+            }
+        });
 
         // Show SLEP image
         function showSlepImage(slepPath) {

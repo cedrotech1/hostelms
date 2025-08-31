@@ -8,7 +8,8 @@ include 'connection.php';
 <head>
     <meta content="" name="description">
     <meta content="" name="keywords">
-
+<!-- title -->
+<title>Search Warefare</title>
     <!-- Favicons -->
     <link href="assets/img/icon1.png" rel="icon">
     <link href="assets/img/icon1.png" rel="apple-touch-icon">
@@ -28,7 +29,17 @@ include 'connection.php';
 
     <!-- Template Main CSS File -->
     <link href="assets/css/style.css" rel="stylesheet">
-
+    <style>
+  .btn-primary {
+  background-color: rgb(17, 37, 58) !important;
+  border-color: rgb(14, 49, 83) !important;
+  transition: all 0.3s ease !important;
+}
+.btn-primary:hover {
+  background-color: rgb(14, 49, 83);
+  border-color: rgb(11, 32, 55);
+}
+</style>
     <!-- Additional CSS -->
     <style>
         .search-container {
@@ -117,6 +128,7 @@ include 'connection.php';
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="index.php">Home</a></li>
+                    <li class="breadcrumb-item"><a href="./hostel_page1.php" class="">All Hostel</a></li>
                     <li class="breadcrumb-item active">Search</li>
                 </ol>
             </nav>
@@ -125,6 +137,7 @@ include 'connection.php';
         <section class="section">
             <div class="row">
                 <div class="col-lg-12">
+                    
                     <!-- Search Type Tabs -->
                     <ul class="nav nav-tabs search-type-tabs" id="searchTabs" role="tablist">
                         <li class="nav-item">
@@ -165,6 +178,7 @@ include 'connection.php';
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label for="studentName">Student Name</label>
+                                                
                                                 <input type="text" class="form-control" id="studentName" name="studentName">
                                             </div>
                                         </div>
@@ -179,7 +193,8 @@ include 'connection.php';
                                                         $campus_name = $row["name"];
                                                     }
 
-                                                        echo "<option value='" . htmlspecialchars($campus_name) . "'>" . htmlspecialchars($campus_name) . "</option>";
+
+                                                        echo "<option value='" . htmlspecialchars($campus_name) . "'>" . ucwords(htmlspecialchars($campus_name)) . "</option>";
                                                     
                                                     ?>
                                                 </select>
@@ -203,8 +218,8 @@ include 'connection.php';
                                                 <label for="gender">Gender</label>
                                                 <select class="form-control" id="gender" name="gender">
                                                     <option value="">All</option>
-                                                    <option value="male">Male</option>
-                                                    <option value="female">Female</option>
+                                                    <option value="M">Male</option>
+                                                    <option value="F">Female</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -244,7 +259,19 @@ include 'connection.php';
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label for="hostelName">Hostel Name</label>
-                                                <input type="text" class="form-control" id="hostelName" name="hostelName">
+                                                <!-- select hostels we have in our campus -->
+                                                <select class="form-control" id="hostelName" name="hostelName">
+                                                    <option value="">All Hostels</option>
+                                                    <?php
+                                                    $ok1 = mysqli_query($connection, "SELECT * FROM hostels where campus_id = $campus");
+                                                    while ($row = mysqli_fetch_array($ok1)) {
+                                                        $hostel_name = $row["name"];
+                                                        $hostel_id = $row["id"];
+                                                        echo "<option value='" . htmlspecialchars($hostel_name) . "'>" . htmlspecialchars($hostel_name) . "</option>";
+                                                    }
+                                                    ?>
+                                                </select>
+
                                             </div>
                                         </div>
                                         <div class="col-md-4">
@@ -342,6 +369,7 @@ include 'connection.php';
                                     <div class="row mt-3">
                                         <div class="col-12">
                                             <button type="submit" class="btn btn-primary">Search</button>
+                                           
                                             <button type="button" class="btn btn-success export-btn" id="exportRoomResults">
                                                 <i class="bi bi-file-excel"></i> Export to Excel
                                             </button>
