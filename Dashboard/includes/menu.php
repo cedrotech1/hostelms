@@ -29,11 +29,8 @@
         </div>
     </div>
 
-
-
 <style>
 /* Sidebar container */
-
 
 /* Role card styling */
 .role-card {
@@ -70,8 +67,6 @@
     font-size: 14px;
     opacity: 0.9;
 }
-
-
 </style>
 
     <ul class="sidebar-nav" id="sidebar-nav">
@@ -84,6 +79,27 @@
             <li class="nav-item">
                 <a class="nav-link collapsed" href="manage_claims.php">
                     <i class="bi bi-file-text"></i><span>Manage Claimings</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="user_manuals.php">
+                    <i class="bi bi-file-text"></i><span>User Manuals</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                    <a class="nav-link collapsed" href="hostels.php">
+                    <i class="bi bi-building"></i><span>Manage Hostels</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="manage_applications.php">
+                    <i class="bi bi-clock-history"></i><span>Manage Applications</span>
+                </a>    
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="users-profile.php">
+                    <i class="bi bi-person"></i><span>My Account</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -100,31 +116,28 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a class="nav-link collapsed" href="user_manuals.php">
+                    <i class="bi bi-file-text"></i><span>User Manuals</span>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link collapsed" href="add_user.php">
                     <i class="bi bi-person-plus"></i><span>Manage Users</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link collapsed" href="updateinfo.php">
-                    <i class="bi bi-pencil-square"></i><span>Quick Search</span>
-                </a>
-            </li>   
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="hostels.php">
-                    <i class="bi bi-building"></i><span>Manage Hostels</span>
+                <a class="nav-link collapsed" href="user_manuals.php">
+                    <i class="bi bi-file-text"></i><span>User Manuals</span>
                 </a>
             </li>
-              
             <li class="nav-item">
-                <a class="nav-link collapsed" href="manage_applications.php">
-                    <i class="bi bi-clock-history"></i><span>Manage Applications<br> Pending(4)</span>
-                   
+                <a class="nav-link collapsed" href="hostels-head.php">
+                    <i class="bi bi-file-earmark-bar-graph"></i><span>Hostel Summary</span>
                 </a>
             </li>
-
             <li class="nav-item">
-                <a class="nav-link collapsed" href="manage_wadden.php">
-                    <i class="bi bi-person-gear"></i><span>Manage Wardens</span>
+                <a class="nav-link collapsed" href="application-head.php">
+                    <i class="bi bi-file-earmark-bar-graph"></i><span>Application Summary</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -132,26 +145,16 @@
                     <i class="bi bi-file-earmark-bar-graph"></i><span>Reports Page</span>
                 </a>
             </li>
-           
             <li class="nav-item">
-                <a class="nav-link collapsed" href="blacklist.php">
-                    <i class="bi bi-person-x"></i><span>Blacklist</span>
+                <a class="nav-link collapsed" href="system.php">
+                    <i class="bi bi-person-x"></i><span>System Settings</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link collapsed" data-bs-target="#settings-nav" data-bs-toggle="collapse" href="#">
-                    <i class="bi bi-gear"></i><span>Settings</span><i class="bi bi-chevron-down ms-auto"></i>
+                <a class="nav-link collapsed" href="users-profile.php">
+                    <i class="bi bi-person"></i><span>My Account</span>
                 </a>
-                <ul id="settings-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
-                    <li>
-                        <a class="nav-link collapsed" href="system.php">
-                            <i class="bi bi-gear-fill"></i><span>System Settings</span>
-                        </a>
-                    </li>
-                </ul>
             </li>
-        
-        
             <li class="nav-item">
                 <a class="nav-link collapsed" href="../logout.php">
                     <i class="bi bi-box-arrow-right"></i><span>Logout</span>
@@ -166,23 +169,25 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a class="nav-link collapsed" href="user_manuals.php">
+                    <i class="bi bi-file-text"></i><span>User Manuals</span>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link collapsed" href="updateinfo.php">
                     <i class="bi bi-pencil-square"></i><span>Quick Search</span>
                 </a>
-            </li>   
+            </li>
             <li class="nav-item">
                 <a class="nav-link collapsed" href="hostels.php">
                     <i class="bi bi-building"></i><span>Manage Hostels</span>
                 </a>
             </li>
-              
             <li class="nav-item">
                 <a class="nav-link collapsed" href="manage_applications.php">
                     <i class="bi bi-clock-history"></i><span>Manage Applications<br> Pending(4)</span>
-                   
                 </a>
             </li>
-
             <li class="nav-item">
                 <a class="nav-link collapsed" href="manage_wadden.php">
                     <i class="bi bi-person-gear"></i><span>Manage Wardens</span>
@@ -193,14 +198,16 @@
                     <i class="bi bi-file-earmark-bar-graph"></i><span>Reports Page</span>
                 </a>
             </li>
-           
             <li class="nav-item">
                 <a class="nav-link collapsed" href="blacklist.php">
                     <i class="bi bi-person-x"></i><span>Blacklist</span>
                 </a>
             </li>
-        
-        
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="users-profile.php">
+                    <i class="bi bi-person"></i><span>My Account</span>
+                </a>
+            </li>
             <li class="nav-item">
                 <a class="nav-link collapsed" href="../logout.php">
                     <i class="bi bi-box-arrow-right"></i><span>Logout</span>
@@ -214,6 +221,21 @@
                     <i class="bi bi-house-door"></i><span>Dashboard</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="user_manuals.php">
+                    <i class="bi bi-file-text"></i><span>User Manuals</span>
+                </a>
+            </li>
+            <!-- documentation -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="documentation_upload.php">
+                    <i class="bi bi-person-plus"></i><span>Documentation manage</span>
+                </a>
+            </li>
+
+
+
+
             <li class="nav-item">
                 <a class="nav-link collapsed" href="add_user.php">
                     <i class="bi bi-person-plus"></i><span>Manage Users</span>
@@ -247,6 +269,11 @@
                         </a>
                     </li>
                 </ul>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="users-profile.php">
+                    <i class="bi bi-person"></i><span>My Account</span>
+                </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link collapsed" href="../logout.php">

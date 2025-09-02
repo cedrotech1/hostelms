@@ -106,13 +106,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' || isset($_GET['action'])) {
                 }
 
                 // Check if building code already exists in the campus
-                $stmt = $connection->prepare("SELECT id FROM hostels WHERE building_code = ? AND campus_id = ?");
-                $stmt->bind_param("si", $_POST['building_code'], $_POST['campus_id']);
-                $stmt->execute();
-                $result = $stmt->get_result();
-                if ($result->num_rows > 0) {
-                    throw new Exception('A hostel with this building code already exists in this campus');
-                }
+                // $stmt = $connection->prepare("SELECT id FROM hostels WHERE building_code = ? AND campus_id = ?");
+                // $stmt->bind_param("si", $_POST['building_code'], $_POST['campus_id']);
+                // $stmt->execute();
+                // $result = $stmt->get_result();
+                // if ($result->num_rows > 0) {
+                //     throw new Exception('A hostel with this building code already exists in this campus');
+                // }
 
                 // Store values in variables
                 $name = $_POST['name'];
@@ -575,8 +575,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' || isset($_GET['action'])) {
     }
     exit;
 }
-// werefare or headquarter
-if($role === 'warefare' || $role === 'head_quarter' ){       
+// werefare or headquarter or wadden
+if($role === 'warefare' ||  $role === 'head_quarter' || $role === 'wadden' ){       
     // Get campuses for warefare role - only their assigned campus
     $campuses_query = mysqli_query($connection, "SELECT * FROM campuses WHERE id = $mycampus ORDER BY name");
 } else {
@@ -647,10 +647,10 @@ if($role === 'warefare' || $role === 'head_quarter' ){
                                 <h5 class="card-title">
                                     <i class="bi bi-building me-2"></i>Campuses
                                 </h5>
-                                <?php if($role !== 'warefare'): ?>
-                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCampusModal">
+                                <?php if($role !== 'warefare' || $role !== 'wadden'): ?>
+                                <!-- <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCampusModal">
                                     <i class="bi bi-plus-circle me-1"></i>Add Campus
-                                </button>
+                                </button> -->
                                 <?php endif; ?>
                             </div>
                             
@@ -691,14 +691,14 @@ if($role === 'warefare' || $role === 'head_quarter' ){
                                                     <button class="btn btn-sm btn-info" data-bs-toggle="tooltip" data-bs-placement="top" title="View Details" onclick="viewCampusDetails(<?php echo $campus['id']; ?>, '<?php echo htmlspecialchars($campus['name']); ?>', '<?php echo htmlspecialchars($creator_name); ?>', '<?php echo !empty($campus['createdAt']) ? date('Y-m-d H:i:s', strtotime($campus['createdAt'])) : '-'; ?>', '<?php echo htmlspecialchars($updater_name); ?>', '<?php echo !empty($campus['updatedAt']) ? date('Y-m-d H:i:s', strtotime($campus['updatedAt'])) : '-'; ?>')">
                                                         <i class="bi bi-eye"></i>
                                                     </button>
-                                                    <button class="btn btn-sm btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Campus" onclick="editCampus(<?php echo $campus['id']; ?>, '<?php echo htmlspecialchars($campus['name']); ?>')">
+                                                    <!-- <button class="btn btn-sm btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Campus" onclick="editCampus(<?php echo $campus['id']; ?>, '<?php echo htmlspecialchars($campus['name']); ?>')">
                                                         <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                    <?php if($role !== 'warefare'): ?>
-                                                    <button class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete Campus" onclick="deleteCampus(<?php echo $campus['id']; ?>)">
+                                                    </button> -->
+                                                    <?php //if($role !== 'warefare'): ?>
+                                                    <!-- <button class="btn btn-sm btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete Campus" onclick="deleteCampus(<?php echo $campus['id']; ?>)">
                                                         <i class="bi bi-trash"></i>
-                                                    </button>
-                                                    <?php endif; ?>
+                                                    </button> -->
+                                                    <?php //endif; ?>
                                                     <button class="btn btn-sm btn-info" data-bs-toggle="tooltip" data-bs-placement="top" title="View Hostels" onclick="showHostels(<?php echo $campus['id']; ?>)">
                                                         <i class="bi bi-building"></i> View Hostels
                                                     </button>

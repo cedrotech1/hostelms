@@ -217,7 +217,7 @@ $connection->close();
 
                 <div class="row">
                     <!-- Campus Beds Distribution Chart -->
-                    <div class="col-md-6 mb-4">
+                    <div class="col-md-12 mb-4">
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title">Campus Beds Distribution</h5>
@@ -229,7 +229,7 @@ $connection->close();
                     </div>
 
                     <!-- Campus Rooms Distribution Chart -->
-                    <div class="col-md-6 mb-4">
+                    <div class="col-md-12 mb-4">
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title">Campus Rooms Distribution</h5>

@@ -1,5 +1,5 @@
 <?php
-// session_start();  
+// session_start();
 include('connection.php');
 // include('./includes/auth.php');
 // checkUserRole(['information_modifier']);
@@ -17,29 +17,29 @@ include("../email_functions.php");
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <title>Add User</title>
+  <title>Manage Users</title>
   <meta content="" name="description">
-    <meta content="" name="keywords">
+  <meta content="" name="keywords">
 
-    <!-- Favicons -->
-    <link href="assets/img/icon1.png" rel="icon">
-    <link href="assets/img/icon1.png" rel="apple-touch-icon">
+  <!-- Favicons -->
+  <link href="assets/img/icon1.png" rel="icon">
+  <link href="assets/img/icon1.png" rel="apple-touch-icon">
 
-    <!-- Google Fonts -->
-    <link href="https://fonts.gstatic.com" rel="preconnect">
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+  <!-- Google Fonts -->
+  <link href="https://fonts.gstatic.com" rel="preconnect">
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
 
-    <!-- Vendor CSS Files -->
-    <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
-    <link href="assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
-    <link href="assets/vendor/quill/quill.snow.css" rel="stylesheet">
-    <link href="assets/vendor/quill/quill.bubble.css" rel="stylesheet">
-    <link href="assets/vendor/remixicon/remixicon.css" rel="stylesheet">
-    <link href="assets/vendor/simple-datatables/style.css" rel="stylesheet">
+  <!-- Vendor CSS Files -->
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+  <link href="assets/vendor/quill/quill.snow.css" rel="stylesheet">
+  <link href="assets/vendor/quill/quill.bubble.css" rel="stylesheet">
+  <link href="assets/vendor/remixicon/remixicon.css" rel="stylesheet">
+  <link href="assets/vendor/simple-datatables/style.css" rel="stylesheet">
 
-    <!-- Template Main CSS File -->
-    <link href="assets/css/style.css" rel="stylesheet">
+  <!-- Template Main CSS File -->
+  <link href="assets/css/style.css" rel="stylesheet">
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
@@ -70,7 +70,7 @@ include("../email_functions.php");
       background-color: #1e3a8a !important;
       border-color: #1e3a8a !important;
     }
-    .btn-danger, .btn-warning, .btn-success {
+    .btn-danger, .btn-warning, .btn-success, .btn-info {
       transition: all 0.3s ease;
     }
     .card {
@@ -85,6 +85,29 @@ include("../email_functions.php");
     }
     .back-to-top:hover {
       background-color: #1e3a8a;
+    }
+    .modal-content {
+      border-radius: 8px;
+    }
+    .pagination {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .pagination a {
+      margin: 0 5px;
+      padding: 8px 16px;
+      border: 1px solid #1e40af;
+      color: #1e40af;
+      border-radius: 4px;
+      text-decoration: none;
+    }
+    .pagination a.active {
+      background-color: #1e40af;
+      color: white;
+    }
+    .pagination a:hover:not(.active) {
+      background-color: #e6f0fa;
     }
   </style>
 
@@ -116,79 +139,64 @@ include("../email_functions.php");
   ?>
 
   <main id="main" class="">
-    <!-- Add User Form -->
+    <!-- Page Title -->
     <div class="pagetitle">
-        <h1>Data</h1>
-        <nav>
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="index.php">Home</a></li>
-                <li class="breadcrumb-item">User</li>
-                
-            </ol>
-        </nav>
+      <h1>Data</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="index.php">Home</a></li>
+          <li class="breadcrumb-item">User</li>
+          <li class="breadcrumb-item active">Manage Users</li>
+        </ol>
+      </nav>
     </div><!-- End Page Title -->
+
+    <!-- Add User Form -->
     <div class="row">
       <div class="col-lg-5">
-    <section class="mb-8">
-      <div class="card p-6 bg-white">
-        <h2 class="text-2xl font-semibold text-gray-800 mb-4">Add New User</h2>
-        <form class="grid grid-cols-1 gap-4" action="add_user.php" method="post">
-          <div class="relative">
-            <input type="text" id="floatingName" name="name" class="form-floating w-full p-2 border" placeholder="Name" required>
-            <!-- <label for="floatingName" class=" top-2 left-3 text-gray-500 transition-all duration-300">Name</label> -->
+        <section class="mb-8">
+          <div class="card p-6 bg-white">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Add New User</h2>
+            <form class="grid grid-cols-1 gap-4" action="add_user.php" method="post">
+              <div class="relative">
+                <input type="text" id="floatingName" name="name" class="form-floating w-full p-2 border" placeholder="Name" required>
+              </div>
+              <div class="relative">
+                <input type="email" id="floatingEmail" name="email" class="form-floating w-full p-2 border" placeholder="Email" required>
+              </div>
+              <div class="relative">
+                <input type="tel" id="floatingPhone" name="phone" class="form-floating w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Phone" required>
+              </div>
+              <div class="relative">
+                <select id="floatingRole" name="role" class="form-floating w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required onchange="toggleCampusField()">
+                  <option value="" disabled selected>Select Role</option>
+                  <option value="warefare">Director Welfare</option>
+                  <option value="head_quarter">Head Quarter (HQ)</option>
+                  <option value="wadden">Hostel Warden</option>
+                </select>
+              </div>
+              <div id="campusField" class="relative hidden">
+                <select id="floatingCampus" name="campus" class="form-floating w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                  <option value="" disabled selected>Select Campus</option>
+                  <?php
+                  $campusQuery = "SELECT * FROM campuses";
+                  $campusResult = mysqli_query($connection, $campusQuery);
+                  while ($campus = mysqli_fetch_assoc($campusResult)) {
+                    echo "<option value='" . $campus['id'] . "'>" . ucwords($campus['name']) . "</option>";
+                  }
+                  ?>
+                </select>
+              </div>
+              <input type="hidden" id="password" name="password">
+              <div class="flex justify-center space-x-4">
+                <button type="submit" name="saveuser" class="btn-primary px-4 py-2 rounded-md text-white">Save User</button>
+                <button type="reset" class="px-4 py-2 rounded-md bg-gray-500 text-white hover:bg-gray-600">Reset</button>
+              </div>
+            </form>
           </div>
-          <div class="relative">
-            <input type="email" id="floatingEmail" name="email" class="form-floating w-full p-2 border" placeholder="Email" required>
-            <!-- <label for="floatingEmail" class="absolute top-2 left-3 text-gray-500 transition-all duration-300">Email</label> -->
-          </div>
-          <div class="relative">
-            <input type="tel" id="floatingPhone" name="phone" class="form-floating w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Phone" required>
-            <!-- <label for="floatingPhone" class="absolute top-2 left-3 text-gray-500 transition-all duration-300">Phone</label> -->
-          </div>
-          <div class="relative">
-            <select id="floatingRole" name="role" class="form-floating w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required onchange="toggleCampusField()">
-              <option value="" disabled selected>Select Role</option>
-               -->
-              <option value="warefare">Director Welfare</option>
-              <option value="head_quarter">Head Quarter (HQ)</option>
-            </select>
-            <!-- <label for="floatingRole" class="absolute top-2 left-3 text-gray-500 transition-all duration-300">Role</label> -->
-          </div>
-          <div id="campusField" class="relative hidden">
-            <select id="floatingCampus" name="campus" class="form-floating w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
-              <option value="" disabled selected>Select Campus</option>
-              <?php
-              $campusQuery = "SELECT * FROM campuses";
-              $campusResult = mysqli_query($connection, $campusQuery);
-              while ($campus = mysqli_fetch_assoc($campusResult)) {
-                echo "<option value='" . $campus['id'] . "'>" . ucwords($campus['name']) . "</option>";
-              }
-              ?>
-            </select>
-            <!-- <label for="floatingCampus" class="absolute top-2 left-3 text-gray-500 transition-all duration-300">Campus</label> -->
-          </div>
-          <input type="hidden" id="password" name="password">
-          <div class="flex justify-center space-x-4">
-            <button type="submit" name="saveuser" class="btn-primary px-4 py-2 rounded-md text-white">Save User</button>
-            <button type="reset" class="px-4 py-2 rounded-md bg-gray-500 text-white hover:bg-gray-600">Reset</button>
-          </div>
-        </form>
+        </section>
       </div>
-    </section>
     </div>
-    <?php
-    $query = "SELECT * FROM users WHERE role != 'admin'";
-    $result = mysqli_query($connection, $query);
-    if (mysqli_num_rows($result) > 0) {
-    ?>
-      <section class="mb-8">
-        <div class="card p-6 bg-white">
-          <h2 class="text-2xl font-semibold text-gray-800 text-center mb-4">List of All Users</h2>
-        </div>
-      </section>
-    <?php
-    }
-    ?>
 
     <!-- Users Table Section -->
     <section>
@@ -201,6 +209,7 @@ include("../email_functions.php");
             <option value="">All Roles</option>
             <option value="warefare">Director Welfare</option>
             <option value="head_quarter">Head Quarter (HQ)</option>
+            <option value="wadden">Hostel Warden</option>
           </select>
           <select id="statusFilter" class="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
             <option value="">All Status</option>
@@ -238,12 +247,26 @@ include("../email_functions.php");
             </thead>
             <tbody id="usersTableBody">
               <?php
+              // Pagination settings
+              $limit = 10; // Number of users per page
+              $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+              $offset = ($page - 1) * $limit;
+
+              // Get total number of users
+              $totalQuery = "SELECT COUNT(*) as total FROM users WHERE role != 'information_modifier'";
+              $totalResult = mysqli_query($connection, $totalQuery);
+              $totalRow = mysqli_fetch_assoc($totalResult);
+              $totalUsers = $totalRow['total'];
+              $totalPages = ceil($totalUsers / $limit);
+
+              // Fetch users for current page
               $query = "SELECT u.*, c.name as campus_name, c.id as campus_id 
                        FROM users u 
                        LEFT JOIN campuses c ON u.campus = c.id 
-                       WHERE u.id != ? AND (u.role != 'wadden' AND u.role != 'information_modifier')";
+                       WHERE u.id != ? AND u.role != 'information_modifier' 
+                       LIMIT ? OFFSET ?";
               $stmt = $connection->prepare($query);
-              $stmt->bind_param("i", $id);
+              $stmt->bind_param("iii", $id, $limit, $offset);
               $stmt->execute();
               $result = $stmt->get_result();
 
@@ -260,6 +283,8 @@ include("../email_functions.php");
                   echo "Admin";
                 } elseif ($row['role'] == 'head_quarter') {
                   echo "Head Quarter (HQ)";
+                } elseif ($row['role'] == 'wadden') {
+                  echo "Hostel Warden";
                 } else {
                   echo ucfirst(htmlspecialchars($row['role']));
                 }
@@ -267,6 +292,9 @@ include("../email_functions.php");
                 echo "<td class='p-3' data-campus-id='" . ($row['campus_id'] ?? '') . "'>" . (ucfirst($row['campus_name'] ?? 'N/A')) . "</td>";
                 echo "<td class='p-3'>" . ($row['active'] ? '<span class="text-green-600 font-medium">Active</span>' : '<span class="text-red-600 font-medium">Inactive</span>') . "</td>";
                 echo "<td class='p-3 flex space-x-2'>
+                        <button class='btn-info px-3 py-1 rounded-md bg-blue-600 text-white hover:bg-blue-700' onclick='openEditModal(" . htmlspecialchars(json_encode($row)) . ")'>
+                          <i class='fas fa-edit'></i>
+                        </button>
                         <a href='user-delete.php?userId=" . htmlspecialchars($row['id']) . "' class='btn-danger px-3 py-1 rounded-md bg-red-600 text-white hover:bg-red-700'><i class='fas fa-trash'></i></a>
                         <button class='px-3 py-1 rounded-md " . ($row['active'] ? 'btn-warning bg-yellow-500 hover:bg-yellow-600' : 'btn-success bg-green-600 hover:bg-green-700') . " text-white' 
                                 onclick='" . ($row['active'] ? 'confirmDeactivation' : 'confirmActivation') . "(" . htmlspecialchars($row['id']) . ", \"" . htmlspecialchars($row['names']) . "\")'>
@@ -280,8 +308,61 @@ include("../email_functions.php");
             </tbody>
           </table>
         </div>
+        <!-- Pagination -->
+        <div class="pagination">
+          <?php
+          if ($totalPages > 1) {
+            for ($i = 1; $i <= $totalPages; $i++) {
+              echo "<a href='add_user.php?page=$i' class='" . ($i == $page ? 'active' : '') . "'>$i</a>";
+            }
+          }
+          ?>
+        </div>
       </div>
     </section>
+
+    <!-- Edit User Modal -->
+    <div id="editUserModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center">
+      <div class="modal-content bg-white p-6 rounded-lg w-full max-w-md">
+        <h2 class="text-2xl font-semibold text-gray-800 mb-4">Edit User</h2>
+        <form id="editUserForm" action="add_user.php" method="post">
+          <input type="hidden" id="editUserId" name="userId">
+          <div class="relative mb-4">
+            <input type="text" id="editName" name="name" class="form-floating w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Name" required>
+          </div>
+          <div class="relative mb-4">
+            <input type="email" id="editEmail" name="email" class="form-floating w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Email" required>
+          </div>
+          <div class="relative mb-4">
+            <input type="tel" id="editPhone" name="phone" class="form-floating w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Phone" required>
+          </div>
+          <div class="relative mb-4">
+            <select id="editRole" name="role" class="form-floating w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required onchange="toggleEditCampusField()">
+              <option value="" disabled>Select Role</option>
+              <option value="warefare">Director Welfare</option>
+              <option value="head_quarter">Head Quarter (HQ)</option>
+              <option value="wadden">Hostel Warden</option>
+            </select>
+          </div>
+          <div id="editCampusField" class="relative mb-4 hidden">
+            <select id="editCampus" name="campus" class="form-floating w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <option value="" disabled selected>Select Campus</option>
+              <?php
+              $campusQuery = "SELECT * FROM campuses";
+              $campusResult = mysqli_query($connection, $campusQuery);
+              while ($campus = mysqli_fetch_assoc($campusResult)) {
+                echo "<option value='" . $campus['id'] . "'>" . ucwords($campus['name']) . "</option>";
+              }
+              ?>
+            </select>
+          </div>
+          <div class="flex justify-end space-x-4">
+            <button type="button" class="px-4 py-2 rounded-md bg-gray-500 text-white hover:bg-gray-600" onclick="closeEditModal()">Cancel</button>
+            <button type="submit" name="updateUser" class="btn-primary px-4 py-2 rounded-md text-white">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
   </main>
 
   <?php
@@ -294,19 +375,57 @@ include("../email_functions.php");
   <!-- Vendor JS Files -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script>
-    // Toggle campus field visibility
+    // Toggle campus field visibility for add form
     function toggleCampusField() {
       const roleSelect = document.getElementById('floatingRole');
       const campusField = document.getElementById('campusField');
       const campusSelect = document.getElementById('floatingCampus');
       
-      if (roleSelect.value === 'warefare' || roleSelect.value === 'head_quarter') {
+      if (roleSelect.value === 'warefare' || roleSelect.value === 'wadden') {
         campusField.classList.remove('hidden');
         campusSelect.required = true;
       } else {
         campusField.classList.add('hidden');
         campusSelect.required = false;
       }
+    }
+
+    // Toggle campus field visibility for edit modal
+    function toggleEditCampusField() {
+      const roleSelect = document.getElementById('editRole');
+      const campusField = document.getElementById('editCampusField');
+      const campusSelect = document.getElementById('editCampus');
+      
+      if (roleSelect.value === 'warefare' || roleSelect.value === 'wadden') {
+        campusField.classList.remove('hidden');
+        campusSelect.required = true;
+      } else {
+        campusField.classList.add('hidden');
+        campusSelect.required = false;
+      }
+    }
+
+    // Open edit modal with pre-filled data
+    function openEditModal(user) {
+      const modal = document.getElementById('editUserModal');
+      document.getElementById('editUserId').value = user.id;
+      document.getElementById('editName').value = user.names;
+      document.getElementById('editEmail').value = user.email;
+      document.getElementById('editPhone').value = user.phone;
+      document.getElementById('editRole').value = user.role;
+      const campusSelect = document.getElementById('editCampus');
+      if (user.campus_id) {
+        campusSelect.value = user.campus_id;
+      } else {
+        campusSelect.value = '';
+      }
+      toggleEditCampusField();
+      modal.classList.remove('hidden');
+    }
+
+    // Close edit modal
+    function closeEditModal() {
+      document.getElementById('editUserModal').classList.add('hidden');
     }
 
     // Debounce function for search input
@@ -410,13 +529,14 @@ include("../email_functions.php");
   </script>
 
   <?php
+  // Handle Add User
   if (isset($_POST['saveuser'])) {
     $name = $_POST['name'];
     $email = $_POST['email'];
     $phone = $_POST['phone'];
     $role = $_POST['role'];
     $password = $_POST['password'];
-    $campus = ($role === 'warefare' || $role === 'head_quarter') ? $_POST['campus'] : null;
+    $campus = ($role === 'warefare' || $role === 'wadden') ? $_POST['campus'] : null;
 
     if (!empty($name) && !empty($email) && !empty($password)) {
       // Validate email format
@@ -447,6 +567,43 @@ include("../email_functions.php");
       echo "<script>alert('Please fill all required fields.')</script>";
     }
   }
+
+  // Handle Update User
+  if (isset($_POST['updateUser'])) {
+    $userId = $_POST['userId'];
+    $name = $_POST['name'];
+    $email = $_POST['email'];
+    $phone = $_POST['phone'];
+    $role = $_POST['role'];
+    $campus = ($role === 'warefare' || $role === 'wadden') ? $_POST['campus'] : null;
+
+    if (!empty($name) && !empty($email)) {
+      // Validate email format
+      if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        echo "<script>alert('Invalid email format.')</script>";
+      } else {
+        // Check for duplicate email (excluding current user)
+        $stmt = $connection->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
+        $stmt->bind_param("si", $email, $userId);
+        $stmt->execute();
+        if ($stmt->get_result()->num_rows > 0) {
+          echo "<script>alert('Email already exists.')</script>";
+        } else {
+          $stmt = $connection->prepare("UPDATE users SET names = ?, email = ?, phone = ?, role = ?, campus = ? WHERE id = ?");
+          $stmt->bind_param("sssssi", $name, $email, $phone, $role, $campus, $userId);
+
+          if ($stmt->execute()) {
+            echo "<script>alert('User updated successfully.'); window.location.href='add_user.php';</script>";
+          } else {
+            echo "<script>alert('Error occurred while updating user.')</script>";
+          }
+        }
+        $stmt->close();
+      }
+    } else {
+      echo "<script>alert('Please fill all required fields.')</script>";
+    }
+  }
   ?>
 </body>
-</html>
+</html> 

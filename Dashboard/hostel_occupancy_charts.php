@@ -208,7 +208,7 @@ if ($result) {
 
                 <div class="row">
                     <!-- Hostel Beds Occupancy Numbers Chart -->
-                    <div class="col-md-6 mb-4">
+                    <div class="col-md-12 mb-4">
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title">Hostel Beds Occupancy Numbers</h5>
@@ -220,7 +220,7 @@ if ($result) {
                     </div>
 
                     <!-- Hostel Beds Occupancy Rates Chart -->
-                    <div class="col-md-6 mb-4">
+                    <div class="col-md-12 mb-4">
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title">Hostel Beds Occupancy Rates</h5>

@@ -73,9 +73,9 @@ function generateWelcomeEmailBody($name, $password = null) {
             <div class='content'>
                 <p>Dear $name,</p>
 
-                 <p>Your Hostel Management System User account has been created successfully. To access your student card and other services, please click the link below:</p>
-                <p><a href='$url/studentcard/login.php' target='_blank'>Access Your Hostel Management System</a>or Click here to reset your 
-                own password <a href='$url/studentcard/reset.php' target='_blank'>Reset your password</a> </p>
+                 <p>Your Hostel Management System User account has been created successfully. To access your hostel management system and other services, please click the link below:</p>
+                <p><a href='$url/hostelms/login.php' target='_blank'>Access Your Hostel Management System</a>or Click here to reset your 
+                own password <a href='$url/hostelms/reset.php' target='_blank'>Reset your password</a> </p>
 
                 <!-- Include password section if a password is provided -->
                 $passwordSection
@@ -201,7 +201,7 @@ function sendRejectionEmail($recipientEmail, $regNumber) {
 
         // Content
         $mail->isHTML(true);
-        $mail->Subject = 'Student Card Rejection';
+        $mail->Subject = 'Hostel Management System User Account Rejection';
         $mail->Body = "<!DOCTYPE html>
         <html>
         <head>
@@ -217,11 +217,11 @@ function sendRejectionEmail($recipientEmail, $regNumber) {
         <body>
             <div class='container'>
                 <div class='header'>
-                    <h1>Student Card Rejection</h1>
+                    <h1>Hostel Management System User Account Rejection</h1>
                 </div>
                 <div class='content'>
-                    <p>Dear Student,</p>
-                    <p>We regret to inform you that your student card request associated with the registration number <strong>$regNumber</strong> has been <strong>rejected</strong>.</p>
+                    <p>Dear User,</p>
+                    <p>We regret to inform you that your hostel management system user account request associated with the registration number <strong>$regNumber</strong> has been <strong>rejected</strong>.</p>
                     <p><strong>Reason:</strong> The image provided was inappropriate or did not meet our standards.</p>
                     <p>Please submit a valid image and other wise you will struggle !!</p>
                     <p>Thank you for your understanding.</p>
@@ -234,7 +234,7 @@ function sendRejectionEmail($recipientEmail, $regNumber) {
         </html>
         ";
 
-        $mail->AltBody = "Your student card request with registration number $regNumber has been rejected due to an inappropriate image. Please submit a valid image.";
+        $mail->AltBody = "Your hostel management system user account request with registration number $regNumber has been rejected due to an inappropriate image. Please submit a valid image.";
 
         $mail->send();
         echo "<script>alert('rejected succesfully');</script>";

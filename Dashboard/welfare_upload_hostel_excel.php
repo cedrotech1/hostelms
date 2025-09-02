@@ -64,14 +64,11 @@ if (!$roleResult || $roleResult->num_rows === 0) {
     sendJsonResponse('error', 'User role not found', ['errors' => ['Invalid user role']]);
 }
 
-$userRole = $roleResult->fetch_assoc()['role'];
-if ($userRole !== 'warefare' && $userRole !== 'information_modifier') {
-    sendJsonResponse('error', 'Unauthorized access', ['errors' => ['Insufficient permissions']]);
-}
+
 
 // Get user's assigned campus (only for welfare users)
 $userCampus = null;
-if ($userRole === 'warefare') {
+if ($userRole === 'warefare' || $userRole === 'wadden') {
     $campusQuery = $connection->prepare("SELECT c.name FROM campuses c INNER JOIN users u ON u.campus = c.id WHERE u.id = ?");
     $campusQuery->bind_param("i", $session_id);
     $campusQuery->execute();
@@ -194,20 +191,23 @@ foreach ($dataRows as $rowIndex => $row) {
     }
 
     // Validate year - can be single year or comma-separated list of years
-    $years = array_map('trim', explode(',', $year));
-    $invalidYears = [];
-    foreach ($years as $y) {
-        if (!is_numeric($y) || $y < 1 || $y > 6) {
-            $invalidYears[] = $y;
-        }
-    }
-    if (!empty($invalidYears)) {
-        $validationErrors[] = "Row $rowNumber: Year must be a valid year of study (1-6) or comma-separated list of years, found invalid: " . implode(', ', $invalidYears);
-        continue;
-    }
+    // $years = array_map('trim', explode(',', $year));
+    // $invalidYears = [];
+    // foreach ($years as $y) {
+    //     if (!is_numeric($y) || $y < 1 || $y > 6) {
+    //         $invalidYears[] = $y;
+    //     }
+    // }
+    // if (!empty($invalidYears)) {
+    //     $validationErrors[] = "Row $rowNumber: Year must be a valid year of study (1-6) or comma-separated list of years, found invalid: " . implode(', ', $invalidYears);
+    //     continue;
+    // }
 
     // Validate campus for welfare users
-    if ($userRole === 'warefare' && $campusInput !== $userCampus) {
+    // campus should be small case
+    $campusInput = strtolower($campusInput);
+    $userCampus = strtolower($userCampus);
+    if ($userRole === 'warefare' || $userRole === 'wadden' && $campusInput !== $userCampus) {
         $validationErrors[] = "Row $rowNumber: Unauthorized campus '$campusInput' for this user";
         continue;
     }
@@ -284,6 +284,10 @@ try {
         $combinedName = $hostelData['combined_name'];
         $buildingCode = $hostelData['building_code'];
         $gender = $hostelData['gender'];
+        // if gender = ALL seve ''
+        if($gender == 'ALL') {
+            $gender = '';
+        }
         $year = $hostelData['year'];
         $rooms = $hostelData['rooms'];
         $hostelId = $hostelData['hostel_id'];

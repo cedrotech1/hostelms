@@ -166,19 +166,21 @@ include("./includes/menu.php");
                             <h6 class="fw-bold">Instructions for Data Upload</h6>
                             <div class="alert alert-info">
                                 <h6 class="alert-heading">Important Notes:</h6>
+                                <p class="text-danger">Ensure that the file you upload contains rooms from only one hostel block. This means that the entire hostel block will be added at once, with the same gender (M/F/ALL) and year(s).</p>
+
                                 <ol class="mb-0">
                                     <li>All fields marked with * are required</li>
                                     <li>File must be in Excel (.xlsx) or CSV format</li>
                                     <li>Do not modify the header row OR make sure header of each column is correct as in that template</li>
                                     <li>Save Excel files as CSV before uploading for best results</li>
-                                    <li>Building Code must be unique for each building</li>
                                     <li>Gender must be either 'M' or 'F' (capital letters)</li>
-                                    <li>Year must be a valid year of study (1-6)</li>
-                                    <?php if ($userRole === 'warefare'): ?>
+                                    <li>Year must be a valid year of study 1, or 1,2 or ... (,) separated</li>
+                                    <?php if ($userRole === 'warefare' || $userRole === 'wadden'): ?>
                                         <li>You can only upload hostels for your assigned campus (<?php echo htmlspecialchars($campus_name); ?>)</li>
                                     <?php else: ?>
                                         <li>You can upload hostels for any campus</li>
                                     <?php endif; ?>
+                                    <li class="text-danger">After uploading the file, <a href="manage_hostels.php">click here</a> to be redirected to the hostel list page. Make sure the hostel is set to "Published" status and edit details if needed. For example, click the "View" button to check the student indicators (such as gender, year, etc.). Only students matching these indicators will see the hostel, but you can edit the information as necessary.</li>
                                 </ol>
                             </div>
                         </div>
@@ -197,7 +199,7 @@ include("./includes/menu.php");
                                     <tbody>
                                         <tr>
                                             <td>Campus*</td>
-                                            <td><?php echo $userRole === 'warefare' ? 'Your assigned campus name (' . htmlspecialchars($campus_name) . ')' : 'Any valid campus name'; ?></td>
+                                            <td><?php echo $userRole === 'warefare' || $userRole === 'wadden' ? 'Your assigned campus name (' . htmlspecialchars($campus_name) . ')' : 'Any valid campus name'; ?></td>
                                         </tr>
                                         <tr>
                                             <td>Hostel Name*</td>
@@ -213,7 +215,7 @@ include("./includes/menu.php");
                                         </tr>
                                         <tr>
                                             <td>Room Code 1*</td>
-                                            <td>Primary room identifier (e.g., 101)</td>
+                                            <td>Primary room identifier (e.g., 101) may be room number Label is required</td>
                                         </tr>
                                         <tr>
                                             <td>Room Code 2</td>
@@ -221,15 +223,16 @@ include("./includes/menu.php");
                                         </tr>
                                         <tr>
                                             <td>Number of Beds*</td>
-                                            <td>Total number of beds in the room</td>
+                                            <td><p>Total number of beds in the room. If one bed can accommodate 2 students, count it as two beds. Consider this as the room's capacity rather than just the number of beds.</p>
+                                            </td>
                                         </tr>
                                         <tr>
                                             <td>Gender*</td>
-                                            <td>M or F (capital letters)</td>
+                                            <td>M or F or ALL (capital letters)</td>
                                         </tr>
                                         <tr>
                                             <td>Year*</td>
-                                            <td>Year of study (1-6)</td>
+                                            <td>Year of study (1-6) or 1,2 or ... (,) separated</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -242,16 +245,11 @@ include("./includes/menu.php");
                             <div class="alert alert-warning">
                                 <ul class="mb-0">
                                     <li>Ensure all required fields are filled</li>
-                                    <?php if ($userRole === 'warefare'): ?>
-                                        <li>Check that campus name matches your assigned campus exactly (<?php echo htmlspecialchars($campus_name); ?>)</li>
-                                    <?php else: ?>
-                                        <li>Check that campus name exists in the system</li>
-                                    <?php endif; ?>
-                                    <li>Building Code must be unique and properly formatted</li>
+
                                     <li>Room codes must be unique within each hostel</li>
-                                    <li>Number of beds must be a positive integer</li>
-                                    <li>Gender must be exactly 'M' or 'F' (capital letters)</li>
-                                    <li>Year must be a valid year of study (1-6)</li>
+                                    <li>Number of beds must be a positive integer or 2 or 3 or ... (,) separated</li>
+                                    <li>Gender must be exactly 'M' or 'F' or 'ALL' (capital letters)</li>
+                                    <li>Year must be a valid year of study (1-6) or 1,2 or ... (,) separated</li>
                                 </ul>
                             </div>
                         </div>
@@ -286,14 +284,14 @@ include("./includes/menu.php");
         
         var exampleData = [
             headers,
-            <?php if ($userRole === 'warefare'): ?>
-                ['<?php echo htmlspecialchars($campus_name); ?>', 'Bengazi', 'Block A', 'B001', 'A101', '', '4', 'M', '1'],
-                ['<?php echo htmlspecialchars($campus_name); ?>', 'Bengazi', 'Block A', 'B001', 'A102', '', '4', 'M', '1'],
-                ['<?php echo htmlspecialchars($campus_name); ?>', 'Bengazi', 'Block B', 'B002', 'B101', '', '2', 'F', '2']
+            <?php if ($userRole === 'warefare' || $userRole === 'wadden'): ?>
+                ['<?php echo htmlspecialchars($campus_name); ?>', 'hostel name 1', 'Block A', 'B001', 'A101', '', '4', 'M', '1'],
+                ['<?php echo htmlspecialchars($campus_name); ?>', 'hostel name 1', 'Block A', 'B001', 'A102', '', '4', 'M', '1'],
+               
             <?php else: ?>
                 ['Huye', 'Bengazi', 'Block A', 'B001', 'A101', '', '4', 'M', '1'],
                 ['Huye', 'Bengazi', 'Block A', 'B001', 'A102', '', '4', 'M', '1'],
-                ['Huye', 'Bengazi', 'Block B', 'B002', 'B101', '', '2', 'F', '2']
+                ['Huye', 'Bengazi', 'Block B', 'B002', 'B101', '', '2', 'ALL', '2']
             <?php endif; ?>
         ];
         
@@ -394,14 +392,14 @@ include("./includes/menu.php");
                     if (!record.number_of_beds) validationErrors.push('Number of Beds is required');
                     if (!record.gender) {
                         validationErrors.push('Gender is required');
-                    } else if (!['M', 'F'].includes(record.gender)) {
-                        validationErrors.push('Gender must be either M or F');
+                    } else if (!['M', 'F','ALL'].includes(record.gender)) {
+                        validationErrors.push('Gender must be either M or F or ALL');
                     }
-                    if (!record.year) {
-                        validationErrors.push('Year is required');
-                    } else if (isNaN(record.year) || parseInt(record.year) < 1 || parseInt(record.year) > 6) {
-                        validationErrors.push('Year must be a valid number between 1 and 6');
-                    }
+                    // if (!record.year) {
+                    //     validationErrors.push('Year is required');
+                    // } else if (isNaN(record.year) || parseInt(record.year) < 1 || parseInt(record.year) > 6) {
+                    //     validationErrors.push('Year must be a valid number between 1 and 6');
+                    // }
                     
                     if (validationErrors.length > 0) {
                         errors.push(`Row ${i + 1}: ${validationErrors.join('; ')}`);
