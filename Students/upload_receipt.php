@@ -29,19 +29,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['application_id']) && 
         exit();
     }
 
-    // Check if receipt number already exists for this student
-    $check_receipt_query = "SELECT id FROM applications WHERE ReceptNumber = ? AND regnumber = ?";
-    $check_receipt_stmt = $connection->prepare($check_receipt_query);
-    $check_receipt_stmt->bind_param("ss", $receipt_number, $student_regnumber);
-    $check_receipt_stmt->execute();
-    $check_receipt_stmt->store_result();
-    if ($check_receipt_stmt->num_rows > 0) {
-        $_SESSION['error_message'] = "This receipt number has already been used by you. Please use a unique receipt number.";
-        header("Location: index.php");
-        exit();
-    }
-    $check_receipt_stmt->close();
-    
     // Verify that this application belongs to the student
     $verify_query = "SELECT * FROM applications WHERE id = ? AND regnumber = ?";
     $verify_stmt = $connection->prepare($verify_query);
@@ -50,18 +37,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['application_id']) && 
     $application = $verify_stmt->get_result()->fetch_assoc();
     
     if (!$application) {
-        $_SESSION['error_message'] = "Invalid application or receipt already uploaded.". $application_id."".$student_regnumber;
+        $_SESSION['error_message'] = "Invalid application or you are not allowed to upload for this application.";
         header("Location: index.php");
         exit();
     }
+    $verify_stmt->close();
+
+    // Check if receipt number already exists in another application
+    $check_receipt_query = "SELECT id FROM applications WHERE ReceptNumber = ? AND id != ?";
+    $check_receipt_stmt = $connection->prepare($check_receipt_query);
+    $check_receipt_stmt->bind_param("si", $receipt_number, $application_id);
+    $check_receipt_stmt->execute();
+    $check_receipt_stmt->store_result();
+    if ($check_receipt_stmt->num_rows > 0) {
+        $_SESSION['error_message'] = "This receipt number has already been used. Please use a unique receipt number.";
+        header("Location: index.php");
+        exit();
+    }
+    $check_receipt_stmt->close();
     
-    // Handle file upload
+    // Handle file upload (only PDF allowed)
     $file = $_FILES['receipt'];
-    $allowed_types = ['image/jpeg', 'image/png', 'application/pdf'];
+    $allowed_types = ['application/pdf']; // Only PDF allowed
     $max_size = 2 * 1024 * 1024; // 2MB
     
     if (!in_array($file['type'], $allowed_types)) {
-        $_SESSION['error_message'] = "Invalid file type. Please upload JPG, PNG, or PDF.";
+        $_SESSION['error_message'] = "Invalid file type. Only PDF files are allowed.";
         header("Location: index.php");
         exit();
     }
@@ -78,9 +79,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['application_id']) && 
         mkdir($upload_dir, 0777, true);
     }
     
-    // Generate unique filename
-    $file_extension = pathinfo($file['name'], PATHINFO_EXTENSION);
-    $filename = $student_regnumber . '_' . time() . '.' . $file_extension;
+    // Generate unique filename (force .pdf extension)
+    $filename = $student_regnumber . '_' . time() . '.pdf';
     $filepath = $upload_dir . $filename;
     
     if (move_uploaded_file($file['tmp_name'], $filepath)) {
@@ -91,10 +91,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['application_id']) && 
                         ReceptNumber = ?,
                         Date_of_payment = ?,
                         status = 'paid',
-                        updated_at = '$current_time'
+                        updated_at = ?
                         WHERE id = ?";
         $update_stmt = $connection->prepare($update_query);
-        $update_stmt->bind_param("sssi", $filename, $receipt_number, $date_of_payment, $application_id);
+        $update_stmt->bind_param("ssssi", $filename, $receipt_number, $date_of_payment, $current_time, $application_id);
         
         if ($update_stmt->execute()) {
             $_SESSION['success_message'] = "Receipt uploaded successfully. Your application is now pending payment verification.";
@@ -113,4 +113,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['application_id']) && 
     header("Location: index.php");
     exit();
 }
-?> 
+?>

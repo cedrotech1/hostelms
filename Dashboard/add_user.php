@@ -76,6 +76,10 @@ include("../email_functions.php");
     .card {
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+    .card:hover {
+      box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
     }
     .back-to-top {
       background-color: #1e40af;
@@ -101,6 +105,7 @@ include("../email_functions.php");
       color: #1e40af;
       border-radius: 4px;
       text-decoration: none;
+      transition: all 0.3s ease;
     }
     .pagination a.active {
       background-color: #1e40af;
@@ -108,6 +113,25 @@ include("../email_functions.php");
     }
     .pagination a:hover:not(.active) {
       background-color: #e6f0fa;
+    }
+    #loadingIndicator {
+      display: none;
+      text-align: center;
+      padding: 20px;
+    }
+    .stats-card {
+      transition: transform 0.3s ease;
+    }
+    .stats-card:hover {
+      transform: translateY(-5px);
+    }
+    #errorMessage {
+      display: none;
+      background-color: #fee2e2;
+      color: #dc2626;
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 10px;
     }
   </style>
 
@@ -151,6 +175,111 @@ include("../email_functions.php");
       </nav>
     </div><!-- End Page Title -->
 
+    <!-- Statistics Cards -->
+    <section class="mb-8">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <?php
+        // Total Users
+        $totalUsersQuery = "SELECT COUNT(*) as total FROM users WHERE role != 'information_modifier'";
+        $totalUsersResult = mysqli_query($connection, $totalUsersQuery);
+        if (!$totalUsersResult) {
+            echo "<script>alert('Error fetching total users: " . mysqli_error($connection) . "');</script>";
+        }
+        $totalUsers = mysqli_fetch_assoc($totalUsersResult)['total'];
+
+        // Total by Role
+        $roles = ['warefare' => 'Director Welfare', 'head_quarter' => 'Head Quarter (HQ)', 'wadden' => 'Hostel Warden'];
+        $roleStats = [];
+        foreach ($roles as $key => $label) {
+          $query = "SELECT COUNT(*) as count FROM users WHERE role = '$key'";
+          $result = mysqli_query($connection, $query);
+          if (!$result) {
+              echo "<script>alert('Error fetching role stats for $key: " . mysqli_error($connection) . "');</script>";
+          }
+          $roleStats[$key] = mysqli_fetch_assoc($result)['count'];
+        }
+
+        // Display Total Users Card
+        echo "<div class='stats-card card p-6 bg-blue-100 text-center'>
+                <h3 class='text-xl font-semibold text-gray-800'>Total Users</h3>
+                <p class='text-3xl font-bold text-blue-600'>$totalUsers</p>
+              </div>";
+
+        // Display Role Stats Cards
+        foreach ($roles as $key => $label) {
+          $count = $roleStats[$key];
+          echo "<div class='stats-card card p-6 bg-green-100 text-center'>
+                  <h3 class='text-xl font-semibold text-gray-800'>$label</h3>
+                  <p class='text-3xl font-bold text-green-600'>$count</p>
+                </div>";
+        }
+        ?>
+      </div>
+    </section>
+
+    <!-- Campus Summaries Cards -->
+    <section class="mb-8">
+      <h2 class="text-2xl font-semibold text-gray-800 mb-4">Campus Summaries</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <?php
+        // Per Campus Summaries
+        $campusQuery = "SELECT * FROM campuses ORDER BY name";
+        $campusResult = mysqli_query($connection, $campusQuery);
+        if (!$campusResult) {
+            echo "<script>alert('Error fetching campuses: " . mysqli_error($connection) . "');</script>";
+        }
+        while ($campus = mysqli_fetch_assoc($campusResult)) {
+          $id = $campus['id'];
+          $name = ucwords($campus['name']);
+
+          // Total users in campus
+          $totalQuery = "SELECT COUNT(*) as total FROM users WHERE campus = $id AND role != 'information_modifier'";
+          $totalResult = mysqli_query($connection, $totalQuery);
+          if (!$totalResult) {
+              echo "<script>alert('Error fetching total users for campus $name: " . mysqli_error($connection) . "');</script>";
+          }
+          $total = mysqli_fetch_assoc($totalResult)['total'];
+
+          // Wardens (waddens)
+          $wardensQuery = "SELECT COUNT(*) as count FROM users WHERE role = 'wadden' AND campus = $id";
+          $wardensResult = mysqli_query($connection, $wardensQuery);
+          if (!$wardensResult) {
+              echo "<script>alert('Error fetching wardens for campus $name: " . mysqli_error($connection) . "');</script>";
+          }
+          $wardens = mysqli_fetch_assoc($wardensResult)['count'];
+
+          // Directors Welfare
+          $directorsQuery = "SELECT COUNT(*) as count FROM users WHERE role = 'warefare' AND campus = $id";
+          $directorsResult = mysqli_query($connection, $directorsQuery);
+          if (!$directorsResult) {
+              echo "<script>alert('Error fetching directors for campus $name: " . mysqli_error($connection) . "');</script>";
+          }
+          $directors = mysqli_fetch_assoc($directorsResult)['count'];
+
+          echo "<div class='stats-card card p-4 bg-purple-100 text-left'>
+                  <h3 class='text-lg font-semibold text-gray-800'>$name</h3>
+                  <p class='text-md text-gray-700'>Total: $total</p>
+                  <p class='text-md text-gray-700'>Wardens: $wardens</p>
+                  <p class='text-md text-gray-700'>Directors Welfare: $directors</p>
+                </div>";
+        }
+
+        // Headquarter Users
+        $hqQuery = "SELECT COUNT(*) as count FROM users WHERE role = 'head_quarter'";
+        $hqResult = mysqli_query($connection, $hqQuery);
+        if (!$hqResult) {
+            echo "<script>alert('Error fetching headquarter users: " . mysqli_error($connection) . "');</script>";
+        }
+        $hqCount = mysqli_fetch_assoc($hqResult)['count'];
+
+        echo "<div class='stats-card card p-4 bg-yellow-100 text-left'>
+                <h3 class='text-lg font-semibold text-gray-800'>Headquarter</h3>
+                <p class='text-md text-gray-700'>Total Users: $hqCount</p>
+              </div>";
+        ?>
+      </div>
+    </section>
+
     <!-- Add User Form -->
     <div class="row">
       <div class="col-lg-5">
@@ -179,10 +308,14 @@ include("../email_functions.php");
                 <select id="floatingCampus" name="campus" class="form-floating w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
                   <option value="" disabled selected>Select Campus</option>
                   <?php
-                  $campusQuery = "SELECT * FROM campuses";
+                  $campusQuery = "SELECT * FROM campuses ORDER BY name";
                   $campusResult = mysqli_query($connection, $campusQuery);
-                  while ($campus = mysqli_fetch_assoc($campusResult)) {
-                    echo "<option value='" . $campus['id'] . "'>" . ucwords($campus['name']) . "</option>";
+                  if ($campusResult) {
+                      while ($campus = mysqli_fetch_assoc($campusResult)) {
+                          echo "<option value='" . $campus['id'] . "'>" . ucwords($campus['name']) . "</option>";
+                      }
+                  } else {
+                      echo "<script>alert('Error fetching campuses: " . mysqli_error($connection) . "');</script>";
                   }
                   ?>
                 </select>
@@ -202,6 +335,8 @@ include("../email_functions.php");
     <section>
       <div class="card p-6 bg-white">
         <h2 class="text-2xl font-semibold text-gray-800 mb-4">Users List</h2>
+        <!-- Error Message -->
+        <div id="errorMessage"></div>
         <!-- Search and Filter Section -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
           <input type="text" id="searchInput" class="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Search by name or email...">
@@ -221,14 +356,23 @@ include("../email_functions.php");
             <?php
             $campusQuery = "SELECT * FROM campuses ORDER BY name";
             $campusResult = mysqli_query($connection, $campusQuery);
-            while ($campus = mysqli_fetch_assoc($campusResult)) {
-              echo "<option value='" . $campus['id'] . "'>" . ucwords($campus['name']) . "</option>";
+            if ($campusResult) {
+                while ($campus = mysqli_fetch_assoc($campusResult)) {
+                    echo "<option value='" . $campus['id'] . "'>" . ucwords($campus['name']) . "</option>";
+                }
+            } else {
+                echo "<script>alert('Error fetching campuses: " . mysqli_error($connection) . "');</script>";
             }
             ?>
           </select>
           <button class="btn-success px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700 flex items-center" onclick="exportToExcel()">
             <i class="fas fa-file-excel mr-2"></i> Export to Excel
           </button>
+        </div>
+        <!-- Loading Indicator -->
+        <div id="loadingIndicator">
+          <i class="fas fa-spinner fa-spin text-3xl text-blue-600"></i>
+          <p>Loading users...</p>
         </div>
         <!-- Users Table -->
         <div class="overflow-x-auto">
@@ -246,77 +390,13 @@ include("../email_functions.php");
               </tr>
             </thead>
             <tbody id="usersTableBody">
-              <?php
-              // Pagination settings
-              $limit = 10; // Number of users per page
-              $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-              $offset = ($page - 1) * $limit;
-
-              // Get total number of users
-              $totalQuery = "SELECT COUNT(*) as total FROM users WHERE role != 'information_modifier'";
-              $totalResult = mysqli_query($connection, $totalQuery);
-              $totalRow = mysqli_fetch_assoc($totalResult);
-              $totalUsers = $totalRow['total'];
-              $totalPages = ceil($totalUsers / $limit);
-
-              // Fetch users for current page
-              $query = "SELECT u.*, c.name as campus_name, c.id as campus_id 
-                       FROM users u 
-                       LEFT JOIN campuses c ON u.campus = c.id 
-                       WHERE u.id != ? AND u.role != 'information_modifier' 
-                       LIMIT ? OFFSET ?";
-              $stmt = $connection->prepare($query);
-              $stmt->bind_param("iii", $id, $limit, $offset);
-              $stmt->execute();
-              $result = $stmt->get_result();
-
-              while ($row = $result->fetch_assoc()) {
-                echo "<tr class='border-b'>";
-                echo "<td class='p-3'><img src='./" . htmlspecialchars($row['image']) . "' class='rounded-full w-10 h-10' alt='User Image'></td>";
-                echo "<td class='p-3'>" . htmlspecialchars($row['names']) . "</td>";
-                echo "<td class='p-3'>" . htmlspecialchars($row['email']) . "</td>";
-                echo "<td class='p-3'>" . htmlspecialchars($row['phone']) . "</td>";
-                echo "<td class='p-3' data-role='" . htmlspecialchars($row['role']) . "'>";
-                if ($row['role'] == 'warefare') {
-                  echo "Director Welfare";
-                } elseif ($row['role'] == 'information_modifier') {
-                  echo "Admin";
-                } elseif ($row['role'] == 'head_quarter') {
-                  echo "Head Quarter (HQ)";
-                } elseif ($row['role'] == 'wadden') {
-                  echo "Hostel Warden";
-                } else {
-                  echo ucfirst(htmlspecialchars($row['role']));
-                }
-                echo "</td>";
-                echo "<td class='p-3' data-campus-id='" . ($row['campus_id'] ?? '') . "'>" . (ucfirst($row['campus_name'] ?? 'N/A')) . "</td>";
-                echo "<td class='p-3'>" . ($row['active'] ? '<span class="text-green-600 font-medium">Active</span>' : '<span class="text-red-600 font-medium">Inactive</span>') . "</td>";
-                echo "<td class='p-3 flex space-x-2'>
-                        <button class='btn-info px-3 py-1 rounded-md bg-blue-600 text-white hover:bg-blue-700' onclick='openEditModal(" . htmlspecialchars(json_encode($row)) . ")'>
-                          <i class='fas fa-edit'></i>
-                        </button>
-                        <a href='user-delete.php?userId=" . htmlspecialchars($row['id']) . "' class='btn-danger px-3 py-1 rounded-md bg-red-600 text-white hover:bg-red-700'><i class='fas fa-trash'></i></a>
-                        <button class='px-3 py-1 rounded-md " . ($row['active'] ? 'btn-warning bg-yellow-500 hover:bg-yellow-600' : 'btn-success bg-green-600 hover:bg-green-700') . " text-white' 
-                                onclick='" . ($row['active'] ? 'confirmDeactivation' : 'confirmActivation') . "(" . htmlspecialchars($row['id']) . ", \"" . htmlspecialchars($row['names']) . "\")'>
-                          <i class='fas " . ($row['active'] ? 'fa-toggle-on' : 'fa-toggle-off') . "'></i>
-                        </button>
-                      </td>";
-                echo "</tr>";
-              }
-              $stmt->close();
-              ?>
+              <!-- Users will be loaded dynamically via JS -->
             </tbody>
           </table>
         </div>
         <!-- Pagination -->
-        <div class="pagination">
-          <?php
-          if ($totalPages > 1) {
-            for ($i = 1; $i <= $totalPages; $i++) {
-              echo "<a href='add_user.php?page=$i' class='" . ($i == $page ? 'active' : '') . "'>$i</a>";
-            }
-          }
-          ?>
+        <div id="pagination" class="pagination">
+          <!-- Pagination links will be loaded dynamically -->
         </div>
       </div>
     </section>
@@ -348,10 +428,14 @@ include("../email_functions.php");
             <select id="editCampus" name="campus" class="form-floating w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500">
               <option value="" disabled selected>Select Campus</option>
               <?php
-              $campusQuery = "SELECT * FROM campuses";
+              $campusQuery = "SELECT * FROM campuses ORDER BY name";
               $campusResult = mysqli_query($connection, $campusQuery);
-              while ($campus = mysqli_fetch_assoc($campusResult)) {
-                echo "<option value='" . $campus['id'] . "'>" . ucwords($campus['name']) . "</option>";
+              if ($campusResult) {
+                  while ($campus = mysqli_fetch_assoc($campusResult)) {
+                      echo "<option value='" . $campus['id'] . "'>" . ucwords($campus['name']) . "</option>";
+                  }
+              } else {
+                  echo "<script>alert('Error fetching campuses: " . mysqli_error($connection) . "');</script>";
               }
               ?>
             </select>
@@ -387,6 +471,7 @@ include("../email_functions.php");
       } else {
         campusField.classList.add('hidden');
         campusSelect.required = false;
+        campusSelect.value = '';
       }
     }
 
@@ -402,6 +487,7 @@ include("../email_functions.php");
       } else {
         campusField.classList.add('hidden');
         campusSelect.required = false;
+        campusSelect.value = '';
       }
     }
 
@@ -428,7 +514,7 @@ include("../email_functions.php");
       document.getElementById('editUserModal').classList.add('hidden');
     }
 
-    // Debounce function for search input
+    // Debounce function
     function debounce(func, wait) {
       let timeout;
       return function executedFunction(...args) {
@@ -441,31 +527,89 @@ include("../email_functions.php");
       };
     }
 
-    // Filter table with improved role filtering
-    function filterTable() {
-      const searchText = document.getElementById('searchInput').value.toLowerCase();
+    // Load users dynamically
+    function loadUsers(page = 1) {
+      const searchText = document.getElementById('searchInput').value;
       const roleFilter = document.getElementById('roleFilter').value;
       const statusFilter = document.getElementById('statusFilter').value;
       const campusFilter = document.getElementById('campusFilter').value;
-      const rows = document.getElementById('usersTableBody').getElementsByTagName('tr');
+      const loading = document.getElementById('loadingIndicator');
+      const errorMessage = document.getElementById('errorMessage');
+      loading.style.display = 'block';
+      errorMessage.style.display = 'none';
 
-      for (let row of rows) {
-        const name = row.cells[1].textContent.toLowerCase();
-        const email = row.cells[2].textContent.toLowerCase();
-        const role = row.cells[4].getAttribute('data-role');
-        const status = row.cells[6].textContent === 'Active' ? '1' : '0';
-        const campusId = row.cells[5].getAttribute('data-campus-id');
+      fetch(`fetch_users.php?page=${page}&search=${encodeURIComponent(searchText)}&role=${roleFilter}&status=${statusFilter}&campus=${campusFilter}`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          loading.style.display = 'none';
+          if (data.error) {
+            errorMessage.textContent = data.error;
+            errorMessage.style.display = 'block';
+            return;
+          }
+          const tableBody = document.getElementById('usersTableBody');
+          tableBody.innerHTML = '';
+          data.users.forEach(user => {
+            let row = `<tr class='border-b'>
+                         <td class='p-3'><img src='./${user.image}' class='rounded-full w-10 h-10' alt='User Image'></td>
+                         <td class='p-3'>${user.names}</td>
+                         <td class='p-3'>${user.email}</td>
+                         <td class='p-3'>${user.phone}</td>
+                         <td class='p-3' data-role='${user.role}'>`;
+            if (user.role === 'warefare') row += 'Director Welfare';
+            else if (user.role === 'head_quarter') row += 'Head Quarter (HQ)';
+            else if (user.role === 'wadden') row += 'Hostel Warden';
+            else row += user.role.charAt(0).toUpperCase() + user.role.slice(1);
+            row += `</td>
+                    <td class='p-3' data-campus-id='${user.campus_id || ''}'>${user.campus_name}</td>
+                    <td class='p-3'>${user.active ? '<span class="text-green-600 font-medium">Active</span>' : '<span class="text-red-600 font-medium">Inactive</span>'}</td>
+                    <td class='p-3 flex space-x-2'>
+                      <button class='btn-info px-3 py-1 rounded-md bg-blue-600 text-white hover:bg-blue-700' onclick='openEditModal(${JSON.stringify(user)})'>
+                        <i class='fas fa-edit'></i>
+                      </button>
+                      <a href='user-delete.php?userId=${user.id}' class='btn-danger px-3 py-1 rounded-md bg-red-600 text-white hover:bg-red-700'><i class='fas fa-trash'></i></a>
+                      <button class='px-3 py-1 rounded-md ${user.active ? 'btn-warning bg-yellow-500 hover:bg-yellow-600' : 'btn-success bg-green-600 hover:bg-green-700'} text-white' 
+                              onclick='${user.active ? 'confirmDeactivation' : 'confirmActivation'}(${user.id}, "${user.names}")'>
+                        <i class='fas ${user.active ? 'fa-toggle-on' : 'fa-toggle-off'}'></i>
+                      </button>
+                    </td>
+                  </tr>`;
+            tableBody.innerHTML += row;
+          });
 
-        const matchesSearch = name.includes(searchText) || email.includes(searchText);
-        const matchesRole = !roleFilter || role === roleFilter;
-        const matchesStatus = !statusFilter || status === statusFilter;
-        const matchesCampus = !campusFilter || campusId === campusFilter;
-
-        row.style.display = matchesSearch && matchesRole && matchesStatus && matchesCampus ? '' : 'none';
-      }
+          // Update pagination
+          const pagination = document.getElementById('pagination');
+          pagination.innerHTML = '';
+          if (data.totalPages > 1) {
+            for (let i = 1; i <= data.totalPages; i++) {
+              const link = document.createElement('a');
+              link.href = '#';
+              link.textContent = i;
+              if (i === data.page) {
+                link.classList.add('active');
+              }
+              link.onclick = (e) => {
+                e.preventDefault();
+                loadUsers(i);
+              };
+              pagination.appendChild(link);
+            }
+          }
+        })
+        .catch(error => {
+          loading.style.display = 'none';
+          errorMessage.textContent = 'Error loading users: ' + error.message;
+          errorMessage.style.display = 'block';
+          console.error('Fetch error:', error);
+        });
     }
 
-    // Excel export function
+    // Excel export function (exports current filtered data)
     function exportToExcel() {
       const table = document.getElementById('usersTableBody');
       const rows = table.getElementsByTagName('tr');
@@ -473,17 +617,15 @@ include("../email_functions.php");
       const ws_data = [['Name', 'Email', 'Phone', 'Role', 'Campus', 'Status']];
 
       for (let row of rows) {
-        if (row.style.display !== 'none') {
-          const cells = row.getElementsByTagName('td');
-          ws_data.push([
-            cells[1].textContent,
-            cells[2].textContent,
-            cells[3].textContent,
-            cells[4].textContent,
-            cells[5].textContent,
-            cells[6].textContent
-          ]);
-        }
+        const cells = row.getElementsByTagName('td');
+        ws_data.push([
+          cells[1].textContent,
+          cells[2].textContent,
+          cells[3].textContent,
+          cells[4].textContent,
+          cells[5].textContent,
+          cells[6].textContent
+        ]);
       }
 
       const ws = XLSX.utils.aoa_to_sheet(ws_data);
@@ -521,11 +663,14 @@ include("../email_functions.php");
       }
     }
 
-    // Event listeners with debouncing for search
-    document.getElementById('searchInput').addEventListener('input', debounce(filterTable, 300));
-    document.getElementById('roleFilter').addEventListener('change', filterTable);
-    document.getElementById('statusFilter').addEventListener('change', filterTable);
-    document.getElementById('campusFilter').addEventListener('change', filterTable);
+    // Event listeners
+    document.getElementById('searchInput').addEventListener('input', debounce(() => loadUsers(1), 300));
+    document.getElementById('roleFilter').addEventListener('change', () => loadUsers(1));
+    document.getElementById('statusFilter').addEventListener('change', () => loadUsers(1));
+    document.getElementById('campusFilter').addEventListener('change', () => loadUsers(1));
+
+    // Initial load
+    window.addEventListener('load', () => loadUsers(1));
   </script>
 
   <?php
@@ -536,32 +681,39 @@ include("../email_functions.php");
     $phone = $_POST['phone'];
     $role = $_POST['role'];
     $password = $_POST['password'];
-    $campus = ($role === 'warefare' || $role === 'wadden') ? $_POST['campus'] : null;
+    $campus = ($role === 'warefare' || $role === 'wadden') ? ($_POST['campus'] ?? null) : null;
 
-    if (!empty($name) && !empty($email) && !empty($password)) {
+    if (!empty($name) && !empty($email) && !empty($phone) && !empty($role) && !empty($password)) {
       // Validate email format
       if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         echo "<script>alert('Invalid email format.')</script>";
       } else {
         // Check for duplicate email
         $stmt = $connection->prepare("SELECT id FROM users WHERE email = ?");
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        if ($stmt->get_result()->num_rows > 0) {
-          echo "<script>alert('Email already exists.')</script>";
+        if (!$stmt) {
+            echo "<script>alert('Error preparing email check: " . mysqli_error($connection) . "');</script>";
         } else {
-          $hashed_password = password_hash($password, PASSWORD_BCRYPT);
-          $stmt = $connection->prepare("INSERT INTO users (names, email, phone, role, password, image, active, campus) VALUES (?, ?, ?, ?, ?, 'assets/img/av.png', 1, ?)");
-          $stmt->bind_param("ssssss", $name, $email, $phone, $role, $hashed_password, $campus);
-
-          if ($stmt->execute()) {
-            sendWelcomeEmail($email, $name, $password);
-            echo "<script>alert('User added successfully.'); window.location.href='add_user.php';</script>";
-          } else {
-            echo "<script>alert('Error occurred while adding user.')</script>";
-          }
+            $stmt->bind_param("s", $email);
+            $stmt->execute();
+            if ($stmt->get_result()->num_rows > 0) {
+              echo "<script>alert('Email already exists.')</script>";
+            } else {
+              $hashed_password = password_hash($password, PASSWORD_BCRYPT);
+              $stmt = $connection->prepare("INSERT INTO users (names, email, phone, role, password, image, active, campus) VALUES (?, ?, ?, ?, ?, 'assets/img/av.png', 1, ?)");
+              if (!$stmt) {
+                  echo "<script>alert('Error preparing insert: " . mysqli_error($connection) . "');</script>";
+              } else {
+                  $stmt->bind_param("ssssss", $name, $email, $phone, $role, $hashed_password, $campus);
+                  if ($stmt->execute()) {
+                    sendWelcomeEmail($email, $name, $password);
+                    echo "<script>alert('User added successfully.'); window.location.href='add_user.php';</script>";
+                  } else {
+                    echo "<script>alert('Error occurred while adding user: " . $stmt->error . "');</script>";
+                  }
+              }
+            }
+            $stmt->close();
         }
-        $stmt->close();
       }
     } else {
       echo "<script>alert('Please fill all required fields.')</script>";
@@ -575,30 +727,37 @@ include("../email_functions.php");
     $email = $_POST['email'];
     $phone = $_POST['phone'];
     $role = $_POST['role'];
-    $campus = ($role === 'warefare' || $role === 'wadden') ? $_POST['campus'] : null;
+    $campus = ($role === 'warefare' || $role === 'wadden') ? ($_POST['campus'] ?? null) : null;
 
-    if (!empty($name) && !empty($email)) {
+    if (!empty($name) && !empty($email) && !empty($phone) && !empty($role)) {
       // Validate email format
       if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         echo "<script>alert('Invalid email format.')</script>";
       } else {
         // Check for duplicate email (excluding current user)
         $stmt = $connection->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
-        $stmt->bind_param("si", $email, $userId);
-        $stmt->execute();
-        if ($stmt->get_result()->num_rows > 0) {
-          echo "<script>alert('Email already exists.')</script>";
+        if (!$stmt) {
+            echo "<script>alert('Error preparing email check: " . mysqli_error($connection) . "');</script>";
         } else {
-          $stmt = $connection->prepare("UPDATE users SET names = ?, email = ?, phone = ?, role = ?, campus = ? WHERE id = ?");
-          $stmt->bind_param("sssssi", $name, $email, $phone, $role, $campus, $userId);
-
-          if ($stmt->execute()) {
-            echo "<script>alert('User updated successfully.'); window.location.href='add_user.php';</script>";
-          } else {
-            echo "<script>alert('Error occurred while updating user.')</script>";
-          }
+            $stmt->bind_param("si", $email, $userId);
+            $stmt->execute();
+            if ($stmt->get_result()->num_rows > 0) {
+              echo "<script>alert('Email already exists.')</script>";
+            } else {
+              $stmt = $connection->prepare("UPDATE users SET names = ?, email = ?, phone = ?, role = ?, campus = ? WHERE id = ?");
+              if (!$stmt) {
+                  echo "<script>alert('Error preparing update: " . mysqli_error($connection) . "');</script>";
+              } else {
+                  $stmt->bind_param("sssssi", $name, $email, $phone, $role, $campus, $userId);
+                  if ($stmt->execute()) {
+                    echo "<script>alert('User updated successfully.'); window.location.href='add_user.php';</script>";
+                  } else {
+                    echo "<script>alert('Error occurred while updating user: " . $stmt->error . "');</script>";
+                  }
+              }
+            }
+            $stmt->close();
         }
-        $stmt->close();
       }
     } else {
       echo "<script>alert('Please fill all required fields.')</script>";
@@ -606,4 +765,4 @@ include("../email_functions.php");
   }
   ?>
 </body>
-</html> 
+</html>

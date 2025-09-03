@@ -402,9 +402,9 @@ function displayNoHostelsCard($reasons = []) {
                         </ul>
                     <?php endif; ?>
                 </div>
-                <a href="/update-profile" class="btn btn-secondary w-100">
+                <!-- <a href="/update-profile" class="btn btn-secondary w-100">
                     <i class="bi bi-pencil-square me-2"></i>Update Your Profile
-                </a>
+                </a> -->
             </div>
         </div>
     </div>

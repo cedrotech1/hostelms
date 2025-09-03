@@ -98,6 +98,12 @@
             </li>
 
             <li class="nav-item">
+                <a class="nav-link collapsed" href="search_wadden.php">
+                    <i class="bi bi-file-earmark-bar-graph"></i><span>Reports Page</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
                 <a class="nav-link collapsed" href="users-profile.php">
                     <i class="bi bi-person"></i><span>My Account</span>
                 </a>
@@ -185,7 +191,7 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link collapsed" href="manage_applications.php">
-                    <i class="bi bi-clock-history"></i><span>Manage Applications<br> Pending(4)</span>
+                    <i class="bi bi-clock-history"></i><span>Manage Applications</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -201,6 +207,11 @@
             <li class="nav-item">
                 <a class="nav-link collapsed" href="blacklist.php">
                     <i class="bi bi-person-x"></i><span>Blacklist</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="manage_campus_claims.php">
+                    <i class="bi bi-file-earmark-bar-graph"></i><span>Manage Campus Claims</span>
                 </a>
             </li>
             <li class="nav-item">

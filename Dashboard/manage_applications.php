@@ -480,7 +480,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
-    <!-- SLEP Image Modal -->
+    <!-- Receipt PDF Modal -->
     <div class="modal fade slep-modal" id="slepModal" tabindex="-1">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
@@ -488,16 +488,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <h5 class="modal-title">Receipt Document</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <div class="d-flex gap-2 mb-2">
+                <div class="modal-body p-0">
+                    <div class="d-flex gap-2 mb-2 p-3 border-bottom">
                         <button id="viewReceiptButton" class="btn btn-sm btn-primary">
-                            <i class="bi bi-eye"></i> Full Screen
+                            <i class="bi bi-arrows-fullscreen"></i> Full Screen
                         </button>
                         <button id="downloadReceiptButton" class="btn btn-sm btn-secondary">
                             <i class="bi bi-download"></i> Download
                         </button>
                     </div>
-                    <img id="slepImage" class="slep-image" src="" alt="SLEP Document">
+                    <div class="ratio ratio-16x9">
+                        <iframe id="pdfViewer" class="w-100" style="height: 70vh; border: none;"></iframe>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -805,51 +807,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             
                             console.log('Full receipt path:', receiptPath); // Debug log
                             
-                            // Create new image element to handle loading
-                            const newImg = new Image();
-                            newImg.className = 'img-fluid';
-                            newImg.alt = 'Receipt Document';
+                            // Clear previous content
+                            receiptContainer.innerHTML = '';
                             
-                            // Set up error handling
-                            newImg.onerror = function() {
+                            // Create iframe for PDF preview
+                            const iframe = document.createElement('iframe');
+                            iframe.className = 'w-100';
+                            iframe.style.height = '500px';
+                            iframe.style.border = '1px solid #dee2e6';
+                            iframe.style.borderRadius = '0.25rem';
+                            iframe.src = receiptPath + '#toolbar=0&navpanes=0&scrollbar=0';
+                            
+                            // Add error handling
+                            iframe.onerror = function() {
                                 receiptContainer.innerHTML = `
                                     <div class="alert alert-warning">
-                                        Failed to load receipt image. 
+                                        Failed to load PDF document. 
                                         <br>Path: ${receiptPath}
                                         <br>Please check if the file exists and is accessible.
                                     </div>`;
                             };
                             
-                            // Set up success handling
-                            newImg.onload = function() {
-                                // Replace the container content with the loaded image
-                                receiptContainer.innerHTML = '';
-                                receiptContainer.appendChild(newImg);
-                                
-                                // Set up full screen view button
-                                const viewFullScreenBtn = document.getElementById('viewFullScreenBtn');
-                                if (viewFullScreenBtn) {
-                                    viewFullScreenBtn.onclick = function() {
-                                        window.open(receiptPath, '_blank');
-                                    };
-                                }
-                                
-                                // Set up download button
-                                const downloadReceiptBtn = document.getElementById('downloadReceiptBtn');
-                                if (downloadReceiptBtn) {
-                                    downloadReceiptBtn.onclick = function() {
-                                        const link = document.createElement('a');
-                                        link.href = receiptPath;
-                                        link.download = 'receipt_' + app.regnumber + '.jpg';
-                                        document.body.appendChild(link);
-                                        link.click();
-                                        document.body.removeChild(link);
-                                    };
-                                }
-                            };
+                            // Add iframe to container
+                            receiptContainer.appendChild(iframe);
                             
-                            // Start loading the image
-                            newImg.src = receiptPath;
+                            // Set up full screen view button
+                            const viewFullScreenBtn = document.getElementById('viewFullScreenBtn');
+                            if (viewFullScreenBtn) {
+                                viewFullScreenBtn.onclick = function() {
+                                    window.open(receiptPath, '_blank');
+                                };
+                            }
+                            
+                            // Set up download button
+                            const downloadReceiptBtn = document.getElementById('downloadReceiptBtn');
+                            if (downloadReceiptBtn) {
+                                downloadReceiptBtn.onclick = function() {
+                                    const link = document.createElement('a');
+                                    link.href = receiptPath;
+                                    link.download = 'receipt_' + app.regnumber + '.pdf';
+                                    document.body.appendChild(link);
+                                    link.click();
+                                    document.body.removeChild(link);
+                                };
+                            }
                             
                         } else {
                             receiptContainer.innerHTML = '<div class="alert alert-info">No receipt document uploaded</div>';

@@ -47,6 +47,11 @@ if ($status != "live") {
             <i class="bi bi-card-heading me-1"></i> Hostel Card
           </a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link d-flex align-items-center" href="form.php">
+            <i class="bi bi-card-heading me-1"></i> Hostel Form
+          </a>
+        </li>
         <!-- Add more nav items as needed -->
       </ul>
       <ul class="navbar-nav ms-auto">

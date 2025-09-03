@@ -205,12 +205,15 @@ foreach ($dataRows as $rowIndex => $row) {
 
     // Validate campus for welfare users
     // campus should be small case
-    $campusInput = strtolower($campusInput);
-    $userCampus = strtolower($userCampus);
-    if ($userRole === 'warefare' || $userRole === 'wadden' && $campusInput !== $userCampus) {
-        $validationErrors[] = "Row $rowNumber: Unauthorized campus '$campusInput' for this user";
-        continue;
-    }
+   // Normalize values for safe comparison
+$campusInput = strtolower($campusInput);
+$userCampus  = strtolower($userCampus);
+
+// Restrict only wadden and warefare to their assigned campus
+if (in_array($userRole, ['wadden', 'warefare']) && $campusInput !== $userCampus) {
+    $validationErrors[] = "Row $rowNumber: Unauthorized campus '$campusInput' for this user";
+    continue;
+}
 
     // Validate campus exists
     $campusQuery = $connection->prepare("SELECT id FROM campuses WHERE UPPER(name) = ?");

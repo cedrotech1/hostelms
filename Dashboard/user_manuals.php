@@ -68,7 +68,7 @@ $result = $stmt->get_result();
                 </tbody>
             </table>
         </div>
-    </div>
+    </div>d
 </div>
     </main>
     <?php

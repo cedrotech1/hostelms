@@ -182,13 +182,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' || isset($_GET['action'])) {
                 }
 
                 // Check if building code already exists in the campus (excluding current hostel)
-                $stmt = $connection->prepare("SELECT id FROM hostels WHERE building_code = ? AND campus_id = ? AND id != ?");
-                $stmt->bind_param("sii", $building_code, $campus_id, $id);
-                $stmt->execute();
-                $result = $stmt->get_result();
-                if ($result->num_rows > 0) {
-                    throw new Exception('A hostel with this building code already exists in this campus');
-                }
+                // $stmt = $connection->prepare("SELECT id FROM hostels WHERE building_code = ? AND campus_id = ? AND id != ?");
+                // $stmt->bind_param("sii", $building_code, $campus_id, $id);
+                // $stmt->execute();
+                // $result = $stmt->get_result();
+                // if ($result->num_rows > 0) {
+                //     throw new Exception('A hostel with this building code already exists in this campus');
+                // }
 
                 // Update hostel with user tracking
                 $stmt = $connection->prepare("UPDATE hostels SET name = ?, building_code = ?, othernames = ?, gender = ?, year = ?, intake = ?, campus_id = ?, college = ?, school = ?, disability = ?, status = ?, updatedBy = ? WHERE id = ?");
