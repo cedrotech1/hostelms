@@ -1,33 +1,19 @@
 <?php
 include('connection.php');
-
+// session_start();
 
 // Set timezone
-date_default_timezone_set('Africa/Kigali'); // Set to Rwanda timezone
+date_default_timezone_set('Africa/Kigali');
 
 function getTimeAgo($datetime) {
-    // Assume input datetime is already in 'Africa/Kigali' timezone
     $dt = new DateTime($datetime, new DateTimeZone('Africa/Kigali'));
     $now = new DateTime('now', new DateTimeZone('Africa/Kigali'));
 
-    $timestamp = $dt->getTimestamp();
-    $nowTimestamp = $now->getTimestamp();
+    $diff = $now->getTimestamp() - $dt->getTimestamp();
+    $suffix = $diff < 0 ? 'from now' : 'ago';
+    $diff = abs($diff);
 
-    $diff = $nowTimestamp - $timestamp;
-
-    if ($diff < 0) {
-        $diff = abs($diff);
-        $suffix = 'from now';
-    } else {
-        $suffix = 'ago';
-    }
-
-    if ($diff < 1) {
-        return 'just now';
-    }
-
-    // Define time units in seconds
-    $intervals = array(
+    $intervals = [
         31536000 => 'year',
         2592000  => 'month',
         604800   => 'week',
@@ -35,7 +21,7 @@ function getTimeAgo($datetime) {
         3600     => 'hour',
         60       => 'minute',
         1        => 'second'
-    );
+    ];
 
     foreach ($intervals as $seconds => $label) {
         $interval = floor($diff / $seconds);
@@ -44,11 +30,8 @@ function getTimeAgo($datetime) {
             return $interval . ' ' . $label . $plural . ' ' . $suffix;
         }
     }
-
     return 'just now';
 }
-
-
 
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $search = isset($_GET['search']) ? mysqli_real_escape_string($connection, $_GET['search']) : '';
@@ -59,15 +42,15 @@ $sort_order = isset($_GET['sort_order']) ? mysqli_real_escape_string($connection
 
 $offset = ($page - 1) * $per_page;
 
-$id =$_SESSION['id'];
+// Get logged in user
+$id = $_SESSION['id'];
 $sql = "SELECT * FROM users WHERE id = $id";
 $result = mysqli_query($connection, $sql);
 $row = mysqli_fetch_assoc($result);
 $mycampus = $row['campus'];
-$role=$row['role'];
+$role = $row['role'];
 
-
-// Build the search condition
+// --- Build WHERE conditions ---
 $search_condition = '';
 if (!empty($search)) {
     $search_condition = " AND (
@@ -83,16 +66,34 @@ if (!empty($search)) {
     )";
 }
 
-// Build the status condition
 $status_condition = '';
 if (!empty($status)) {
     $status_condition = " AND a.status = '$status'";
 }
 
-// Add campus condition
-$campus_condition = "AND c.id = $mycampus";
+// Role-based hostel restriction
+$hostel_condition = "";
+if ($role === "wadden") {
+    // Get list of hostels assigned to this warden
+    $wardenHostels = [];
+    $wardenQuery = "SELECT hostel_id FROM wadden_hostels WHERE wadden_id = $id";
+    $wardenRes = mysqli_query($connection, $wardenQuery);
+    while ($h = mysqli_fetch_assoc($wardenRes)) {
+        $wardenHostels[] = $h['hostel_id'];
+    }
+    if (!empty($wardenHostels)) {
+        $hostelIds = implode(",", $wardenHostels);
+        $hostel_condition = " AND h.id IN ($hostelIds)";
+    } else {
+        // no hostels assigned
+        $hostel_condition = " AND 1=0";
+    }
+} elseif ($role === "warefare") {
+    // Welfare can access all hostels in their campus
+    $hostel_condition = " AND h.campus_id = '$mycampus'";
+}
 
-// Validate and sanitize sort parameters
+// Sorting
 $valid_sort_columns = [
     'regnumber' => 'i.regnumber',
     'name' => 'i.names',
@@ -110,18 +111,11 @@ $valid_sort_columns = [
 $sort_column = isset($valid_sort_columns[$sort_by]) ? $valid_sort_columns[$sort_by] : 'a.updated_at';
 $sort_order = strtoupper($sort_order) === 'ASC' ? 'ASC' : 'DESC';
 
-// Get applications with pagination, search, and sorting
+// Main query
 $query = "SELECT 
             a.*, 
-            i.names, 
-            i.gender, 
-            i.yearofstudy, 
-            i.email, 
-            i.phone,
-            i.campus,
-            i.college,
-            i.school,
-            i.program,
+            i.names, i.gender, i.yearofstudy, i.email, i.phone,
+            i.campus, i.college, i.school, i.program,
             r.room_code,
             h.name as hostel_name,
             h.campus_id as campus_id
@@ -130,7 +124,7 @@ $query = "SELECT
           JOIN rooms r ON r.id = a.room_id
           JOIN hostels h ON h.id = r.hostel_id
           JOIN campuses c ON c.id = h.campus_id
-          WHERE 1=1 $search_condition $status_condition $campus_condition and h.campus_id='$mycampus'
+          WHERE 1=1 $search_condition $status_condition $hostel_condition
           ORDER BY $sort_column $sort_order
           LIMIT $offset, $per_page";
 
@@ -150,30 +144,18 @@ if ($result && mysqli_num_rows($result) > 0) {
                 </tr>
             </thead>
             <tbody>';
-    
+
     while ($app = mysqli_fetch_assoc($result)) {
-        // Debug output
-        error_log("Application ID: " . $app['id']);
-        error_log("Updated At: " . $app['updated_at']);
-        
-        // Set status class based on status
         $status_class = '';
         switch($app['status']) {
-            case 'pending': 
-                $status_class = 'status-pending';
-                break;
-            case 'paid':
-                $status_class = 'status-paid';
-                break;
-            case 'approved':
-                $status_class = 'status-approved';
-                break;
-            default:
-                $status_class = 'status-' . $app['status'];
+            case 'pending': $status_class = 'status-pending'; break;
+            case 'paid': $status_class = 'status-paid'; break;
+            case 'approved': $status_class = 'status-approved'; break;
+            default: $status_class = 'status-' . $app['status'];
         }
-        
+
         $time_ago = getTimeAgo($app['updated_at']);
-        
+
         echo '<tr>
                 <td>' . htmlspecialchars($app['regnumber']) . '</td>
                 <td>' . htmlspecialchars($app['names']) . '</td>
@@ -188,9 +170,9 @@ if ($result && mysqli_num_rows($result) > 0) {
                 </td>
             </tr>';
     }
-    
+
     echo '</tbody></table>';
 } else {
     echo '<div class="alert alert-info">No applications found.</div>';
 }
-?> 
+?>

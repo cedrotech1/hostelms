@@ -59,13 +59,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['room_id']) && isset($
 
         // Check if room is still available considering pending applications
         if ($room['remain'] == 0) {
-            throw new Exception("Room is no longer available due to pending applications.");
+            throw new Exception("Room is no longer available.");
         }
 
         // Check if room has too many recent applications
-        if ($room['recent_applications'] >= $room['remain']) {
-            throw new Exception("This room has too many pending applications. Please try another room.");
-        }
+        // if ($room['recent_applications'] >= $room['remain']) {
+        //     throw new Exception("This room has too many pending applications. Please try another room.");
+        // }
 
         // Check if total applications (including pending) exceed room capacity
         if ($room['current_applications'] >= $room['number_of_beds']) {
@@ -73,27 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['room_id']) && isset($
         }
 
         // Check hostel attributes against student attributes
-        $attributes_query = "SELECT * FROM hostel_attributes WHERE hostel_id = ?";
-        $attributes_stmt = $connection->prepare($attributes_query);
-        $attributes_stmt->bind_param("i", $hostel_id);
-        $attributes_stmt->execute();
-        $attributes = $attributes_stmt->get_result();
-
-        $is_eligible = true;
-        while ($attr = $attributes->fetch_assoc()) {
-            if ($attr['attribute_key'] === 'gender' && $attr['attribute_value'] !== $student_gender) {
-                $is_eligible = false;
-                break;
-            }
-            if ($attr['attribute_key'] === 'year_of_study' && $attr['attribute_value'] != $student_year) {
-                $is_eligible = false;
-                break;
-            }
-        }
-
-        if (!$is_eligible) {
-            throw new Exception("You are not eligible for this hostel based on the requirements.");
-        }
+    
         // currect time in Rwanda
         $current_time = date('Y-m-d H:i:s');
         // Insert application with timestamp

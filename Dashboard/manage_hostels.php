@@ -385,34 +385,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' || isset($_GET['action'])) {
                 }
                 break;
 
-            case 'delete_hostel':
-                // Validate required fields
-                if (empty($_POST['id'])) {
-                    throw new Exception('Hostel ID is required');
-                }
-
-                // Store values in variables
-                $hostel_id = $_POST['id'];
-
-                // First delete all rooms in the hostel
-                $stmt = $connection->prepare("DELETE FROM rooms WHERE hostel_id = ?");
-                $stmt->bind_param("i", $hostel_id);
-                $stmt->execute();
-
-                // Then delete the hostel
-                $stmt = $connection->prepare("DELETE FROM hostels WHERE id = ?");
-                $stmt->bind_param("i", $hostel_id);
-
-                if ($stmt->execute()) {
-                    echo json_encode([
-                        'success' => true,
-                        'message' => 'Hostel and its rooms deleted successfully'
-                    ]);
-                } else {
-                    throw new Exception('Failed to delete hostel: ' . $stmt->error);
-                }
-                break;
-
+                case 'delete_hostel':
+                    if (empty($_POST['id'])) {
+                        throw new Exception('Hostel ID is required');
+                    }
+                
+                    $hostel_id = $_POST['id'];
+                
+                    // Start transaction to ensure all-or-nothing
+                    $connection->begin_transaction();
+                
+                    try {
+                        // 1. Get all room IDs in this hostel
+                        $stmt = $connection->prepare("SELECT id FROM rooms WHERE hostel_id = ?");
+                        $stmt->bind_param("i", $hostel_id);
+                        $stmt->execute();
+                        $result = $stmt->get_result();
+                        $roomIds = [];
+                        while ($row = $result->fetch_assoc()) {
+                            $roomIds[] = $row['id'];
+                        }
+                
+                        if (!empty($roomIds)) {
+                            // 2. Delete all applications in these rooms
+                            $roomIdsStr = implode(',', $roomIds);
+                            $connection->query("DELETE FROM applications WHERE room_id IN ($roomIdsStr)");
+                
+                            // 3. Delete the rooms
+                            $connection->query("DELETE FROM rooms WHERE id IN ($roomIdsStr)");
+                        }
+                
+                        // 4. Delete the hostel
+                        $stmt = $connection->prepare("DELETE FROM hostels WHERE id = ?");
+                        $stmt->bind_param("i", $hostel_id);
+                        $stmt->execute();
+                
+                        $connection->commit();
+                
+                        echo json_encode([
+                            'success' => true,
+                            'message' => 'Hostel, its rooms, and associated applications deleted successfully'
+                        ]);
+                    } catch (Exception $e) {
+                        $connection->rollback();
+                        throw new Exception('Failed to delete hostel: ' . $e->getMessage());
+                    }
+                    break;
+                
             case 'add_campus':
                 // Validate required fields
                 if (empty($_POST['campus_name'])) {

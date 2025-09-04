@@ -542,7 +542,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         let perPage = 10;
         let currentApplicationId = null;
         let updateInterval = null; // Variable to hold the interval timer
-        const updateIntervalTime = 1000; // Update interval in milliseconds (e.g., 30 seconds)
+    //  update in 30 minutes
+        const updateIntervalTime = 1800000; // Update interval in milliseconds (e.g., 30 seconds)
 
         // Load applications
         function loadApplications() {

@@ -131,11 +131,7 @@
                     <i class="bi bi-person-plus"></i><span>Manage Users</span>
                 </a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="user_manuals.php">
-                    <i class="bi bi-file-text"></i><span>User Manuals</span>
-                </a>
-            </li>
+         
             <li class="nav-item">
                 <a class="nav-link collapsed" href="hostels-head.php">
                     <i class="bi bi-file-earmark-bar-graph"></i><span>Hostel Summary</span>
@@ -144,6 +140,11 @@
             <li class="nav-item">
                 <a class="nav-link collapsed" href="application-head.php">
                     <i class="bi bi-file-earmark-bar-graph"></i><span>Application Summary</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="manage_ur_waddens.php">
+                    <i class="bi bi-file-earmark-bar-graph"></i><span>Manage Hostel Wardens</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -172,6 +173,16 @@
             <li class="nav-item">
                 <a class="nav-link collapsed" href="index.php">
                     <i class="bi bi-house-door"></i><span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="waiting.php">
+                    <i class="bi bi-file-text"></i><span>Waiting List</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="prof_page.php">
+                    <i class="bi bi-file-text"></i><span>Disability Proofs</span>
                 </a>
             </li>
             <li class="nav-item">

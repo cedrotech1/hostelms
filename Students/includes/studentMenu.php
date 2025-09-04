@@ -32,11 +32,7 @@ if ($status != "live") {
             <i class="bi bi-house-door me-1"></i> Home
           </a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link d-flex align-items-center" href="submit_claim.php">
-            <i class="bi bi-file-earmark-plus me-1"></i> Submit Claim
-          </a>
-        </li>
+        
         <li class="nav-item">
           <a class="nav-link d-flex align-items-center" href="view_my_claims.php">
             <i class="bi bi-clipboard-data me-1"></i> My Claims
@@ -50,6 +46,12 @@ if ($status != "live") {
         <li class="nav-item">
           <a class="nav-link d-flex align-items-center" href="form.php">
             <i class="bi bi-card-heading me-1"></i> Hostel Form
+          </a>
+        </li>
+        <!--  Disability Proof -->
+        <li class="nav-item">
+          <a class="nav-link d-flex align-items-center" href="upload_disability_proof.php">
+            <i class="bi bi-card-heading me-1"></i> Upload Disability Proof
           </a>
         </li>
         <!-- Add more nav items as needed -->

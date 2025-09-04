@@ -79,6 +79,7 @@ $claims_result = $stmt->get_result();
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
     <link href="../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="../assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="../assets/vendor/lightbox2/css/lightbox.min.css" rel="stylesheet">
     <link href="../assets/css/style.css" rel="stylesheet">
     
     <style>
@@ -194,6 +195,10 @@ $claims_result = $stmt->get_result();
 
         <section class="section">
             <div class="container">
+                <?php
+                include("./submit_claim.php");
+
+                ?>
                 <div class="row">
                   
                       
@@ -202,22 +207,39 @@ $claims_result = $stmt->get_result();
                                 <div class="col-lg-4">
                                 <div class="claim-card">
                                     <div class="claim-header">
-                                        <h6 class="mb-0"><?php echo htmlspecialchars($claim['hostel_name'] . ' - Room ' . $claim['room_code']); ?></h6>
-                                        <span class="status-badge status-<?php echo $claim['status']; ?>">
-                                            <i class="bi bi-<?php echo $claim['status'] == 'approved' ? 'check-circle' : ($claim['status'] == 'pending' ? 'clock' : 'x-circle'); ?>"></i>
+                                        <div>
+                                            <h5 class="mb-1"><?php echo htmlspecialchars($claim['hostel_name'] . ' - ' . $claim['room_code']); ?></h5>
+                                            <p class="mb-0 text-muted">
+                                                <small>Submitted on: <?php echo date('F j, Y g:i A', strtotime($claim['created_at'])); ?></small>
+                                            </p>
+                                        </div>
+                                        <span class="status-badge status-<?php echo strtolower($claim['status']); ?>">
+                                            <i class="bi bi-<?php echo $claim['status'] == 'approved' ? 'check-circle' : ($claim['status'] == 'rejected' ? 'x-circle' : 'clock'); ?>"></i>
                                             <?php echo ucfirst($claim['status']); ?>
                                         </span>
                                     </div>
                                     <div class="claim-body">
-                                        <span class="badge bg-info mb-2">Category: <?php echo htmlspecialchars($claim['category']); ?></span>
-                                        <p class="mb-0"><?php echo nl2br(htmlspecialchars($claim['message'])); ?></p>
+                                        <p class="mb-2"><strong>Category:</strong> <?php echo htmlspecialchars($claim['category']); ?></p>
+                                        <p class="mb-3"><?php echo nl2br(htmlspecialchars($claim['message'])); ?></p>
                                         
-                                        <?php if ($claim['replay']): ?>
-                                            <div class="reply-section">
-                                                <h6 class="mb-2">Admin Response:</h6>
-                                                <p class="mb-1"><?php echo nl2br(htmlspecialchars($claim['replay'])); ?></p>
-                                                <?php if ($claim['replier_name']): ?>
-                                                    <small class="text-muted">Replied by: <?php echo htmlspecialchars($claim['replier_name']); ?></small>
+                                        <!-- Display Claim Image -->
+                                        <?php if (!empty($claim['image'])): ?>
+                                            <div class="mb-3">
+                                                <p class="mb-2"><strong>Attachment:</strong></p>
+                                                <a href="../<?php echo htmlspecialchars($claim['image']); ?>" data-lightbox="claim-image-<?php echo $claim['id']; ?>" data-title="Claim Image">
+                                                    <img src="../<?php echo htmlspecialchars($claim['image']); ?>" alt="Claim Image" class="img-thumbnail" style="max-height: 200px; width: auto; cursor: pointer;">
+                                                </a>
+                                            </div>
+                                        <?php endif; ?>
+                                        
+                                        <?php if ($claim['status'] == 'replied' && !empty($claim['reply_message'])): ?>
+                                            <div class="reply-section mt-3">
+                                                <p class="mb-1"><strong>Admin Reply:</strong></p>
+                                                <p class="mb-0"><?php echo nl2br(htmlspecialchars($claim['reply_message'])); ?></p>
+                                                <?php if (!empty($claim['replier_name'])): ?>
+                                                    <p class="text-muted mb-0 mt-2">
+                                                        <small>Replied by: <?php echo htmlspecialchars($claim['replier_name']); ?> on <?php echo date('F j, Y g:i A', strtotime($claim['replied_at'])); ?></small>
+                                                    </p>
                                                 <?php endif; ?>
                                             </div>
                                         <?php endif; ?>
@@ -320,9 +342,9 @@ $claims_result = $stmt->get_result();
                                 <i class="bi bi-inbox"></i>
                                 <h5>No Claims Found</h5>
                                 <p class="text-muted">You haven't submitted any room claims yet.</p>
-                                <a href="submit_claim.php" class="btn btn-primary btn-action">
+                                <!-- <a href="submit_claim.php" class="btn btn-primary btn-action">
                                     <i class="bi bi-plus-circle"></i> Submit Your First Claim
-                                </a>
+                                </a> -->
                             </div>
                         <?php endif; ?>
                   
@@ -332,6 +354,16 @@ $claims_result = $stmt->get_result();
     </main>
 
     <script src="../assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/vendor/lightbox2/js/lightbox.min.js"></script>
     <script src="../assets/js/main.js"></script>
+    <script>
+        // Initialize lightbox with custom settings
+        lightbox.option({
+            'resizeDuration': 200,
+            'wrapAround': true,
+            'showImageNumberLabel': false,
+            'disableScrolling': true
+        });
+    </script>
 </body>
 </html> 

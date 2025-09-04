@@ -216,6 +216,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reply_claim'])) {
     <link href="assets/img/icon1.png" rel="icon">
     <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="assets/vendor/lightbox2/css/lightbox.min.css" rel="stylesheet">
     <link href="assets/css/style.css" rel="stylesheet">
     <title>UR-HOSTELS - Manage Campus Claims</title>
 </head>
@@ -406,8 +407,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reply_claim'])) {
                                                     <td><?php echo substr(htmlspecialchars($claim['message']), 0, 100) . '...'; ?></td>
                                                     <td>
                                                         <span class="badge bg-<?php echo $claim['status'] == 'approved' ? 'success' : ($claim['status'] == 'pending' ? 'warning' : 'danger'); ?>">
-                                                            <?php echo ucfirst($claim['status']); ?>
+                                                            <?php echo ucfirst(htmlspecialchars($claim['status'])); ?>
                                                         </span>
+                                                        <?php if (!empty($claim['image'])): ?>
+                                                            <div class="mt-2">
+                                                                <a href="../<?php echo htmlspecialchars($claim['image']); ?>" data-lightbox="claim-image-<?php echo $claim['id']; ?>" data-title="Claim Image">
+                                                                    <i class="bi bi-image"></i> View Image
+                                                                </a>
+                                                            </div>
+                                                        <?php endif; ?>
                                                     </td>
                                                     <td><?php echo date('M j, Y', strtotime($claim['created_at'])); ?></td>
                                                     <td>
@@ -449,9 +457,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reply_claim'])) {
                                                                     </div>
                                                                     
                                                                     <div class="mb-3">
-                                                                        <label class="form-label">Original Message</label>
-                                                                        <textarea class="form-control" rows="3" readonly><?php echo htmlspecialchars($claim['message']); ?></textarea>
+                                                                        <label class="form-label">Claim Message</label>
+                                                                        <textarea class="form-control" rows="4" readonly><?php echo htmlspecialchars($claim['message']); ?></textarea>
                                                                     </div>
+                                                                    <?php if (!empty($claim['image'])): ?>
+                                                                        <div class="mb-3">
+                                                                            <label class="form-label">Claim Image</label>
+                                                                            <div>
+                                                                                <a href="../<?php echo htmlspecialchars($claim['image']); ?>" data-lightbox="claim-image-<?php echo $claim['id']; ?>-modal" data-title="Claim Image">
+                                                                                    <img src="../<?php echo htmlspecialchars($claim['image']); ?>" alt="Claim Image" class="img-thumbnail" style="max-height: 200px; width: auto; cursor: pointer;">
+                                                                                </a>
+                                                                            </div>
+                                                                        </div>
+                                                                    <?php endif; ?>
                                                                     
                                                                     <div class="mb-3">
                                                                         <label class="form-label">Status</label>
@@ -518,7 +536,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['reply_claim'])) {
     </main>
 
     <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/vendor/lightbox2/js/lightbox.min.js"></script>
     <script src="assets/js/main.js"></script>
+    <script>
+        // Initialize lightbox with custom settings
+        lightbox.option({
+            'resizeDuration': 200,
+            'wrapAround': true,
+            'showImageNumberLabel': false,
+            'disableScrolling': true
+        });
+    </script>
     <script>
     function toggleStatsCards() {
         var wrapper = document.getElementById('statsCardsWrapper');

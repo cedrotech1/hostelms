@@ -640,7 +640,7 @@ if ($status != "live") {
                 
                 <div class="text-center mt-4">
                     <button class="link-btn" id="show-forgot">
-                        <i class="fas fa-key"></i> Forgot/Set Password?
+                        <i class="fas fa-key"></i> Create/Reset Password?
                     </button>
                 </div>
             </div>
@@ -795,7 +795,7 @@ $(document).ready(function() {
         }, 500);
     }
     
-    // Show content after a short delay
+    // Show content after a short delayhhh
     setTimeout(showContent, 1000);
 });
 

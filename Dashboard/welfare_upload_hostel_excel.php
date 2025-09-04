@@ -215,6 +215,8 @@ if (in_array($userRole, ['wadden', 'warefare']) && $campusInput !== $userCampus)
     continue;
 }
 
+$campusInput = strtolower($campusInput); // $userCampus = strtolower($userCampus); // if ($userRole === 'warefare' || $userRole === 'wadden' && $campusInput !== $userCampus) { // $validationErrors[] = "Row $rowNumber: Unauthorized campus '$campusInput' for this user"; // continue; // }
+
     // Validate campus exists
     $campusQuery = $connection->prepare("SELECT id FROM campuses WHERE UPPER(name) = ?");
     $campusQuery->bind_param("s", $campusInput);

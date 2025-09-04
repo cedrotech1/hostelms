@@ -154,6 +154,25 @@ $campus_name = mysqli_fetch_assoc($campus_name_result)['name'];
         .status-badge { font-size: 0.8em; }
         .hostel-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; }
         .hostel-tag { background: #e9ecef; padding: 2px 8px; border-radius: 12px; font-size: 0.75em; color: #495057; }
+        
+        /* Modal loading overlay */
+        .modal-loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1050;
+        }
+        
+        .modal-loading .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
         .campus-info { background: #f8f9fa; padding: 10px; border-radius: 5px; margin-bottom: 20px; }
         .pagination {
             display: flex;
@@ -437,14 +456,25 @@ $campus_name = mysqli_fetch_assoc($campus_name_result)['name'];
 
         // Edit wadden functionality
         function editWadden(waddenId) {
+            // Show loading state
+            $('#editWaddenModal').modal('show');
+            $('#editWaddenModal .modal-content').append('<div class="modal-loading"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+            
+            // Reset form and hide all hostels initially
+            $('.edit-hostel-checkbox').prop('checked', false);
+            
             $.ajax({
                 url: 'get_wadden_data.php',
                 type: 'POST',
                 data: { wadden_id: waddenId },
                 dataType: 'json',
                 success: function(response) {
+                    // Remove loading state
+                    $('.modal-loading').remove();
+                    
                     if (response.status === 'success') {
                         var wadden = response.data;
+                        console.log('Wadden data:', wadden); // Debug log
                         
                         // Populate form fields
                         $('#edit_wadden_id').val(wadden.id);
@@ -452,25 +482,51 @@ $campus_name = mysqli_fetch_assoc($campus_name_result)['name'];
                         $('#edit_email').val(wadden.email);
                         $('#edit_phone').val(wadden.phone);
                         
-                        // Clear all checkboxes first
-                        $('.edit-hostel-checkbox').prop('checked', false);
-                        
-                        // Check assigned hostels
-                        if (wadden.hostel_ids) {
-                            var hostelIds = wadden.hostel_ids.split(',');
-                            hostelIds.forEach(function(id) {
-                                $('#edit_hostel_' + id.trim()).prop('checked', true);
+                        // Check the checkboxes for assigned hostels
+                        if (wadden.hostels && wadden.hostels.length > 0) {
+                            console.log('Processing hostels:', wadden.hostels); // Debug log
+                            
+                            // First, uncheck all checkboxes
+                            $('.edit-hostel-checkbox').prop('checked', false);
+                            
+                            // Then check the ones that should be checked
+                            wadden.hostels.forEach(function(hostel) {
+                                var checkbox = $('#edit_hostel_' + hostel.id);
+                                if (checkbox.length) {
+                                    checkbox.prop('checked', hostel.selected === true || hostel.selected === '1');
+                                    console.log('Setting checkbox for hostel ' + hostel.id + ' to ' + (hostel.selected ? 'checked' : 'unchecked'));
+                                } else {
+                                    console.warn('Checkbox not found for hostel ID:', hostel.id);
+                                }
                             });
+                            
+                            // If no hostels are selected, check if we have hostel_ids to work with
+                            if (wadden.hostel_ids) {
+                                var hostelIds = wadden.hostel_ids.split(',');
+                                console.log('Using hostel_ids:', hostelIds);
+                                
+                                hostelIds.forEach(function(id) {
+                                    var checkbox = $('#edit_hostel_' + id.trim());
+                                    if (checkbox.length) {
+                                        checkbox.prop('checked', true);
+                                        console.log('Set checkbox for hostel ' + id + ' to checked (from hostel_ids)');
+                                    } else {
+                                        console.warn('Checkbox not found for hostel ID from hostel_ids:', id);
+                                    }
+                                });
+                            }
                         }
                         
-                        // Show modal
+                        // Show modal (already shown, but in case it was hidden)
                         $('#editWaddenModal').modal('show');
                     } else {
-                        alert('Error loading wadden data: ' + response.message);
+                        alert('Error loading wadden data: ' + (response.message || 'Unknown error'));
                     }
                 },
-                error: function() {
-                    alert('Error loading wadden data. Please try again.');
+                error: function(xhr, status, error) {
+                    $('.modal-loading').remove();
+                    console.error('AJAX Error:', status, error);
+                    alert('Error loading wadden data. Please check console for details.');
                 }
             });
         }

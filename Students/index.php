@@ -301,6 +301,10 @@ $eligible_hostels = array_filter($hostels, function ($hostel) use ($connection, 
         </div>
     </div>
 
+    <!-- upload disability proof -->
+ 
+    </div>
+
     <!-- Rooms Modal -->
     <div class="modal fade" id="roomsModal" tabindex="-1" aria-labelledby="roomsModalLabel">
         <div class="modal-dialog modal-lg">

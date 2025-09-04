@@ -90,6 +90,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (!mysqli_query($connection, $query)) {
                     throw new Exception('Failed to delete application');
                 }
+                // delete in table claim
+                $query = "DELETE FROM claiming WHERE regnumber = '{$application['regnumber']}'";
+                if (!mysqli_query($connection, $query)) {
+                    throw new Exception('Failed to delete claim');
+                }
                 
                 // Send rejection SMS asynchronously
                 $phone = $application['phone'];
@@ -99,31 +104,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                 }
                 
-                // $message = "Dear {$application['names']}, your hostel application for room {$application['room_code']} in {$application['hostel_name']} has been REJECTED, You can apply for another room.";
+                $message = "Dear {$application['names']}, your hostel application for room {$application['room_code']} in {$application['hostel_name']} has been REJECTED, You can apply for another room.";
                 
-                // // Send SMS synchronously with proper error handling
-                // $sms_data = [
-                //     'to' => $phone,
-                //     'text' => $message,
-                //     'sender' => 'PindoTest'
-                // ];
+                // Send SMS synchronously with proper error handling
+                $sms_data = [
+                    'to' => $phone,
+                    'text' => $message,
+                    'sender' => 'PindoTest'
+                ];
                 
-                // $ch = curl_init('https://api.pindo.io/v1/sms/');
-                // curl_setopt($ch, CURLOPT_POST, 1);
-                // curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($sms_data));
-                // curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                // curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                //     'Authorization: Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE4MzcxNzUzMTIsImlhdCI6MTc0MjQ4MDkxMiwiaWQiOiJ1c2VyXzAxSlBTWjlDMTZCTUtZQzZLSkdWRkhQOTBNIiwicmV2b2tlZF90b2tlbl9jb3VudCI6MH0.KjgMZ0ht_NhUbil_3kIgHHByJSokufd2IZdC9-PYeXdkJkan4Rv8DMi0jlHXfZnyh_52bOizk9nTR3QOEBU5ZA',
-                //     'Content-Type: application/json'
-                // ]);
+                $ch = curl_init('https://api.pindo.io/v1/sms/');
+                curl_setopt($ch, CURLOPT_POST, 1);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($sms_data));
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                    'Authorization: Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE4MzcxNzUzMTIsImlhdCI6MTc0MjQ4MDkxMiwiaWQiOiJ1c2VyXzAxSlBTWjlDMTZCTUtZQzZLSkdWRkhQOTBNIiwicmV2b2tlZF90b2tlbl9jb3VudCI6MH0.KjgMZ0ht_NhUbil_3kIgHHByJSokufd2IZdC9-PYeXdkJkan4Rv8DMi0jlHXfZnyh_52bOizk9nTR3QOEBU5ZA',
+                    'Content-Type: application/json'
+                ]);
                 
-                // $response = curl_exec($ch);
-                // $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                // curl_close($ch);
+                $response = curl_exec($ch);
+                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                curl_close($ch);
                 
-                // if ($httpCode !== 200) {
-                //     error_log("SMS sending failed for phone {$phone}. Response: " . $response);
-                // }
+                if ($httpCode !== 200) {
+                    error_log("SMS sending failed for phone {$phone}. Response: " . $response);
+                }
             }
             
             mysqli_commit($connection);

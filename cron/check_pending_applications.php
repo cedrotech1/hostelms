@@ -1,4 +1,4 @@
-<?php
+<?php 
 // Set error reporting
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -72,7 +72,7 @@ function sendSMS($phone, $message) {
 
 try {
     // Get all pending applications that are older than timeLimit minutes
-    $query = "SELECT a.*, i.phone, i.names, r.room_code, h.name as hostel_name 
+    $query = "SELECT a.*, i.phone, i.names, r.room_code, h.id AS hostel_id, h.name AS hostel_name 
               FROM applications a 
               JOIN info i ON i.regnumber = a.regnumber 
               JOIN rooms r ON r.id = a.room_id 
@@ -94,9 +94,13 @@ try {
     if ($count > 0) {
         while ($application = mysqli_fetch_assoc($result)) {
             writeLog("Processing application ID: {$application['id']} for student: {$application['regnumber']}");
-            writeLog("Application created at: {$application['created_at']}");
-            writeLog("Room ID: {$application['room_id']}");
-            
+
+            // Safety check: ensure hostel_id is not empty
+            if (empty($application['hostel_id'])) {
+                writeLog("ERROR: hostel_id is missing for application {$application['id']} - Skipping.");
+                continue;
+            }
+
             // Start transaction
             mysqli_begin_transaction($connection);
             
@@ -106,30 +110,49 @@ try {
                 $sms_sent = sendSMS($application['phone'], $message);
                 writeLog("SMS sending status: " . ($sms_sent ? "Success" : "Failed"));
                 
-                // Update student info to set current_application as rejected
+                // Update student info
                 $update_info = "UPDATE info SET current_application = 'auto-rejected' WHERE regnumber = '{$application['regnumber']}'";
                 writeLog("Executing query: " . $update_info);
+
                 if (!mysqli_query($connection, $update_info)) {
                     throw new Exception("Failed to update student info: " . mysqli_error($connection));
                 }
-                writeLog("Updated student info for {$application['regnumber']}");
-                
+
+                // Ensure no duplicate in waiting_list
+                $delete_waiting = "DELETE FROM waiting_list WHERE regnumber = '{$application['regnumber']}'";
+                writeLog("Executing query: " . $delete_waiting);
+                if (!mysqli_query($connection, $delete_waiting)) {
+                    throw new Exception("Failed to delete old waiting list entry: " . mysqli_error($connection));
+                }
+
+                // Insert new waiting list record
+                $add_waiting_list = "INSERT INTO waiting_list (regnumber, hostel_id, room_id, created_at) 
+                                     VALUES ('{$application['regnumber']}', {$application['hostel_id']}, {$application['room_id']}, NOW())";
+                writeLog("Executing query: " . $add_waiting_list);
+
+                if (!mysqli_query($connection, $add_waiting_list)) {
+                    throw new Exception("Failed to add waiting list: " . mysqli_error($connection));
+                }
+                writeLog("Added waiting list for {$application['regnumber']}");
+
                 // Increment room remain
                 $update_room = "UPDATE rooms SET remain = remain + 1 WHERE id = {$application['room_id']}";
                 writeLog("Executing query: " . $update_room);
+
                 if (!mysqli_query($connection, $update_room)) {
                     throw new Exception("Failed to update room remain: " . mysqli_error($connection));
                 }
                 writeLog("Updated room remain for room ID: {$application['room_id']}");
-                
+
                 // Delete the application
                 $delete_app = "DELETE FROM applications WHERE id = {$application['id']}";
                 writeLog("Executing query: " . $delete_app);
+
                 if (!mysqli_query($connection, $delete_app)) {
                     throw new Exception("Failed to delete application: " . mysqli_error($connection));
                 }
                 writeLog("Deleted application ID: {$application['id']}");
-                
+
                 // Commit transaction
                 mysqli_commit($connection);
                 writeLog("Successfully processed application ID: {$application['id']}");
@@ -149,4 +172,4 @@ try {
 
 mysqli_close($connection);
 writeLog("Script completed");
-?> 
+?>

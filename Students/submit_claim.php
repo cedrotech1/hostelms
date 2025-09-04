@@ -1,5 +1,5 @@
 <?php
-session_start();
+// session_start();
 include 'connection.php';
 
 // Check if student is logged in
@@ -13,24 +13,69 @@ date_default_timezone_set('Africa/Kigali');
 
 $student_regnumber = $_SESSION['student_regnumber'];
 
+// Create uploads directory if it doesn't exist
+$upload_dir = '../uploads/claims/';
+if (!file_exists($upload_dir)) {
+    mkdir($upload_dir, 0777, true);
+}
+
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_claim'])) {
     $room_id = mysqli_real_escape_string($connection, $_POST['room_id']);
     $message = mysqli_real_escape_string($connection, $_POST['message']);
     $category = mysqli_real_escape_string($connection, $_POST['category']);
+    $image = '';
+    
+    // Validate image upload
+    if (isset($_FILES['claim_image']) && $_FILES['claim_image']['error'] === UPLOAD_ERR_OK) {
+        $file = $_FILES['claim_image'];
+        $file_extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif'];
+        
+        // Check file type
+        if (!in_array($file_extension, $allowed_extensions)) {
+            echo "<script>alert('Error: Only JPG, JPEG, PNG & GIF files are allowed.'); window.history.back();</script>";
+            exit();
+        }
+        
+        // Check file size (max 5MB)
+        if ($file['size'] > 5 * 1024 * 1024) {
+            echo "<script>alert('Error: File size must be less than 5MB.'); window.history.back();</script>";
+            exit();
+        }
+        
+        // Generate unique filename
+        $new_filename = uniqid('claim_', true) . '.' . $file_extension;
+        $target_path = $upload_dir . $new_filename;
+        
+        // Move uploaded file
+        if (move_uploaded_file($file['tmp_name'], $target_path)) {
+            $image = 'uploads/claims/' . $new_filename;
+        } else {
+            echo "<script>alert('Error uploading file. Please try again.'); window.history.back();</script>";
+            exit();
+        }
+    } else {
+        echo "<script>alert('Please select an image to upload.'); window.history.back();</script>";
+        exit();
+    }
     
     // Get current timestamp in Kigali timezone
     $current_time = date('Y-m-d H:i:s');
     
-    // Insert claim (allow multiple claims for same room)
-    $insert_query = "INSERT INTO claiming (regnumber, room_id, message, category, status, created_at, updated_at) 
-                     VALUES (?, ?, ?, ?, 'pending', ?, ?)";
+    // Insert claim with image
+    $insert_query = "INSERT INTO claiming (regnumber, room_id, message, category, status, created_at, updated_at, image) 
+                     VALUES (?, ?, ?, ?, 'pending', ?, ?, ?)";
     $stmt = $connection->prepare($insert_query);
-    $stmt->bind_param("sissss", $student_regnumber, $room_id, $message, $category, $current_time, $current_time);
+    $stmt->bind_param("sisssss", $student_regnumber, $room_id, $message, $category, $current_time, $current_time, $image);
     
     if ($stmt->execute()) {
         echo "<script>alert('Claim submitted successfully!'); window.location.href='view_my_claims.php';</script>";
     } else {
+        // Delete the uploaded file if database insert fails
+        if (!empty($image) && file_exists('../' . $image)) {
+            unlink('../' . $image);
+        }
         echo "<script>alert('Error submitting claim: " . mysqli_error($connection) . "');</script>";
     }
 }
@@ -216,8 +261,7 @@ $applied_rooms = $stmt->get_result();
 
 <body>
 <div class="container mt-4">
-    <?php include("./includes/studentMenu.php"); ?>
-
+   
     <main id="main" class="main">
         
 
@@ -276,7 +320,7 @@ $applied_rooms = $stmt->get_result();
                                                 <h5 class="modal-title">Submit Claim for <?php echo htmlspecialchars($room['room_code']); ?></h5>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                             </div>
-                                            <form method="POST">
+                                            <form method="POST" enctype="multipart/form-data">
                                                 <div class="modal-body">
                                                     <input type="hidden" name="room_id" value="<?php echo $room['room_id']; ?>">
                                                     <div class="mb-3">
@@ -300,6 +344,11 @@ $applied_rooms = $stmt->get_result();
                                                         <label for="message" class="form-label">Claim Message *</label>
                                                         <textarea class="form-control" name="message" rows="5" 
                                                                   placeholder="Please describe your claim or reason for requesting this room..." required></textarea>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="claim_image" class="form-label">Upload Image *</label>
+                                                        <input type="file" class="form-control" id="claim_image" name="claim_image" accept="image/*" required>
+                                                        <div class="form-text">Please upload an image related to your claim (JPG, PNG, GIF, max 5MB)</div>
                                                     </div>
                                                     
                                                     <?php if ($room['claim_count'] > 0): ?>

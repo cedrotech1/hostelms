@@ -191,6 +191,55 @@ if (!isset($current_application)) {
                 <div class="row">
                     <div class="col-md-6">
                         <?php include("./my_application_status.php"); ?>
+                        <div class="roommates-section mt-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="bi bi-people me-2"></i>Your Roommates</h5>
+                        </div>
+                        <div class="card-body">
+                            <?php
+                            $roommates_query = "SELECT s.*, a.status 
+                                                FROM applications a
+                                                JOIN info s ON a.regnumber = s.regnumber
+                                                WHERE a.room_id = ? AND a.regnumber != ?";
+                            $roommates_stmt = $connection->prepare($roommates_query);
+                            $roommates_stmt->bind_param("is", $current_application['room_id'], $_SESSION['student_regnumber']);
+                            $roommates_stmt->execute();
+                            $roommates = $roommates_stmt->get_result();
+                            
+                            if ($roommates->num_rows > 0):
+                                while ($roommate = $roommates->fetch_assoc()):
+                            ?>
+                                <div class="roommate-card">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-8">
+                                            <h6 class="mb-1"><i class="bi bi-person me-2"></i><?php echo htmlspecialchars($roommate['names']); ?></h6>
+                                            <p class="text-muted mb-0">
+                                                <i class="bi bi-card-text me-2"></i><?php echo htmlspecialchars($roommate['regnumber']); ?> | 
+                                                <i class="bi bi-building me-2"></i><?php echo htmlspecialchars($roommate['college']); ?> | 
+                                                <i class="bi bi-mortarboard me-2"></i>Year <?php echo htmlspecialchars($roommate['yearofstudy']); ?>
+                                                <i class="bi bi-phone me-2"></i><?php echo htmlspecialchars($roommate['phone']); ?>
+                                            </p>
+                                        </div>
+                                        <div class="col-md-4 text-end">
+                                            <span class="badge bg-<?php 
+                                                echo $roommate['status'] === 'approved' ? 'success' : 
+                                                    ($roommate['status'] === 'rejected' ? 'danger' : 'warning'); 
+                                            ?>">
+                                                <?php echo ucfirst(htmlspecialchars($roommate['status'])); ?>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endwhile; else: ?>
+                                <div class="text-center py-4">
+                                    <i class="bi bi-people text-muted" style="font-size: 2rem;"></i>
+                                    <p class="text-muted mt-2 mb-0">No roommates assigned yet.</p>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
                     </div>
                     <div class="col-md-6">
                     <div class="receipt-upload bg-primary" style="border-radius: 0px;">
@@ -366,55 +415,7 @@ if (!isset($current_application)) {
                 </div>
 
                 <!-- Roommates Section -->
-                <div class="roommates-section mt-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0"><i class="bi bi-people me-2"></i>Your Roommates</h5>
-                        </div>
-                        <div class="card-body">
-                            <?php
-                            $roommates_query = "SELECT s.*, a.status 
-                                                FROM applications a
-                                                JOIN info s ON a.regnumber = s.regnumber
-                                                WHERE a.room_id = ? AND a.regnumber != ?";
-                            $roommates_stmt = $connection->prepare($roommates_query);
-                            $roommates_stmt->bind_param("is", $current_application['room_id'], $_SESSION['student_regnumber']);
-                            $roommates_stmt->execute();
-                            $roommates = $roommates_stmt->get_result();
-                            
-                            if ($roommates->num_rows > 0):
-                                while ($roommate = $roommates->fetch_assoc()):
-                            ?>
-                                <div class="roommate-card">
-                                    <div class="row align-items-center">
-                                        <div class="col-md-8">
-                                            <h6 class="mb-1"><i class="bi bi-person me-2"></i><?php echo htmlspecialchars($roommate['names']); ?></h6>
-                                            <p class="text-muted mb-0">
-                                                <i class="bi bi-card-text me-2"></i><?php echo htmlspecialchars($roommate['regnumber']); ?> | 
-                                                <i class="bi bi-building me-2"></i><?php echo htmlspecialchars($roommate['college']); ?> | 
-                                                <i class="bi bi-mortarboard me-2"></i>Year <?php echo htmlspecialchars($roommate['yearofstudy']); ?>
-                                                <i class="bi bi-phone me-2"></i><?php echo htmlspecialchars($roommate['phone']); ?>
-                                            </p>
-                                        </div>
-                                        <div class="col-md-4 text-end">
-                                            <span class="badge bg-<?php 
-                                                echo $roommate['status'] === 'approved' ? 'success' : 
-                                                    ($roommate['status'] === 'rejected' ? 'danger' : 'warning'); 
-                                            ?>">
-                                                <?php echo ucfirst(htmlspecialchars($roommate['status'])); ?>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            <?php endwhile; else: ?>
-                                <div class="text-center py-4">
-                                    <i class="bi bi-people text-muted" style="font-size: 2rem;"></i>
-                                    <p class="text-muted mt-2 mb-0">No roommates assigned yet.</p>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                </div>
+               
 
             </div> <!-- card-body -->
         </div> <!-- card -->
